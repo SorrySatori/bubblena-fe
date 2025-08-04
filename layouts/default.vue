@@ -5,12 +5,7 @@
         <div class="logo">
           <NuxtLink to="/">Bubblena</NuxtLink>
         </div>
-        <nav class="nav-links">
-          <NuxtLink to="/" class="nav-link">Home</NuxtLink>
-          <NuxtLink to="/features" class="nav-link">Features</NuxtLink>
-          <NuxtLink to="/about" class="nav-link">About</NuxtLink>
-          <NuxtLink to="/contact" class="nav-link">Contact</NuxtLink>
-        </nav>
+        <AppNavigation />
         <div class="auth-buttons">
           <button class="login-btn">Login</button>
           <button class="signup-btn">Sign Up</button>
@@ -34,6 +29,7 @@
             <h3>Links</h3>
             <ul>
               <li><NuxtLink to="/">Home</NuxtLink></li>
+              <li><NuxtLink to="/products">Products</NuxtLink></li>
               <li><NuxtLink to="/features">Features</NuxtLink></li>
               <li><NuxtLink to="/about">About</NuxtLink></li>
               <li><NuxtLink to="/contact">Contact</NuxtLink></li>

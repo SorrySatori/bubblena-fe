@@ -14,5 +14,21 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     }
+  },
+  // API configuration
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: 'http://localhost:3001/api',
+        changeOrigin: true,
+        prependPath: true
+      }
+    }
+  },
+  // Runtime config for API base URL
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api'
+    }
   }
 })

@@ -7,6 +7,7 @@
         </div>
         <nav class="nav-links">
           <NuxtLink to="/" class="nav-link">Home</NuxtLink>
+          <NuxtLink to="/products" class="nav-link">Products</NuxtLink>
           <NuxtLink to="/features" class="nav-link">Features</NuxtLink>
           <NuxtLink to="/about" class="nav-link">About</NuxtLink>
           <NuxtLink to="/contact" class="nav-link">Contact</NuxtLink>
@@ -17,15 +18,14 @@
         </div>
       </div>
     </header>
-    
     <main>
       <div class="hero-section">
         <div class="hero-content">
           <h1>Welcome to <span class="brand">Bubblena</span></h1>
           <p class="tagline">Your modern Vue3 + Nuxt4 application</p>
           <div class="cta-buttons">
-            <button class="primary-btn">Get Started</button>
-            <button class="secondary-btn">Learn More</button>
+            <NuxtLink to="/products" class="cta-primary">View Products</NuxtLink>
+            <a href="#" class="cta-secondary">Learn More</a>
           </div>
         </div>
         <div class="hero-image">
@@ -56,40 +56,6 @@
         </div>
       </div>
     </main>
-    
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h3>Bubblena</h3>
-            <p>Your modern Vue3 + Nuxt4 application platform.</p>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Links</h3>
-            <ul>
-              <li><NuxtLink to="/">Home</NuxtLink></li>
-              <li><NuxtLink to="/features">Features</NuxtLink></li>
-              <li><NuxtLink to="/about">About</NuxtLink></li>
-              <li><NuxtLink to="/contact">Contact</NuxtLink></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Connect</h3>
-            <div class="social-links">
-              <a href="#" class="social-link">Twitter</a>
-              <a href="#" class="social-link">GitHub</a>
-              <a href="#" class="social-link">LinkedIn</a>
-            </div>
-          </div>
-        </div>
-        
-        <div class="footer-bottom">
-          <p>&copy; {{ new Date().getFullYear() }} Bubblena. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
@@ -269,39 +235,41 @@ h1 {
 .cta-buttons {
   display: flex;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
-.primary-btn {
+.cta-primary {
   background-color: var(--primary-color);
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.primary-btn:hover {
+.cta-primary:hover {
   background-color: var(--accent-color);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.secondary-btn {
+.cta-secondary {
   background-color: transparent;
   color: var(--secondary-color);
   border: 2px solid var(--secondary-color);
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-block;
 }
 
-.secondary-btn:hover {
+.cta-secondary:hover {
   background-color: var(--secondary-color);
   color: white;
   transform: translateY(-2px);
