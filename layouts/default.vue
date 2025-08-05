@@ -3,7 +3,9 @@
     <header class="header">
       <div class="container">
         <div class="logo">
-          <NuxtLink to="/">Bubblena</NuxtLink>
+          <NuxtLink to="/">
+            <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="logo-img" />
+          </NuxtLink>
         </div>
         <AppNavigation />
         <div class="auth-buttons">
@@ -121,14 +123,18 @@ ul {
 }
 
 .logo a {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  transition: opacity 0.3s ease;
 }
 
 .logo a:hover {
-  color: var(--accent-color);
+  opacity: 0.9;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
 }
 
 .nav-links {

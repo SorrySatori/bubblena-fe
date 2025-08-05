@@ -1,23 +1,5 @@
 <template>
   <div>
-    <header class="header">
-      <div class="container">
-        <div class="logo">
-          <NuxtLink to="/">Bubblena</NuxtLink>
-        </div>
-        <nav class="nav-links">
-          <NuxtLink to="/" class="nav-link">Home</NuxtLink>
-          <NuxtLink to="/products" class="nav-link">Products</NuxtLink>
-          <NuxtLink to="/features" class="nav-link">Features</NuxtLink>
-          <NuxtLink to="/about" class="nav-link">About</NuxtLink>
-          <NuxtLink to="/contact" class="nav-link">Contact</NuxtLink>
-        </nav>
-        <div class="auth-buttons">
-          <button class="login-btn">Login</button>
-          <button class="signup-btn">Sign Up</button>
-        </div>
-      </div>
-    </header>
     <main>
       <div class="hero-section">
         <div class="hero-content">
@@ -103,98 +85,7 @@ ul {
 </style>
 
 <style scoped>
-/* Layout styles */
-.header {
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.header .container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-}
-
-.logo a {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  transition: color 0.3s ease;
-}
-
-.logo a:hover {
-  color: var(--accent-color);
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.nav-link {
-  color: var(--secondary-color);
-  font-weight: 500;
-  position: relative;
-  transition: color 0.3s ease;
-}
-
-.nav-link:hover {
-  color: var(--primary-color);
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.auth-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.login-btn {
-  background-color: transparent;
-  color: var(--secondary-color);
-  border: 1px solid var(--secondary-color);
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.login-btn:hover {
-  background-color: var(--secondary-color);
-  color: white;
-}
-
-.signup-btn {
-  background-color: var(--primary-color);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.signup-btn:hover {
-  background-color: var(--accent-color);
-  transform: translateY(-2px);
-}
+/* Page-specific styles */
 
 /* Hero Section */
 .hero-section {
