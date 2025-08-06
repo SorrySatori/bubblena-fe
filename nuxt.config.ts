@@ -27,9 +27,10 @@ export default defineNuxtConfig({
   },
   // Runtime config for API base URL
   runtimeConfig: {
+    apiKey: process.env.NUXT_API_KEY || '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
-      apiKey: process.env.NUXT_PUBLIC_API_KEY
+      apiKey: process.env.NUXT_PUBLIC_API_KEY || ''
     }
   }
 })

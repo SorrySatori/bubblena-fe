@@ -27,19 +27,19 @@ export const useProducts = () => {
       const response = await fetch(`${config.public.apiBase}/products`, {
         method: 'GET',
         headers: {
-          'x-api-key': config.public.apiKey
+          'x-api-key': 'sprscrtpswrd666%@'
         }
       });
-  
+      
       if (!response.ok) {
         throw new Error(`Error fetching products: ${response.statusText}`);
       }
-  
-      const data = await response.json();
+        
+      const data: Product[] = await response.json();
       products.value = data;
     } catch (err: any) {
-      console.error('Failed to fetch products:', err);
-      error.value = err.message || 'Failed to fetch products';
+      console.error('Nepodařilo se načíst produkty:', err);
+      error.value = err.message || 'Chyba při načítání produktů';
     } finally {
       loading.value = false;
     }
@@ -52,19 +52,8 @@ export const useProducts = () => {
     error.value = null;
     
     try {
-      const response = await fetch(`${config.public.apiBase}/products/${id}`,
-      {
-        method: 'GET',
-        headers: {
-          'x-api-key': config.public.apiKey
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error fetching product: ${response.statusText}`);
-      }
-      
-      return await response.json();
+      const product = await $fetch(`/api/product/${id}`);      
+      return product;
     } catch (err: any) {
       console.error(`Failed to fetch product ${id}:`, err);
       error.value = err.message || 'Failed to fetch product';
