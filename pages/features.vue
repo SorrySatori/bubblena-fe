@@ -1,56 +1,56 @@
 <template>
   <div class="features-page">
     <div class="page-header">
-      <h1>Features</h1>
-      <p>Discover what makes Bubblena special</p>
+      <h1>Vlastnosti</h1>
+      <p>Objevte, co dělá Bubblena výjimečnou</p>
     </div>
     
     <div class="features-container">
       <div class="feature-item">
-        <div class="feature-icon">🚀</div>
+        <div class="feature-icon">🌿</div>
         <div class="feature-content">
-          <h2>Lightning Fast Performance</h2>
-          <p>Built with Vue3 and Nuxt4, Bubblena delivers exceptional speed and responsiveness. The optimized build process ensures minimal load times and smooth user experiences across all devices.</p>
+          <h2>Přírodní ingredience</h2>
+          <p>Naše bomby do koupele jsou vyrobené výhradně z přírodních surovin. Používáme jen to nejlepší, aby vaše pokožka dostala tu nejkvalitnější péči bez zbytečných chemikálií.</p>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">🛠️</div>
+        <div class="feature-icon">🛁</div>
         <div class="feature-content">
-          <h2>Easy Customization</h2>
-          <p>Bubblena's modular architecture makes it simple to customize and extend. With clean component separation and intuitive styling options, you can adapt the platform to your specific needs without hassle.</p>
+          <h2>Dlouhotrvající aroma</h2>
+          <p>Naše bomby do koupele jsou navržené tak, aby uvolňovaly své aroma postupně. Díky tomu si můžete užít relaxační koupel s vůní, která vydrží po celou dobu vašeho odpočinku.</p>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">📱</div>
+        <div class="feature-icon">🌈</div>
         <div class="feature-content">
-          <h2>Responsive Design</h2>
-          <p>Every element of Bubblena is designed to work flawlessly across all screen sizes and devices. From mobile phones to large desktop monitors, your content will always look its best.</p>
+          <h2>Pestrobarevné efekty</h2>
+          <p>Koupel s našimi bombami je zážitek i pro oči. Sledujte, jak se ve vodě rozpouští a vytvářejí okouzlující barevné vzory, které promění vaši koupel v umělecké dílo.</p>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon">💕</div>
         <div class="feature-content">
-          <h2>Built-in Security</h2>
-          <p>Security is a priority with Bubblena. The platform includes robust authentication systems, data encryption, and protection against common web vulnerabilities.</p>
+          <h2>Péče o pokožku</h2>
+          <p>Naše bomby do koupele obsahují vysoce kvalitní oleje a másla, která pečují o vaši pokožku. Po koupeli bude vaše kůže jemná, hydratovaná a výživně ošetřená.</p>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">📊</div>
+        <div class="feature-icon">🎁</div>
         <div class="feature-content">
-          <h2>Advanced Analytics</h2>
-          <p>Gain valuable insights with Bubblena's integrated analytics. Track user behavior, monitor performance metrics, and make data-driven decisions to optimize your application.</p>
+          <h2>Luxusní dárkové balení</h2>
+          <p>Hledáte originální dárek? Naše bomby do koupele nabízíme v elegantním dárkovém balení, které potěší každého milovníka relaxace a péče o tělo.</p>
         </div>
       </div>
       
       <div class="feature-item">
-        <div class="feature-icon">🔄</div>
+        <div class="feature-icon">💚</div>
         <div class="feature-content">
-          <h2>Seamless Integration</h2>
-          <p>Connect Bubblena with your favorite tools and services. The platform offers straightforward integration with popular APIs, databases, and third-party services.</p>
+          <h2>Ekologické balení</h2>
+          <p>Záleží nám na životním prostředí, proto jsou všechny naše obaly recyklovatelné nebo biologicky rozložitelné. Užijte si své bomby do koupele s čistým svědomím.</p>
         </div>
       </div>
     </div>

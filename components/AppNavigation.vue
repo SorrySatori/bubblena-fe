@@ -1,10 +1,10 @@
 <template>
   <nav class="nav-links">
-    <NuxtLink to="/" class="nav-link">Home</NuxtLink>
-    <NuxtLink to="/products" class="nav-link">Products</NuxtLink>
-    <NuxtLink to="/features" class="nav-link">Features</NuxtLink>
-    <NuxtLink to="/about" class="nav-link">About</NuxtLink>
-    <NuxtLink to="/contact" class="nav-link">Contact</NuxtLink>
+    <NuxtLink to="/" class="nav-link">Domů</NuxtLink>
+    <NuxtLink to="/products" class="nav-link">Produkty</NuxtLink>
+    <NuxtLink to="/features" class="nav-link">Vlastnosti</NuxtLink>
+    <NuxtLink to="/about" class="nav-link">O nás</NuxtLink>
+    <NuxtLink to="/contact" class="nav-link">Kontakt</NuxtLink>
   </nav>
 </template>
 

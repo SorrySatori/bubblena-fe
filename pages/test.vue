@@ -1,7 +1,7 @@
 <template>
   <div class="test-page">
-    <h1>Test Page</h1>
-    <p>This is a simple test page to verify rendering works correctly.</p>
+    <h1>Testovací stránka</h1>
+    <p>Toto je jednoduchá testovací stránka pro ověření správného zobrazení.</p>
   </div>
 </template>
 

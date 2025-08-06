@@ -1,23 +1,23 @@
 <template>
   <div class="products-page">
     <div class="container">
-      <h1 class="page-title">Our Products</h1>
+      <h1 class="page-title">Naše produkty</h1>
       
       <!-- Loading state -->
       <div v-if="loading" class="loading-container">
         <div class="loading-spinner"></div>
-        <p>Loading products...</p>
+        <p>Načítání produktů...</p>
       </div>
       
       <!-- Error state -->
       <div v-else-if="error" class="error-message">
         <p>{{ error }}</p>
-        <button @click="fetchProducts" class="retry-button">Try Again</button>
+        <button @click="fetchProducts" class="retry-button">Zkusit znovu</button>
       </div>
       
       <!-- No products state -->
       <div v-else-if="products.length === 0" class="no-products">
-        <p>No products found.</p>
+        <p>Žádné produkty nebyly nalezeny.</p>
       </div>
       
       <!-- Products grid -->
@@ -25,7 +25,7 @@
         <div v-for="product in products" :key="product.id" class="product-card">
           <div class="product-image">
             <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name">
-            <span v-if="!product.inStock" class="out-of-stock-badge">Out of Stock</span>
+            <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
           </div>
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
@@ -33,7 +33,7 @@
             <div class="product-footer">
               <span class="product-price">${{ product.price.toFixed(2) }}</span>
               <button class="add-to-cart-btn" :disabled="!product.inStock">
-                {{ product.inStock ? 'Add to Cart' : 'Out of Stock' }}
+                {{ product.inStock ? 'Přidat do košíku' : 'Vyprodáno' }}
               </button>
             </div>
           </div>

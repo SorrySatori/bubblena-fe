@@ -1,62 +1,62 @@
 <template>
   <div class="about-page">
     <div class="page-header">
-      <h1>About Bubblena</h1>
-      <p>Learn more about our story and mission</p>
+      <h1>O Bubblena</h1>
+      <p>Poznejte náš příběh a poslání</p>
     </div>
     
     <div class="about-container">
       <div class="about-section">
-        <h2>Our Story</h2>
+        <h2>Náš příběh</h2>
         <p>
-          Bubblena started as a passion project in 2025, born from the desire to create a modern, efficient, and user-friendly web application platform. Built on Vue3 and Nuxt4, Bubblena combines cutting-edge technology with intuitive design to deliver exceptional user experiences.
+          Bubblena začala jako malý rodinný podnik v roce 2020, kdy naše zakladatelka Barbora objevila své nadšení pro výrobu přírodní kosmetiky. Začala experimentovat s bombami do koupele ve své kuchyni a brzy si získala věrnou základnu zákazníků mezi přáteli a rodinou.
         </p>
         <p>
-          What began as a simple idea has evolved into a comprehensive solution used by developers and businesses worldwide. Our journey is defined by continuous innovation, attention to detail, and a commitment to excellence.
+          Co začalo jako koníček, se rychle rozrostlo v prosperující podnik. Dnes máme vlastní výrobní prostory v Praze a naše produkty doručujeme zákazníkům po celé České republice. Naše cesta je definována neustálou inovací, pozorností k detailům a závazkem k výjimečnosti.
         </p>
       </div>
       
       <div class="team-section">
-        <h2>Our Team</h2>
+        <h2>Náš tým</h2>
         <div class="team-grid">
           <div class="team-member">
-            <div class="member-avatar">JD</div>
-            <h3>Jane Doe</h3>
-            <p>Founder & Lead Developer</p>
+            <div class="member-avatar">BN</div>
+            <h3>Barbora Nováková</h3>
+            <p>Zakladatelka & hlavní vývojářka</p>
           </div>
           <div class="team-member">
-            <div class="member-avatar">JS</div>
-            <h3>John Smith</h3>
-            <p>UX Designer</p>
+            <div class="member-avatar">JK</div>
+            <h3>Jan Kovář</h3>
+            <p>Kreativní ředitel</p>
           </div>
           <div class="team-member">
-            <div class="member-avatar">AS</div>
-            <h3>Alice Smith</h3>
-            <p>Backend Engineer</p>
+            <div class="member-avatar">MH</div>
+            <h3>Martina Horáková</h3>
+            <p>Vedoucí výroby</p>
           </div>
           <div class="team-member">
-            <div class="member-avatar">RJ</div>
-            <h3>Robert Johnson</h3>
-            <p>DevOps Specialist</p>
+            <div class="member-avatar">PV</div>
+            <h3>Petr Veselý</h3>
+            <p>Marketingový specialista</p>
           </div>
         </div>
       </div>
       
       <div class="mission-section">
-        <h2>Our Mission</h2>
+        <h2>Naše poslání</h2>
         <div class="mission-content">
           <div class="mission-text">
             <p>
-              At Bubblena, our mission is to simplify web development without compromising on performance or flexibility. We believe that creating beautiful, functional web applications should be accessible to developers of all skill levels.
+              V Bubblena je naším posláním vytvářet vysoce kvalitní a přírodní bomby do koupele, které nabízejí výjimečný relaxační zážitek. Věříme, že péče o tělo by měla být příjemným ritualem, který prospívá tělu i mysli.
             </p>
             <p>
-              We are committed to:
+              Zavázali jsme se k:
             </p>
             <ul>
-              <li>Maintaining a lightweight and efficient codebase</li>
-              <li>Providing comprehensive documentation and support</li>
-              <li>Fostering an inclusive community of developers</li>
-              <li>Continuously improving and evolving with emerging technologies</li>
+              <li>Používání výhradně přírodních a eticky získaných ingrediencí</li>
+              <li>Udržitelné výrobě a ekologickému balení</li>
+              <li>Podporování místních dodavatelů a řemeslníků</li>
+              <li>Neustálému zlepšování našich receptů a výrobních postupů</li>
             </ul>
           </div>
           <div class="mission-image">

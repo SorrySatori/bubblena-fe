@@ -3,11 +3,11 @@
     <main>
       <div class="hero-section">
         <div class="hero-content">
-          <h1>Welcome to <span class="brand">Bubblena</span></h1>
-          <p class="tagline">Your modern Vue3 + Nuxt4 application</p>
+          <h1><span class="brand">Bubblena</span></h1>
+          <p class="tagline">Váš oblíbený e-shop s bombami do koupele</p>
           <div class="cta-buttons">
-            <NuxtLink to="/products" class="cta-primary">View Products</NuxtLink>
-            <a href="#" class="cta-secondary">Learn More</a>
+            <NuxtLink to="/products" class="cta-primary">Prohlédnout produkty</NuxtLink>
+            <a href="#" class="cta-secondary">Dozvědět se více</a>
           </div>
         </div>
         <div class="hero-image">
@@ -18,22 +18,22 @@
       </div>
       
       <div class="features-section">
-        <h2>Key Features</h2>
+        <h2>Naše přednosti</h2>
         <div class="features-grid">
           <div class="feature-card">
-            <div class="feature-icon">🚀</div>
-            <h3>Lightning Fast</h3>
-            <p>Built with Vue3 and Nuxt4 for optimal performance</p>
+            <div class="feature-icon">🛁</div>
+            <h3>Přírodní ingredience</h3>
+            <p>Všechny naše produkty jsou vyrobeny z přírodních surovin</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">🛠️</div>
-            <h3>Easy to Customize</h3>
-            <p>Flexible components and styling options</p>
+            <div class="feature-icon">🌿</div>
+            <h3>Bez testů na zvířatech</h3>
+            <p>Jsme hrdí na etický přístup k výrobě kosmetiky</p>
           </div>
           <div class="feature-card">
-            <div class="feature-icon">📱</div>
-            <h3>Responsive Design</h3>
-            <p>Looks great on all devices and screen sizes</p>
+            <div class="feature-icon">🎁</div>
+            <h3>Ideální dárek</h3>
+            <p>Naše bomby do koupele potěší každého milovníka relaxace</p>
           </div>
         </div>
       </div>

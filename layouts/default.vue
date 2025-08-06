@@ -9,8 +9,8 @@
         </div>
         <AppNavigation />
         <div class="auth-buttons">
-          <button class="login-btn">Login</button>
-          <button class="signup-btn">Sign Up</button>
+          <button class="login-btn">Přihlásit</button>
+          <button class="signup-btn">Registrovat</button>
         </div>
       </div>
     </header>
@@ -24,32 +24,32 @@
         <div class="footer-content">
           <div class="footer-section">
             <h3>Bubblena</h3>
-            <p>Your modern Vue3 + Nuxt4 application platform.</p>
+            <p>Váš oblíbený e-shop s bombami do koupele.</p>
           </div>
           
           <div class="footer-section">
-            <h3>Links</h3>
+            <h3>Odkazy</h3>
             <ul>
-              <li><NuxtLink to="/">Home</NuxtLink></li>
-              <li><NuxtLink to="/products">Products</NuxtLink></li>
-              <li><NuxtLink to="/features">Features</NuxtLink></li>
-              <li><NuxtLink to="/about">About</NuxtLink></li>
-              <li><NuxtLink to="/contact">Contact</NuxtLink></li>
+              <li><NuxtLink to="/">Domů</NuxtLink></li>
+              <li><NuxtLink to="/products">Produkty</NuxtLink></li>
+              <li><NuxtLink to="/features">Vlastnosti</NuxtLink></li>
+              <li><NuxtLink to="/about">O nás</NuxtLink></li>
+              <li><NuxtLink to="/contact">Kontakt</NuxtLink></li>
             </ul>
           </div>
           
           <div class="footer-section">
-            <h3>Connect</h3>
+            <h3>Sledujte nás</h3>
             <div class="social-links">
-              <a href="#" class="social-link">Twitter</a>
-              <a href="#" class="social-link">GitHub</a>
-              <a href="#" class="social-link">LinkedIn</a>
+              <a href="#" class="social-link">Facebook</a>
+              <a href="#" class="social-link">Instagram</a>
+              <a href="#" class="social-link">TikTok</a>
             </div>
           </div>
         </div>
         
         <div class="footer-bottom">
-          <p>&copy; {{ new Date().getFullYear() }} Bubblena. All rights reserved.</p>
+          <p>&copy; {{ new Date().getFullYear() }} Bubblena. Všechna práva vyhrazena.</p>
         </div>
       </div>
     </footer>

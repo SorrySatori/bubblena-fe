@@ -22,14 +22,19 @@ export const useProducts = () => {
   const fetchProducts = async () => {
     loading.value = true;
     error.value = null;
-    
+  
     try {
-      const response = await fetch(`${config.public.apiBase}/products`);
-      
+      const response = await fetch(`${config.public.apiBase}/products`, {
+        method: 'GET',
+        headers: {
+          'x-api-key': config.public.apiKey
+        }
+      });
+  
       if (!response.ok) {
         throw new Error(`Error fetching products: ${response.statusText}`);
       }
-      
+  
       const data = await response.json();
       products.value = data;
     } catch (err: any) {
@@ -39,6 +44,7 @@ export const useProducts = () => {
       loading.value = false;
     }
   };
+  
 
   // Get a single product by ID
   const getProduct = async (id: string) => {
@@ -46,7 +52,13 @@ export const useProducts = () => {
     error.value = null;
     
     try {
-      const response = await fetch(`${config.public.apiBase}/products/${id}`);
+      const response = await fetch(`${config.public.apiBase}/products/${id}`,
+      {
+        method: 'GET',
+        headers: {
+          'x-api-key': config.public.apiKey
+        }
+      });
       
       if (!response.ok) {
         throw new Error(`Error fetching product: ${response.statusText}`);

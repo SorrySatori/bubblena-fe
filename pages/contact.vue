@@ -1,54 +1,54 @@
 <template>
   <div class="contact-page">
     <div class="page-header">
-      <h1>Contact Us</h1>
-      <p>Get in touch with the Bubblena team</p>
+      <h1>Kontaktujte nás</h1>
+      <p>Spojte se s týmem Bubblena</p>
     </div>
     
     <div class="contact-container">
       <div class="contact-form-section">
-        <h2>Send us a message</h2>
+        <h2>Pošlete nám zprávu</h2>
         <form class="contact-form" @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" id="name" v-model="form.name" placeholder="Your name" required />
+            <label for="name">Jméno</label>
+            <input type="text" id="name" v-model="form.name" placeholder="Vaše jméno" required />
           </div>
           
           <div class="form-group">
             <label for="email">Email</label>
-            <input type="email" id="email" v-model="form.email" placeholder="Your email address" required />
+            <input type="email" id="email" v-model="form.email" placeholder="Váš email" required />
           </div>
           
           <div class="form-group">
-            <label for="subject">Subject</label>
-            <input type="text" id="subject" v-model="form.subject" placeholder="Message subject" required />
+            <label for="subject">Předmět</label>
+            <input type="text" id="subject" v-model="form.subject" placeholder="Předmět zprávy" required />
           </div>
           
           <div class="form-group">
-            <label for="message">Message</label>
-            <textarea id="message" v-model="form.message" placeholder="Your message" rows="5" required></textarea>
+            <label for="message">Zpráva</label>
+            <textarea id="message" v-model="form.message" placeholder="Vaše zpráva" rows="5" required></textarea>
           </div>
           
-          <button type="submit" class="submit-button">Send Message</button>
+          <button type="submit" class="submit-button">Odeslat zprávu</button>
         </form>
       </div>
       
       <div class="contact-info-section">
-        <h2>Contact Information</h2>
+        <h2>Kontaktní informace</h2>
         <div class="info-item">
           <div class="info-icon">📍</div>
           <div>
-            <h3>Address</h3>
-            <p>123 Bubble Street, Tech Valley</p>
-            <p>San Francisco, CA 94103</p>
+            <h3>Adresa</h3>
+            <p>Bublinková 123</p>
+            <p>110 00 Praha 1</p>
           </div>
         </div>
         
         <div class="info-item">
           <div class="info-icon">📞</div>
           <div>
-            <h3>Phone</h3>
-            <p>+1 (555) 123-4567</p>
+            <h3>Telefon</h3>
+            <p>+420 123 456 789</p>
           </div>
         </div>
         
@@ -56,22 +56,22 @@
           <div class="info-icon">✉️</div>
           <div>
             <h3>Email</h3>
-            <p>info@bubblena.com</p>
-            <p>support@bubblena.com</p>
+            <p>info@bubblena.cz</p>
+            <p>objednavky@bubblena.cz</p>
           </div>
         </div>
         
         <div class="social-links">
-          <h3>Follow Us</h3>
+          <h3>Sledujte nás</h3>
           <div class="social-icons">
             <a href="#" class="social-icon">
-              <span>Twitter</span>
+              <span>Facebook</span>
             </a>
             <a href="#" class="social-icon">
-              <span>LinkedIn</span>
+              <span>Instagram</span>
             </a>
             <a href="#" class="social-icon">
-              <span>GitHub</span>
+              <span>TikTok</span>
             </a>
           </div>
         </div>
@@ -92,7 +92,7 @@ const form = ref({
 
 const handleSubmit = () => {
   // This would typically connect to a backend API
-  alert('Thank you for your message! We will get back to you soon.')
+  alert('Děkujeme za Vaši zprávu! Brzy se Vám ozvěme.')
   
   // Reset form
   form.value = {
