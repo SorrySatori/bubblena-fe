@@ -1,27 +1,75 @@
 export default defineEventHandler(async (event) => {
-    console.log('Server endpoint /api/products called!')
-    
-    // Get request headers to check if API key is present
-    const headers = getHeaders(event)
-    console.log('Request headers:', headers)
-    
-    const config = useRuntimeConfig()
-    console.log('Using API base:', config.public.apiBase)
-    
-    try {
-      const res = await $fetch(`${config.public.apiBase}/products`, {
-        headers: {
-          'x-api-key': process.env.NUXT_API_KEY as string
-        },
-      })
-      
-      console.log('API response received successfully')
-      return res
-    } catch (error) {
-      console.error('Error fetching products from external API:', error)
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to fetch products from external API'
-      })
+
+  const config = useRuntimeConfig()
+  console.log('Using API base:', config.public.apiBase)
+
+  // Mock data for fallback
+  const mockProducts = [
+    {
+      id: '1',
+      name: 'Bubblena Basic',
+      description: 'Our entry-level bubble tea with classic flavors',
+      price: 19.99,
+      imageUrl: '/images/product-placeholder.jpg',
+      category: 'classic',
+      inStock: true,
+      quantity: 100
+    },
+    {
+      id: '2',
+      name: 'Bubblena Premium',
+      description: 'Premium bubble tea with exotic flavors and special toppings',
+      price: 29.99,
+      imageUrl: '/images/product-placeholder.jpg',
+      category: 'premium',
+      inStock: true,
+      quantity: 50
+    },
+    {
+      id: '3',
+      name: 'Bubblena Seasonal',
+      description: 'Limited edition seasonal flavors',
+      price: 24.99,
+      imageUrl: '/images/product-placeholder.jpg',
+      category: 'seasonal',
+      inStock: false,
+      quantity: 0
     }
-  })
+  ]
+
+  try {
+    const apiKey = config.apiKey || ''
+
+    if (!apiKey) {
+      console.warn('API key is not set in runtime config. Using mock data.')
+      return mockProducts
+    }
+
+    const response = await $fetch(`${config.public.apiBase}/products`, {
+      headers: {
+        'x-api-key': apiKey
+      },
+      timeout: 5000,
+      retry: 1
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching products from external API:', error)
+
+    // Check if it's a 401 error
+    if (error.statusCode === 401) {
+      console.warn('Authentication failed with the external API. Check your API key.')
+    }
+
+    // For development, return mock data instead of throwing an error
+    if (import.meta.dev) {
+      console.log('Development mode: Returning mock data instead of error')
+      return mockProducts
+    }
+    throw createError({
+      statusCode: 500,
+      message: 'Failed to fetch products from external API'
+    })
+  }
+})

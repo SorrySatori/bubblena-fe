@@ -13,7 +13,6 @@ export interface Product {
 }
 
 export const useProducts = () => {
-  const config = useRuntimeConfig();
   const products = ref<Product[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
@@ -24,18 +23,9 @@ export const useProducts = () => {
     error.value = null;
   
     try {
-      const response = await fetch(`${config.public.apiBase}/products`, {
+      const data = await $fetch<Product[]>('/api/products', {
         method: 'GET',
-        headers: {
-          'x-api-key': 'sprscrtpswrd666%@'
-        }
       });
-      
-      if (!response.ok) {
-        throw new Error(`Error fetching products: ${response.statusText}`);
-      }
-        
-      const data: Product[] = await response.json();
       products.value = data;
     } catch (err: any) {
       console.error('Nepodařilo se načíst produkty:', err);
