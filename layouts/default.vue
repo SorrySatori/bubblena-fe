@@ -1,54 +1,54 @@
 <template>
-  <div class="layout">
-    <header class="header">
-      <div class="container">
-        <div class="logo">
-          <NuxtLink to="/">
-            <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="logo-img" />
+  <div class="min-h-screen flex flex-col">
+    <header class="bg-white shadow-md sticky top-0 z-40">
+      <div class="container flex justify-between items-center p-4">
+        <div>
+          <NuxtLink to="/" class="flex items-center transition-opacity hover:opacity-90">
+            <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="h-10 w-auto" />
           </NuxtLink>
         </div>
         <AppNavigation />
-        <div class="auth-buttons">
-          <button class="login-btn">Přihlásit</button>
-          <button class="signup-btn">Registrovat</button>
+        <div class="flex gap-4">
+          <button class="bg-transparent text-secondary border border-secondary px-4 py-2 rounded hover:bg-secondary hover:text-white transition-all">Přihlásit</button>
+          <button class="bg-primary text-white border-none px-4 py-2 rounded hover:bg-accent transition-all hover:-translate-y-0.5">Registrovat</button>
         </div>
       </div>
     </header>
     
-    <main class="main">
+    <main class="flex-1">
       <slot />
     </main>
     
-    <footer class="footer">
+    <footer class="bg-secondary text-white py-12 pb-4">
       <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h3>Bubblena</h3>
-            <p>Váš oblíbený e-shop s bombami do koupele.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div>
+            <h3 class="text-lg mb-4 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-primary">Bubblena</h3>
+            <p class="mb-4 opacity-80">Váš oblíbený e-shop s bombami do koupele.</p>
           </div>
           
-          <div class="footer-section">
-            <h3>Odkazy</h3>
+          <div>
+            <h3 class="text-lg mb-4 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-primary">Odkazy</h3>
             <ul>
-              <li><NuxtLink to="/">Domů</NuxtLink></li>
-              <li><NuxtLink to="/products">Produkty</NuxtLink></li>
-              <li><NuxtLink to="/features">Vlastnosti</NuxtLink></li>
-              <li><NuxtLink to="/about">O nás</NuxtLink></li>
-              <li><NuxtLink to="/contact">Kontakt</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Domů</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/products" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Produkty</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/features" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Vlastnosti</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/about" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">O nás</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/contact" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Kontakt</NuxtLink></li>
             </ul>
           </div>
           
-          <div class="footer-section">
-            <h3>Sledujte nás</h3>
-            <div class="social-links">
-              <a href="#" class="social-link">Facebook</a>
-              <a href="#" class="social-link">Instagram</a>
-              <a href="#" class="social-link">TikTok</a>
+          <div>
+            <h3 class="text-lg mb-4 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-primary">Sledujte nás</h3>
+            <div class="flex gap-4">
+              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Facebook</a>
+              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Instagram</a>
+              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">TikTok</a>
             </div>
           </div>
         </div>
         
-        <div class="footer-bottom">
+        <div class="border-t border-white/10 pt-4 text-center text-sm opacity-70">
           <p>&copy; {{ new Date().getFullYear() }} Bubblena. Všechna práva vyhrazena.</p>
         </div>
       </div>

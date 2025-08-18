@@ -25,5 +25,13 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
       apiKey: process.env.NUXT_PUBLIC_API_KEY || ''
     }
+  },
+  // CSS configuration
+  css: ['~/assets/css/tailwind.css'],
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {},
+    },
   }
 })

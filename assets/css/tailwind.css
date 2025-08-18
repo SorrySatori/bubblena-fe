@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-dark;
+  }
+  
+  a {
+    @apply no-underline text-inherit;
+  }
+  
+  ul {
+    @apply list-none;
+  }
+}
+
+@layer components {
+  .container {
+    @apply w-full max-w-7xl mx-auto px-4;
+  }
+}
