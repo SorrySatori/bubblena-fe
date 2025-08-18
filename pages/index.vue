@@ -1,7 +1,7 @@
 <template>
   <div>
     <main>
-      <div class="min-h-[80vh] flex items-center justify-between px-[5%] bg-gradient-to-br from-[#f5f7fa] to-[#e4e8eb] relative overflow-hidden">
+      <div class="min-h-[80vh] pt-24 flex items-center justify-between px-[5%] bg-gradient-to-br from-[#f5f7fa] to-[#e4e8eb] relative overflow-hidden">
         <div class="max-w-xl z-10">
           <h1 class="text-5xl mb-4 text-secondary font-extrabold"><span class="text-primary font-bold">Bubblena</span></h1>
           <p class="text-2xl mb-8 text-dark opacity-80">Váš oblíbený e-shop s bombami do koupele</p>
