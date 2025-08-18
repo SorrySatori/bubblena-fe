@@ -4,19 +4,21 @@
       <h1>O Bubblena</h1>
       <p>Poznejte náš příběh a poslání</p>
     </div>
-    
+
     <div class="about-container">
       <div class="about-section">
         <h2>Náš příběh</h2>
         <p>
-          Bubblena začala jako malý rodinný podnik v roce 2020, kdy naše zakladatelka Barbora objevila své nadšení pro výrobu přírodní kosmetiky. Začala experimentovat s bombami do koupele ve své kuchyni a brzy si získala věrnou základnu zákazníků mezi přáteli a rodinou.
-        </p>
-        <p>
-          Co začalo jako koníček, se rychle rozrostlo v prosperující podnik. Dnes máme vlastní výrobní prostory v Praze a naše produkty doručujeme zákazníkům po celé České republice. Naše cesta je definována neustálou inovací, pozorností k detailům a závazkem k výjimečnosti.
+          Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a
+          vhodíš bombu, můžeš do něj na chvíli nahlédnout.
+          V Bubbleně žijí bytosti, které netouží po slávě, ale po tom, abys na chvilku zapomněl(a) na realitu. Každá
+          koule je jejich poselstvím – zakletým kouzlem, příběhem, vzkazem.
+          Bubbleři a Bubblerky jsou ti, kdo tato kouzla odemykají. A čím víc jich nasbíráš, tím hlouběji pronikáš do
+          Bubbleny.
         </p>
       </div>
-      
-      <div class="team-section">
+
+      <!-- <div class="team-section">
         <h2>Náš tým</h2>
         <div class="team-grid">
           <div class="team-member">
@@ -40,16 +42,13 @@
             <p>Marketingový specialista</p>
           </div>
         </div>
-      </div>
-      
-      <div class="mission-section">
+      </div> -->
+
+      <div class="about-section">
         <h2>Naše poslání</h2>
-        <div class="mission-content">
-          <div class="mission-text">
-            <p>
-              V Bubblena je naším posláním vytvářet vysoce kvalitní a přírodní bomby do koupele, které nabízejí výjimečný relaxační zážitek. Věříme, že péče o tělo by měla být příjemným ritualem, který prospívá tělu i mysli.
-            </p>
-            <p>
+        <div>
+          <div>
+            <p class="about-section">
               Zavázali jsme se k:
             </p>
             <ul>

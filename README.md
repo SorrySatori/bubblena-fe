@@ -73,3 +73,11 @@ bun run preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+## BE
+
+Running on separate app based on Node + Express. Deploing via Render.com. Connecting to MongoDB database.
+
+## ASSETS
+
+Images are now stored at cloudinary.com as public assets
