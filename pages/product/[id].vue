@@ -1,15 +1,16 @@
 <template>
-  <div class="py-8">
-    <div class="max-w-7xl mx-auto px-4">
+  <div class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Back button -->
-      <NuxtLink to="/products" class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors">
-        <span class="mr-2 text-xl">←</span> Zpět na produkty
+      <NuxtLink to="/products" class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
+        <span class="mr-2 text-xl transform group-hover:-translate-x-1 transition-transform">←</span> 
+        <span class="group-hover:underline">Zpět na produkty</span>
       </NuxtLink>
 
       <!-- Loading state -->
-      <div v-if="loading" class="flex flex-col items-center justify-center py-12">
-        <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-        <p>Načítání produktu...</p>
+      <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+        <div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
+        <p class="text-lg text-gray-600 animate-pulse">Načítání produktu...</p>
       </div>
       
       <!-- Error state -->
@@ -29,53 +30,85 @@
       </div>
       
       <!-- Product detail -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-4">
-        <div class="relative rounded-lg overflow-hidden shadow-md">
-          <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name" class="w-full h-auto block">
-          <span v-if="!product.inStock" class="absolute top-5 right-5 bg-red-500/90 text-white py-2 px-4 rounded text-sm font-medium">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8">
+        <div class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100">
+          <img 
+            :src="product.imageUrl || '/images/product-placeholder.jpg'" 
+            :alt="product.name" 
+            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+          >
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <span 
+            v-if="!product.inStock" 
+            class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2"
+          >
             Vyprodáno
           </span>
         </div>
         
-        <div class="flex flex-col gap-6">
-          <h1 class="text-4xl md:text-5xl text-secondary m-0">{{ product.name }}</h1>
-          <div class="text-3xl font-bold text-secondary">${{ product.price.toFixed(2) }}</div>
-          
-          <div class="flex items-center gap-2 text-base">
-            <span :class="[product.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-3 h-3 rounded-full']"></span>
-            <span>{{ product.inStock ? 'Skladem' : 'Vyprodáno' }}</span>
-            <span v-if="product.stockCount && product.inStock" class="text-gray-500">({{ product.stockCount }} ks)</span>
+        <div class="flex flex-col gap-8">
+          <div>
+            <h1 class="text-4xl md:text-5xl text-secondary font-bold mb-2">{{ product.name }}</h1>
+            <div class="h-1 w-20 bg-primary rounded-full mb-6"></div>
+          </div>
+          <div class="text-3xl font-bold text-secondary bg-gray-50 inline-block py-2 px-4 rounded-lg shadow-sm">
+            {{ product.price.toFixed(2) }} Kč
           </div>
           
-          <div v-if="product.shortDescription" class="my-2 py-3 px-4 bg-gray-50 border-l-3 border-primary rounded">
-            <p class="m-0 italic text-gray-600 leading-relaxed">{{ product.shortDescription }}</p>
+          <div class="flex items-center gap-3 text-base bg-gray-50 p-3 rounded-lg">
+            <span 
+              :class="[product.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-4 h-4 rounded-full shadow-inner animate-pulse']"
+            ></span>
+            <span class="font-medium">{{ product.inStock ? 'Skladem' : 'Vyprodáno' }}</span>
+            <span 
+              v-if="product.stockCount && product.inStock" 
+              class="text-gray-600 bg-white py-1 px-2 rounded-md text-sm"
+            >
+              {{ product.stockCount }} ks
+            </span>
           </div>
           
-          <div class="mt-4">
-            <h2 class="text-2xl mb-4 text-secondary">Popis produktu</h2>
-            <p class="leading-relaxed text-gray-800">{{ product.description }}</p>
+          <div 
+            v-if="product.shortDescription" 
+            class="my-2 py-4 px-5 bg-gradient-to-r from-primary/5 to-transparent border-l-4 border-primary rounded-r-lg shadow-sm"
+          >
+            <p class="m-0 italic text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
           </div>
           
-          <div class="mt-4 border-t border-gray-200 pt-4">
-            <div v-if="product.storageMethod" class="mb-2">
-              <span class="font-medium mr-2">Způsob skladování:</span>
-              <span class="text-gray-600">{{ product.storageMethod }}</span>
+          <div class="mt-6">
+            <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
+              Příběh
+            </h2>
+            <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{ product.description }}</p>
+          </div>
+          
+          <div class="mt-8 border-t border-gray-200 pt-6">
+            <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div v-if="product.storageMethod" class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
+                <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Způsob skladování</span>
+                <span class="text-gray-800 font-medium">{{ product.storageMethod }}</span>
+              </div>
+              <div v-if="product.weight" class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
+                <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Hmotnost</span>
+                <span class="text-gray-800 font-medium">{{ product.weight }} g</span>
+              </div>
+              <div v-if="product.createdAt" class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
+                <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Přidáno</span>
+                <span class="text-gray-800 font-medium">{{ formatDate(product.createdAt) }}</span>
+              </div>
             </div>
-            <div v-if="product.weight" class="mb-2">
-              <span class="font-medium mr-2">Hmotnost:</span>
-              <span class="text-gray-600">{{ product.weight }} g</span>
-            </div>
-            <div v-if="product.createdAt" class="mb-2">
-              <span class="font-medium mr-2">Přidáno:</span>
-              <span class="text-gray-600">{{ formatDate(product.createdAt) }}</span>
-            </div>
           </div>
           
-          <div class="mt-4">
+          <div class="mt-8">
             <button 
-              class="bg-primary text-white border-none py-3 px-6 rounded text-base font-medium w-full max-w-xs transition-colors hover:bg-accent disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed" 
+              class="bg-primary text-white border-none py-4 px-8 rounded-lg text-base font-medium w-full max-w-xs transition-all duration-300 hover:bg-accent hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1 disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none flex items-center justify-center gap-2" 
               :disabled="!product.inStock"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" v-if="product.inStock">
+                <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+              </svg>
               {{ product.inStock ? 'Přidat do košíku' : 'Vyprodáno' }}
             </button>
           </div>
