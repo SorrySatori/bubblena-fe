@@ -1,15 +1,23 @@
 // Product interface
 export interface Product {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
+  shortDescription?: string;
   description: string;
   price: number;
+  weight?: number;
   imageUrl?: string;
+  bathImageUrl?: string;
+  videoUrl?: string;
   category?: string;
   inStock: boolean;
+  stockCount?: number;
+  storageMethod?: string;
   quantity?: number;
   createdAt?: string;
   updatedAt?: string;
+  isDeleted?: boolean;
 }
 
 export const useProducts = () => {

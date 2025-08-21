@@ -22,7 +22,7 @@
       
       <!-- Products grid -->
       <div v-else class="products-grid">
-        <div v-for="product in products" :key="product.id" class="product-card">
+        <div v-for="product in products" :key="product.id" class="product-card" @click="navigateToProduct(product._id)">
           <div class="product-image">
             <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name">
             <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
@@ -32,7 +32,7 @@
             <p class="product-description">{{ product.description }}</p>
             <div class="product-footer">
               <span class="product-price">${{ product.price.toFixed(2) }}</span>
-              <button class="add-to-cart-btn" :disabled="!product.inStock">
+              <button class="add-to-cart-btn" :disabled="!product.inStock" @click.stop>
                 {{ product.inStock ? 'Přidat do košíku' : 'Vyprodáno' }}
               </button>
             </div>
@@ -46,9 +46,16 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useProducts } from '~/composables/useProducts';
+import { useRouter } from 'vue-router';
 
 // Get products data and methods from the composable
 const { products, loading, error, fetchProducts } = useProducts();
+const router = useRouter();
+console.log('KEK', products)
+// Navigate to product detail page
+const navigateToProduct = (productId) => {
+  router.push(`/product/${productId}`);
+};
 
 // Fetch products when the component is mounted
 onMounted(() => {
@@ -140,6 +147,7 @@ onMounted(() => {
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .product-card:hover {
