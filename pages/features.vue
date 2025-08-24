@@ -57,10 +57,6 @@
   </div>
 </template>
 
-<script setup>
-// Features page script
-</script>
-
 <style scoped>
 .features-page {
   padding: 2rem 5%;

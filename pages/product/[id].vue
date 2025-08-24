@@ -1,5 +1,96 @@
+
+<script setup>
+import { onMounted, ref, computed, watch } from 'vue';
+import { useProduct } from '~/composables/useProduct';
+import { useRoute } from 'vue-router';
+import { useCart } from '~/composables/useCart';
+import ToastNotification from '~/components/ToastNotification.vue';
+
+const route = useRoute();
+const productId = route.params.id;
+const { product, loading, error, fetchProduct } = useProduct();
+const { addToCart } = useCart();
+
+// Toast notification state
+const showToast = ref(false);
+const toastMessage = ref('');
+
+// Quantity state for add to cart
+const quantity = ref(1);
+
+// Increment and decrement quantity functions
+const incrementQuantity = () => {
+  const maxQuantity = product.value?.stockCount || 10;
+  if (quantity.value < maxQuantity) {
+    quantity.value++;
+  }
+};
+
+const decrementQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value--;
+  }
+};
+
+// Reset quantity when product changes
+watch(() => product.value, () => {
+  quantity.value = 1;
+});
+
+// Format date helper
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('cs-CZ', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }).format(date);
+};
+
+// Load product data
+const loadProduct = async () => {
+  await fetchProduct(productId);
+};
+
+// Add item to cart function
+const addItemToCart = () => {
+  if (product.value && quantity.value > 0) {
+    addToCart({
+      id: product.value._id,
+      name: product.value.name,
+      price: product.value.price,
+      quantity: quantity.value,
+      imageUrl: product.value.imageUrl
+    });
+    
+    // Show toast notification
+    toastMessage.value = `${quantity.value}× ${product.value.name} přidáno do košíku`;
+    showToast.value = true;
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }
+};
+
+// Load product when component is mounted
+onMounted(() => {
+  loadProduct();
+});
+</script>
+
+
 <template>
   <div class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <!-- Toast Notification -->
+    <ToastNotification 
+      :show="showToast" 
+      :message="toastMessage" 
+      type="cart"
+      @close="showToast = false"
+    />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Back button -->
       <NuxtLink to="/products" class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -76,6 +167,7 @@
               </div>
               
               <button 
+                @click="addItemToCart"
                 class="bg-primary text-white border-none py-2 px-4 rounded-lg text-base font-medium transition-all duration-300 hover:bg-accent hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1 flex items-center gap-2" 
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -146,56 +238,3 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { onMounted, ref, computed, watch } from 'vue';
-import { useProduct } from '~/composables/useProduct';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-const productId = route.params.id;
-const { product, loading, error, fetchProduct } = useProduct();
-
-// Quantity state for add to cart
-const quantity = ref(1);
-
-// Increment and decrement quantity functions
-const incrementQuantity = () => {
-  const maxQuantity = product.value?.stockCount || 10;
-  if (quantity.value < maxQuantity) {
-    quantity.value++;
-  }
-};
-
-const decrementQuantity = () => {
-  if (quantity.value > 1) {
-    quantity.value--;
-  }
-};
-
-// Reset quantity when product changes
-watch(() => product.value, () => {
-  quantity.value = 1;
-});
-
-// Format date helper
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('cs-CZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-};
-
-// Load product data
-const loadProduct = async () => {
-  await fetchProduct(productId);
-};
-
-// Load product when component is mounted
-onMounted(() => {
-  loadProduct();
-});
-</script>

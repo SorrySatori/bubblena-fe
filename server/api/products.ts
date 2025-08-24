@@ -1,7 +1,6 @@
 export default defineEventHandler(async (event) => {
 
   const config = useRuntimeConfig()
-  console.log('Using API base:', config.public.apiBase)
 
   // Mock data for fallback
   const mockProducts = [
@@ -64,7 +63,6 @@ export default defineEventHandler(async (event) => {
 
     // For development, return mock data instead of throwing an error
     if (import.meta.dev) {
-      console.log('Development mode: Returning mock data instead of error')
       return mockProducts
     }
     throw createError({

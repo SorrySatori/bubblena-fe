@@ -12,9 +12,12 @@
           <AppNavigation />
         </div>
         
-        <div class="order-2 lg:order-3 hidden lg:flex gap-4">
-          <button class="bg-transparent text-secondary border border-secondary px-4 py-2 rounded hover:bg-secondary hover:text-white transition-all">Přihlásit</button>
-          <button class="bg-primary text-white border-none px-4 py-2 rounded hover:bg-accent transition-all hover:-translate-y-0.5">Registrovat</button>
+        <div class="order-2 lg:order-3 flex items-center gap-4">
+          <ShoppingCart />
+          <div class="hidden lg:flex gap-2">
+            <button class="bg-transparent text-secondary border border-secondary px-4 py-2 rounded hover:bg-secondary hover:text-white transition-all">Přihlásit</button>
+            <button class="bg-primary text-white border-none px-4 py-2 rounded hover:bg-accent transition-all hover:-translate-y-0.5">Registrovat</button>
+          </div>
         </div>
       </div>
     </header>
@@ -61,7 +64,7 @@
 </template>
 
 <script setup>
-// Layout script
+import ShoppingCart from '~/components/ShoppingCart.vue';
 </script>
 
 <style>

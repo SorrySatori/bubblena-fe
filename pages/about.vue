@@ -71,10 +71,6 @@
   </div>
 </template>
 
-<script setup>
-// About page script
-</script>
-
 <style scoped>
 .about-page {
   padding: 2rem 5%;

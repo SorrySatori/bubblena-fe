@@ -1,3 +1,28 @@
+<script setup>
+import { ref } from 'vue'
+
+const form = ref({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+})
+
+const handleSubmit = () => {
+  // This would typically connect to a backend API
+  alert('Děkujeme za Vaši zprávu! Brzy se Vám ozvěme.')
+  
+  // Reset form
+  form.value = {
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  }
+}
+</script>
+
+
 <template>
   <div class="contact-page">
     <div class="page-header">
@@ -79,30 +104,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref } from 'vue'
-
-const form = ref({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
-
-const handleSubmit = () => {
-  // This would typically connect to a backend API
-  alert('Děkujeme za Vaši zprávu! Brzy se Vám ozvěme.')
-  
-  // Reset form
-  form.value = {
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  }
-}
-</script>
 
 <style scoped>
 .contact-page {

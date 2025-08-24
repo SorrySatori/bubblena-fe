@@ -1,3 +1,9 @@
+<script setup>
+// import { ref } from 'vue';
+// import BubbleGenerator from '~/components/BubbleGenerator.vue';
+
+</script>
+
 <template>
   <div>
     <main>
@@ -41,12 +47,6 @@
     </main>
   </div>
 </template>
-
-<script setup>
-// import { ref } from 'vue';
-// import BubbleGenerator from '~/components/BubbleGenerator.vue';
-
-</script>
 
 <style>
 /* Custom animation delays that aren't in Tailwind by default */

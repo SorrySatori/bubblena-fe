@@ -1,5 +1,60 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useProducts } from '~/composables/useProducts';
+import { useRouter } from 'vue-router';
+import { useCart } from '~/composables/useCart';
+import ToastNotification from '~/components/ToastNotification.vue';
+
+// Get products data and methods from the composable
+const { products, loading, error, fetchProducts } = useProducts();
+const router = useRouter();
+const { addToCart: addItemToCart } = useCart();
+
+// Toast notification state
+const showToast = ref(false);
+const toastMessage = ref('');
+// Navigate to product detail page
+const navigateToProduct = (productId) => {
+  router.push(`/product/${productId}`);
+};
+
+// Add to cart function
+const addToCart = (product) => {
+  if (product && product.inStock) {
+    addItemToCart({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      imageUrl: product.imageUrl
+    });
+    
+    // Show toast notification
+    toastMessage.value = `${product.name} přidáno do košíku`;
+    showToast.value = true;
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }
+};
+
+// Fetch products when the component is mounted
+onMounted(() => {
+  fetchProducts();
+});
+</script>
+
 <template>
   <div class="products-page">
+    <!-- Toast Notification -->
+    <ToastNotification 
+      :show="showToast" 
+      :message="toastMessage" 
+      type="cart"
+      @close="showToast = false"
+    />
     <div class="container">
       <h1 class="page-title">Naše produkty</h1>
       
@@ -32,8 +87,18 @@
             <p class="product-description">{{ product.description }}</p>
             <div class="product-footer">
               <span class="product-price">{{ product.price.toFixed(2) }} Kč</span>
-              <button class="add-to-cart-btn" :disabled="!product.inStock" @click.stop>
-                {{ product.inStock ? 'Přidat do košíku' : 'Vyprodáno' }}
+              <button 
+                class="add-to-cart-btn" 
+                :disabled="!product.inStock" 
+                @click.stop="addToCart(product)"
+              >
+                <span v-if="product.inStock">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                  </svg>
+                  Přidat do košíku
+                </span>
+                <span v-else>Vyprodáno</span>
               </button>
             </div>
           </div>
@@ -42,26 +107,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { useProducts } from '~/composables/useProducts';
-import { useRouter } from 'vue-router';
-
-// Get products data and methods from the composable
-const { products, loading, error, fetchProducts } = useProducts();
-const router = useRouter();
-console.log('KEK', products)
-// Navigate to product detail page
-const navigateToProduct = (productId) => {
-  router.push(`/product/${productId}`);
-};
-
-// Fetch products when the component is mounted
-onMounted(() => {
-  fetchProducts();
-});
-</script>
 
 <style scoped>
 .products-page {
