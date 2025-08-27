@@ -129,7 +129,7 @@ onMounted(() => {
           >
           <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           <span 
-            v-if="!product.inStock" 
+            v-if="selectedVariant && !selectedVariant.inStock" 
             class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2"
           >
             Vyprodáno
