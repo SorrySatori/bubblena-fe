@@ -1,20 +1,23 @@
 // Product interface
+export interface ProductVariant {
+  weight: number;
+  price: number;
+  stockCount: number;
+  inStock: boolean;
+}
+
 export interface Product {
   _id?: string;
   id?: string;
   name: string;
   shortDescription?: string;
   description: string;
-  price: number;
-  weight?: number;
   imageUrl?: string;
   bathImageUrl?: string;
   videoUrl?: string;
   category?: string;
-  inStock: boolean;
-  stockCount?: number;
   storageMethod?: string;
-  quantity?: number;
+  variants: ProductVariant[]
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;
