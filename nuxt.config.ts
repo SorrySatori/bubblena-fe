@@ -8,7 +8,8 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { key: 'description', name: 'description', content: 'Bubblena Frontend Application' }
+        { key: 'description', name: 'description', content: 'Bubblena Frontend Application' },
+        { name: 'robots', content: 'noindex, nofollow' }
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
@@ -17,6 +18,7 @@ export default defineNuxtConfig({
   },
   // API configuration
   nitro: {
+    compressPublicAssets: true,
   },
   // Runtime config for API base URL
   runtimeConfig: {
