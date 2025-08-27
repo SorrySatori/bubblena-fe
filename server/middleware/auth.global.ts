@@ -5,6 +5,7 @@ export default defineEventHandler((event) => {
   if (session === 'ok') {
     return
   }
+  const config = useRuntimeConfig()
 
   const auth = event.node.req.headers['authorization']
   if (!auth) {
@@ -19,7 +20,7 @@ export default defineEventHandler((event) => {
 
   const [user, pass] = Buffer.from(encoded, 'base64').toString().split(':')
 
-  if (user === process.env.NUXT_BASIC_USER && pass === process.env.NUXT_BASIC_PASS) {
+  if (user === config.basicUser && pass === config.basicPass) {
     setCookie(event, 'auth', 'ok', {
       httpOnly: true,
       sameSite: 'strict',
