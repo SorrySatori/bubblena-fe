@@ -5,11 +5,13 @@ import { useProduct } from '~/composables/useProduct';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
+import { useCartStore } from "~/stores/cart";
 
 const route = useRoute();
 const productId = route.params.id;
 const { product, loading, error, fetchProduct } = useProduct();
 const { addToCart } = useCart();
+const cart = useCartStore();
 
 const showToast = ref(false);
 const toastMessage = ref('');
@@ -71,7 +73,8 @@ const addItemToCart = () => {
       quantity: quantity.value,
       imageUrl: product.value.imageUrl
     });
-    
+    cart.addItem(product.value._id, selectedVariant.value.weight, quantity.value)
+
     toastMessage.value = `${quantity.value}× ${product.value.name} (${selectedVariant.value.weight}g) přidáno do košíku`;
     showToast.value = true;
     
