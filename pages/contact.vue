@@ -89,13 +89,13 @@ const handleSubmit = () => {
         <div class="social-links">
           <h3>Sledujte nás</h3>
           <div class="social-icons">
-            <a href="#" class="social-icon">
+            <a href="https://www.facebook.com/profile.php?id=61580744706557" target="_blank" class="social-icon">
               <span>Facebook</span>
             </a>
-            <a href="#" class="social-icon">
+            <a href="https://www.instagram.com/bubblena.cz/" target="_blank" class="social-icon">
               <span>Instagram</span>
             </a>
-            <a href="#" class="social-icon">
+            <a href="https://www.tiktok.com/@bubblena.cz" target="_blank" class="social-icon">
               <span>TikTok</span>
             </a>
           </div>

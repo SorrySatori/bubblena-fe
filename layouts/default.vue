@@ -48,9 +48,9 @@
           <div>
             <h3 class="text-lg mb-4 relative after:content-[''] after:absolute after:bottom-[-8px] after:left-0 after:w-10 after:h-0.5 after:bg-primary">Sledujte nás</h3>
             <div class="flex gap-4">
-              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Facebook</a>
-              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Instagram</a>
-              <a href="#" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">TikTok</a>
+              <a href="https://www.facebook.com/profile.php?id=61580744706557" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Facebook</a>
+              <a href="https://www.instagram.com/bubblena.cz/" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Instagram</a>
+              <a href="https://www.tiktok.com/@bubblena.cz" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">TikTok</a>
             </div>
           </div>
         </div>
