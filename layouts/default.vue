@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <header class="bg-white shadow-md sticky top-0 z-40">
+    <header class="bg-white shadow-md sticky top-0 z-40 py-1">
       <div class="container flex flex-wrap justify-between items-center p-4">
         <div class="flex items-center">
           <NuxtLink to="/" class="flex items-center transition-opacity hover:opacity-90">
