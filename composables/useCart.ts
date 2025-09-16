@@ -1,4 +1,4 @@
-import { computed } from 'vue';
+import { computed, nextTick } from 'vue';
 import { useState } from '#app';
 
 // Define the cart item interface
@@ -10,23 +10,98 @@ export interface CartItem {
   imageUrl?: string;
 }
 
-// Create a reactive cart state that persists using localStorage
+// Define the cart response interface
+export interface CartResponse {
+  id: string;
+  items: CartItem[];
+}
+
+// Create a reactive cart state that persists using localStorage and database
 export const useCart = () => {
-  // Initialize cart from localStorage if available
-  const loadCart = (): CartItem[] => {
+  // Cart session ID
+  const cartSessionId = useState<string | null>('cart-session-id', () => {
     if (import.meta.client) {
-      const savedCart = localStorage.getItem('bubblena-cart');
-      return savedCart ? JSON.parse(savedCart) : [];
+      return sessionStorage.getItem('bubblena-cart-id');
+    }
+    return null;
+  });
+
+  // Initialize cart from database if session ID exists, otherwise from localStorage
+  const loadCart = async (): Promise<CartItem[]> => {
+    if (import.meta.client) {
+      // Check if we have a cart session ID
+      if (cartSessionId.value) {
+        try {
+          // Load cart from database using the session ID
+          const response = await $fetch<CartResponse>(`/api/cart/${cartSessionId.value}`);
+          return response.items || [];
+        } catch (error) {
+          console.error('Failed to load cart from database:', error);
+          // If loading from database fails, try localStorage as fallback
+          const savedCart = localStorage.getItem('bubblena-cart');
+          return savedCart ? JSON.parse(savedCart) : [];
+        }
+      } else {
+        // No session ID, try to load from localStorage
+        const savedCart = localStorage.getItem('bubblena-cart');
+        return savedCart ? JSON.parse(savedCart) : [];
+      }
     }
     return [];
   };
 
   // Use Nuxt's useState for global state management
-  const cartItems = useState<CartItem[]>('cart-items', loadCart);
-  // Save cart to localStorage whenever it changes
-  const saveCart = () => {
+  const cartItems = useState<CartItem[]>('cart-items', () => []);
+  
+  // Load cart items on initialization
+  if (import.meta.client) {
+    // We need to use nextTick to ensure this runs after component mounting
+    nextTick(async () => {
+      cartItems.value = await loadCart();
+    });
+  }
+
+  // Save cart to localStorage and database whenever it changes
+  const saveCart = async () => {
     if (import.meta.client) {
+      // Save to localStorage for quick access
       localStorage.setItem('bubblena-cart', JSON.stringify(cartItems.value));
+      
+      // Save to database if we have a session ID
+      if (cartSessionId.value) {
+        try {
+          await $fetch(`/api/cart/${cartSessionId.value}/items`, {
+            method: 'PUT',
+            body: {
+              items: cartItems.value
+            }
+          });
+        } catch (error) {
+          console.error('Failed to save cart to database:', error);
+        }
+      } else if (cartItems.value.length > 0) {
+        // Create a new cart in the database if we don't have a session ID but have items
+        try {
+          const response = await $fetch<CartResponse>('/api/cart/cart', {
+            method: 'POST'
+          });
+          
+          // Store the new cart session ID
+          cartSessionId.value = response.id;
+          sessionStorage.setItem('bubblena-cart-id', response.id);
+          
+          // Now save the items to this new cart
+          await $fetch(`/api/cart/items`, {
+            method: 'POST',
+            body: {
+              sessionId: response.id,
+              items: cartItems.value
+            }
+          });
+        } catch (error) {
+          console.error('Failed to create new cart in database:', error);
+        }
+      }
     }
   };
 
@@ -63,6 +138,11 @@ export const useCart = () => {
   // Clear the entire cart
   const clearCart = () => {
     cartItems.value = [];
+    // Also clear the session ID when clearing the cart
+    if (import.meta.client && cartSessionId.value) {
+      sessionStorage.removeItem('bubblena-cart-id');
+      cartSessionId.value = null;
+    }
     saveCart();
   };
 
@@ -81,12 +161,14 @@ export const useCart = () => {
 
   return {
     cartItems,
+    cartSessionId,
     addToCart,
     removeFromCart,
     updateQuantity,
     clearCart,
     totalItems,
     totalPrice,
-    isEmpty
+    isEmpty,
+    loadCart
   };
 };
