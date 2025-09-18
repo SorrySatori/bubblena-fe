@@ -48,14 +48,7 @@
       >
         Zpět
       </button>
-      
-      <button 
-        @click="$emit('next')" 
-        class="bg-primary text-white py-2 px-6 rounded-lg hover:bg-accent transition-colors"
-        :disabled="!selectedPaymentMethod"
-      >
-        Pokračovat k souhrnu
-      </button>
+
     </div>
   </div>
 </template>

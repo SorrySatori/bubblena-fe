@@ -161,15 +161,6 @@
       >
         Zpět
       </button>
-      
-      <button 
-        @click="placeOrder" 
-        class="bg-primary text-white py-2 px-6 rounded-lg hover:bg-accent transition-colors"
-        :disabled="isSubmitting"
-      >
-        <span v-if="isSubmitting">Odesílání...</span>
-        <span v-else>Dokončit objednávku</span>
-      </button>
     </div>
   </div>
 </template>

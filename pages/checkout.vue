@@ -16,7 +16,6 @@ const {
   cartItems, 
   removeFromCart, 
   updateQuantity, 
-  clearCart, 
   totalItems, 
   totalPrice, 
   isEmpty 
@@ -75,29 +74,80 @@ const removeItem = (itemId) => {
   }, 3000);
 };
 
-// Clear cart with confirmation
-const clearCartWithConfirmation = () => {
-  if (confirm('Opravdu chcete vyprázdnit košík?')) {
-    clearCart();
-    
-    // Show toast notification
-    toastMessage.value = 'Košík byl vyprázdněn';
-    toastType.value = 'info';
-    showToast.value = true;
-    
-    // Hide toast after 3 seconds
-    setTimeout(() => {
-      showToast.value = false;
-    }, 3000);
-    
-    // Redirect to products
-    router.push('/products');
-  }
-};
+// No clear cart function needed
 
 // Go to specific checkout step
 const goToStep = (step) => {
   checkoutState.value.step = step;
+};
+
+// Validate customer information
+const isCustomerInfoValid = computed(() => {
+  const info = checkoutState.value.customerInfo;
+  const requiredFields = [
+    info.firstName,
+    info.lastName,
+    info.email,
+    info.phone,
+    info.address.street,
+    info.address.city,
+    info.address.postalCode
+  ];
+  
+  // Check if all required fields are filled
+  const mainFieldsValid = requiredFields.every(field => field && field.trim() !== '');
+  
+  // Check billing address fields if separate billing address is selected
+  if (!info.billingAddressSameAsShipping && info.billingAddress) {
+    const billingFields = [
+      info.billingAddress.street,
+      info.billingAddress.city,
+      info.billingAddress.postalCode
+    ];
+    return mainFieldsValid && billingFields.every(field => field && field.trim() !== '');
+  }
+  
+  return mainFieldsValid;
+});
+
+// Submit order function
+const submitOrder = async () => {
+  try {
+    // Show loading toast
+    toastMessage.value = 'Odesílání objednávky...';
+    toastType.value = 'info';
+    showToast.value = true;
+    
+    // Submit order using the checkout composable
+    const result = await useCheckout().submitOrder();
+    
+    if (result.success) {
+      // Show success toast
+      toastMessage.value = 'Objednávka byla úspěšně odeslána!';
+      toastType.value = 'success';
+      showToast.value = true;
+      
+      // Redirect to order confirmation page
+      setTimeout(() => {
+        router.push({
+          path: '/order-confirmation',
+          query: { orderId: result.orderId }
+        });
+      }, 1500);
+    } else {
+      // Show error toast
+      toastMessage.value = result.error || 'Došlo k chybě při zpracování objednávky. Zkuste to prosím znovu.';
+      toastType.value = 'error';
+      showToast.value = true;
+    }
+  } catch (error) {
+    console.error('Order submission error:', error);
+    
+    // Show error toast
+    toastMessage.value = 'Došlo k chybě při zpracování objednávky. Zkuste to prosím znovu.';
+    toastType.value = 'error';
+    showToast.value = true;
+  }
 };
 </script>
 
@@ -248,16 +298,59 @@ const goToStep = (step) => {
               </div>
             </div>
             
-            <!-- Clear cart button -->
+            <!-- Continue to next step buttons -->
+            <!-- Information step button -->
             <button 
-              @click="clearCartWithConfirmation" 
-              class="w-full mt-6 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+              v-if="checkoutState.step === 'information'" 
+              @click="nextStep" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
+              :disabled="!isCustomerInfoValid"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
-              Vyprázdnit košík
+              Pokračovat k dopravě
             </button>
+            
+            <!-- Shipping step button -->
+            <button 
+              v-else-if="checkoutState.step === 'shipping'" 
+              @click="nextStep" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
+              :disabled="!checkoutState.selectedShippingMethod"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Pokračovat k platbě
+            </button>
+            
+            <!-- Payment step button -->
+            <button 
+              v-else-if="checkoutState.step === 'payment'" 
+              @click="nextStep" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
+              :disabled="!checkoutState.selectedPaymentMethod"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Pokračovat k souhrnu
+            </button>
+            
+            <!-- Review step button -->
+            <button 
+              v-else-if="checkoutState.step === 'review'" 
+              @click="submitOrder" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Dokončit objednávku
+            </button>
+            
+            <!-- No clear cart button -->
           </div>
         </div>
       </div>

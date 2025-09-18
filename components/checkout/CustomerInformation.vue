@@ -163,16 +163,6 @@
         </select>
       </div>
     </div>
-    
-    <div class="flex justify-end mt-8">
-      <button 
-        @click="$emit('next')" 
-        class="bg-primary text-white py-2 px-6 rounded-lg hover:bg-accent transition-colors"
-        :disabled="!isFormValid"
-      >
-        Pokračovat k dopravě
-      </button>
-    </div>
   </div>
 </template>
 

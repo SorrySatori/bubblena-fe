@@ -81,16 +81,10 @@
           <span class="font-medium">Celkem:</span>
           <span class="text-lg font-bold text-secondary">{{ totalPrice.toFixed(2) }} Kč</span>
         </div>
-        <div class="flex gap-2">
-          <button 
-            @click="clearCart" 
-            class="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-          >
-            Vyprázdnit
-          </button>
+        <div>
           <NuxtLink 
             to="/checkout" 
-            class="flex-1 py-2 px-4 bg-primary text-white rounded-lg hover:bg-accent transition-colors text-center"
+            class="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-accent transition-colors text-center block"
           >
             Pokladna
           </NuxtLink>
@@ -107,7 +101,6 @@ import { useCart } from '~/composables/useCart';
 const { 
   cartItems, 
   removeFromCart, 
-  clearCart, 
   totalItems, 
   totalPrice, 
   isEmpty 
