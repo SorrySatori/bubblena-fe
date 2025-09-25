@@ -7,19 +7,37 @@ const form = ref({
   subject: '',
   message: ''
 })
+const status = ref("")
 
-const handleSubmit = () => {
-  // This would typically connect to a backend API
-  alert('Děkujeme za Vaši zprávu! Brzy se Vám ozvěme.')
-  
-  // Reset form
-  form.value = {
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
+const handleSubmit = async () => {
+  try {
+    const response = await $fetch('/api/contact', {
+      method: "POST",
+      body: { 
+        name: form.value.name, 
+        email: form.value.email, 
+        subject: form.value.subject, 
+        message: form.value.message 
+      }
+    })
+    console.log('response', response)
+    if (response.success) {
+      status.value = "Zpráva byla úspěšně odeslána."
+      // Reset form after successful submission
+      form.value = {
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      }
+    }
+  } catch (err) {
+    console.error('Error sending message:', err)
+    status.value = "Došlo k chybě při odesílání."
   }
 }
+  
+
 </script>
 
 
@@ -55,6 +73,9 @@ const handleSubmit = () => {
           </div>
           
           <button type="submit" class="submit-button">Odeslat zprávu</button>
+          <div v-if="status" class="status-message" :class="{ 'success': status.includes('úspěšně'), 'error': status.includes('chybě') }">
+            {{ status }}
+          </div>
         </form>
       </div>
       
@@ -259,6 +280,27 @@ const handleSubmit = () => {
   background-color: var(--primary-color);
   color: white;
   transform: translateY(-3px);
+}
+
+/* Status message styles */
+.status-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.status-message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
 }
 
 @media (max-width: 768px) {
