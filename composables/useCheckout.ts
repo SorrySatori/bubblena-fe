@@ -57,9 +57,9 @@ export const useCheckout = () => {
   // Available shipping methods
   const shippingMethods = ref<ShippingMethod[]>([
     {
-      id: 'standard',
-      name: 'Standardní doručení',
-      description: 'Doručení kurýrem na adresu',
+      id: 'zasilkovna',
+      name: 'Zásilkovna',
+      description: 'Doručení pomocí společnosti Zásilkovna',
       price: 99,
       estimatedDelivery: '2-3 pracovní dny'
     },
