@@ -1,6 +1,7 @@
-import { ref, computed } from 'vue';
-import { useState } from '#app';
-import { useCart } from './useCart';
+import { ref, computed } from 'vue'
+import { useState } from '#app'
+import { useCart } from './useCart'
+import { navigateTo } from 'nuxt/app'
 
 // Define shipping method interface
 export interface ShippingMethod {
@@ -95,13 +96,6 @@ export const useCheckout = () => {
       icon: 'bank',
       surcharge: 0
     },
-    {
-      id: 'cod',
-      name: 'Dobírka',
-      description: 'Platba při převzetí',
-      icon: 'cash',
-      surcharge: 30
-    }
   ]);
   
   // Initialize checkout state
@@ -190,12 +184,11 @@ export const useCheckout = () => {
         }
       };
       
-      // Send order to API
-      const response = await $fetch('/api/orders', {
+      const response: { url: string} = await $fetch('/api/orders', {
         method: 'POST',
         body: orderPayload
       });
-      
+      if(response) navigateTo(response.url, { external: true })
       return {
         success: true,
         orderId: response.id
