@@ -53,7 +53,7 @@ export interface CheckoutState {
 
 // Create a composable for checkout functionality
 export const useCheckout = () => {
-  const { cartItems, totalPrice, cartSessionId } = useCart();
+  const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
   
   // Available shipping methods
   const shippingMethods = ref<ShippingMethod[]>([
@@ -187,8 +187,12 @@ export const useCheckout = () => {
       const response: { url: string} = await $fetch('/api/orders', {
         method: 'POST',
         body: orderPayload
-      });
-      if(response) navigateTo(response.url, { external: true })
+      })
+      if(response) {
+        clearCart()
+        navigateTo(response.url, { external: true })
+      }
+      
       return {
         success: true,
         orderId: response.id
