@@ -193,11 +193,19 @@ export const useCheckout = () => {
         method: 'POST',
         body: orderPayload
       })
+
       const deliveryResponse = await $fetch('/api/delivery/packeta', {
         method: 'POST',
         body: orderPayload
       })
-      if(paymentResponse && deliveryResponse) {
+
+      const order =  await $fetch('/api/order/order', {
+        method: 'POST',
+        body: orderPayload
+      })
+      
+      if (deliveryResponse && paymentResponse && order) {
+
         clearCart()
         navigateTo(paymentResponse.url, { external: true })
       }

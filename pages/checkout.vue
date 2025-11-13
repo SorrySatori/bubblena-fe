@@ -121,7 +121,7 @@ const submitOrder = async () => {
     // Submit order using the checkout composable
     const result = await useCheckout().submitOrder();
     
-    if (result.success) {
+    if (result?.success) {
       // Show success toast
       toastMessage.value = 'Objednávka byla úspěšně odeslána!';
       toastType.value = 'success';
