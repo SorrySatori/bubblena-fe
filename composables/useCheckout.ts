@@ -203,9 +203,12 @@ export const useCheckout = () => {
         method: 'POST',
         body: orderPayload
       })
-      
-      if (deliveryResponse && paymentResponse && order) {
+      await $fetch('/api/order-confirmation', {
+        method: 'POST',
+        body: orderPayload
+      })
 
+      if (deliveryResponse && paymentResponse && order) {
         clearCart()
         navigateTo(paymentResponse.url, { external: true })
       }
