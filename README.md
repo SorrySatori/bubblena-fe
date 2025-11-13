@@ -81,3 +81,11 @@ Running on separate app based on Node + Express. Deploing via Render.com. Connec
 ## ASSETS
 
 Images are now stored at cloudinary.com as public assets
+
+## PAYMENTS
+
+Payments via Stripe
+
+## DELIVERY
+
+Delivery methods are including: Zasilkovna

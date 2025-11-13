@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { useState } from '#app'
 import { useCart } from './useCart'
 import { navigateTo } from 'nuxt/app'
+import { v4 as uuidv4 } from "uuid"
 
 // Define shipping method interface
 export interface ShippingMethod {
@@ -47,6 +48,7 @@ export interface CheckoutState {
   step: 'information' | 'shipping' | 'payment' | 'review';
   customerInfo: CustomerInfo;
   selectedShippingMethod: string | null;
+  selectedPickupPoint: string | null;
   selectedPaymentMethod: string | null;
   orderNotes: string;
 }
@@ -117,6 +119,7 @@ export const useCheckout = () => {
     },
     selectedShippingMethod: 'standard',
     selectedPaymentMethod: 'card',
+    selectedPickupPoint: '',
     orderNotes: ''
   }));
   
@@ -167,12 +170,15 @@ export const useCheckout = () => {
   
   // Submit order
   const submitOrder = async () => {
+    const orderId = uuidv4();
     try {
       // Create order payload
       const orderPayload = {
         cartId: cartSessionId.value,
+        orderId,
         customerInfo: checkoutState.value.customerInfo,
         shippingMethod: checkoutState.value.selectedShippingMethod,
+        selectedPickupPoint: checkoutState.value.selectedPickupPoint,
         paymentMethod: checkoutState.value.selectedPaymentMethod,
         orderNotes: checkoutState.value.orderNotes,
         items: cartItems.value,
@@ -183,20 +189,19 @@ export const useCheckout = () => {
           total: orderTotal.value
         }
       };
-      
-      const response: { url: string} = await $fetch('/api/orders', {
+      const paymentResponse: { url: string} = await $fetch('/api/orders', {
         method: 'POST',
         body: orderPayload
       })
-      if(response) {
+      const deliveryResponse = await $fetch('/api/delivery/packeta', {
+        method: 'POST',
+        body: orderPayload
+      })
+      if(paymentResponse && deliveryResponse) {
         clearCart()
-        navigateTo(response.url, { external: true })
+        navigateTo(paymentResponse.url, { external: true })
       }
       
-      return {
-        success: true,
-        orderId: response.id
-      };
     } catch (error) {
       console.error('Failed to submit order:', error);
       return {
@@ -206,6 +211,14 @@ export const useCheckout = () => {
     }
   };
   
+  function setSelectedPickupPoint(pickupPoint: any) {
+    checkoutState.value.selectedPickupPoint = pickupPoint;
+  }
+
+  function getSelectedPickupPoint() {
+    return checkoutState.value.selectedPickupPoint;
+  }
+
   return {
     checkoutState,
     shippingMethods,
@@ -217,6 +230,8 @@ export const useCheckout = () => {
     orderTotal,
     nextStep,
     previousStep,
-    submitOrder
+    submitOrder,
+    setSelectedPickupPoint,
+    getSelectedPickupPoint
   };
 };

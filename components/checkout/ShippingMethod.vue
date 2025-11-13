@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useCheckout } from '~/composables/useCheckout';
 
-const { checkoutState, shippingMethods } = useCheckout();
+const { checkoutState, shippingMethods, setSelectedPickupPoint } = useCheckout();
 
 const selectedShippingMethod = computed({
   get: () => checkoutState.value.selectedShippingMethod,
@@ -20,6 +20,7 @@ const selectShippingMethod = (methodId) => {
 const handlePacketaCallback = (point) => {
   if (point) {
     selectedPickupPoint.value = point;
+    setSelectedPickupPoint(point);
   }
 };
 
