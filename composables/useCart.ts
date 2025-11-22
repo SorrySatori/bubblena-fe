@@ -1,5 +1,6 @@
 import { computed, nextTick } from 'vue';
 import { useState } from '#app';
+import type { ProductVariant } from './useProducts';
 
 // Define the cart item interface
 export interface CartItem {
@@ -7,6 +8,8 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  weight?: number;
+  variant?: ProductVariant;
   imageUrl?: string;
 }
 

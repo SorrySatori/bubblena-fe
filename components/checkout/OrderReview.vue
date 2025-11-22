@@ -196,32 +196,6 @@ const goToStep = (step) => {
   checkoutState.value.step = step;
 };
 
-const placeOrder = async () => {
-  isSubmitting.value = true;
-  
-  try {
-    const result = await submitOrder();
-    
-    if (result.success) {
-      // Clear the cart after successful order
-      clearCart();
-      
-      // Redirect to order confirmation page
-      router.push({
-        path: '/order-confirmation',
-        query: { orderId: result.orderId }
-      });
-    } else {
-      // Show error
-      alert(result.error || 'Došlo k chybě při zpracování objednávky. Zkuste to prosím znovu.');
-    }
-  } catch (error) {
-    console.error('Order submission error:', error);
-    alert('Došlo k chybě při zpracování objednávky. Zkuste to prosím znovu.');
-  } finally {
-    isSubmitting.value = false;
-  }
-};
 
 defineEmits(['prev']);
 </script>

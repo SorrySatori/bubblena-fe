@@ -23,7 +23,7 @@ export const useCartStore = defineStore('cart', {
   actions: {
     async initCart() {
       let sessionId = localStorage.getItem('cartSessionId')
-      if (sessionId) {
+      if (sessionId !== undefined && sessionId !== null) {
         const existingCart = await $fetch<Cart>(`/api/cart/${sessionId}`)
         this.cart = existingCart
       }

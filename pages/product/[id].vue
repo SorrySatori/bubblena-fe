@@ -71,6 +71,8 @@ const addItemToCart = () => {
       name: `${product.value.name} (${selectedVariant.value.weight}g)`,
       price: selectedVariant.value.price,
       quantity: quantity.value,
+      weight: selectedVariant.weight,
+      variant: selectedVariant.value,
       imageUrl: product.value.imageUrl
     });
     cart.addItem(product.value._id, selectedVariant.value.weight, quantity.value)

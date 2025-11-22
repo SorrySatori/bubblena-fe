@@ -20,7 +20,6 @@ const handleSubmit = async () => {
         message: form.value.message 
       }
     })
-    console.log('response', response)
     if (response.success) {
       status.value = "Zpráva byla úspěšně odeslána."
       // Reset form after successful submission

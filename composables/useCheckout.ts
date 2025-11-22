@@ -56,7 +56,6 @@ export interface CheckoutState {
 // Create a composable for checkout functionality
 export const useCheckout = () => {
   const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
-  
   // Available shipping methods
   const shippingMethods = ref<ShippingMethod[]>([
     {
@@ -189,10 +188,10 @@ export const useCheckout = () => {
           total: orderTotal.value
         }
       };
-      const paymentResponse: { url: string} = await $fetch('/api/orders', {
+      const paymentResponse = await $fetch('/api/orders', {
         method: 'POST',
         body: orderPayload
-      })
+      }) as { url: string }
 
       const deliveryResponse = await $fetch('/api/delivery/packeta', {
         method: 'POST',

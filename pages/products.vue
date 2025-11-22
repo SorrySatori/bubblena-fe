@@ -45,7 +45,6 @@ const getLowestPrice = (product) => {
 // Add to cart function
 const addToCart = (product, event) => {
   if (event) event.stopPropagation();
-  
   const variant = getDefaultVariant(product);
   
   if (product && variant && variant.inStock) {
@@ -54,9 +53,10 @@ const addToCart = (product, event) => {
       name: `${product.name} (${variant.weight}g)`,
       price: variant.price,
       quantity: 1,
+      variant,
       imageUrl: product.imageUrl
     });
-    cart.addItem(product._id, product.variants?.[0]?.weight, 1)
+    cart.addItem(product._id, variant.weight, 1)
     
     // Show toast notification
     toastMessage.value = `${product.name} (${variant.weight}g) přidáno do košíku`;
@@ -123,8 +123,8 @@ onMounted(() => {
             <p class="product-description">{{ product.description }}</p>
             <div class="product-footer">
               <div class="product-price-container">
-                <span class="product-price">{{ getLowestPrice(product).toFixed(2) }} Kč</span>
                 <span v-if="product.variants && product.variants.length > 1" class="product-price-note">od</span>
+                <span class="product-price">{{ getLowestPrice(product).toFixed(2) }} Kč</span>
               </div>
               <button 
                 class="add-to-cart-btn" 
