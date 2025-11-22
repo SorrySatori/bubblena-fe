@@ -4,6 +4,7 @@ import { useCheckout } from '~/composables/useCheckout';
 
 const { checkoutState, shippingMethods, setSelectedPickupPoint } = useCheckout();
 
+const isGlsPointSelected = ref(false)
 const selectedShippingMethod = computed({
   get: () => checkoutState.value.selectedShippingMethod,
   set: (value) => { checkoutState.value.selectedShippingMethod = value; }
@@ -40,7 +41,6 @@ const openPacketaWidget = () => {
 };
 
 onMounted(() => {
-  console.log('Component mounted, setting up Packeta widget');
 
   const script = document.createElement('script');
   script.src = 'https://widget.packeta.com/v6/www/js/library.js';
@@ -61,6 +61,14 @@ onMounted(() => {
   document.head.appendChild(script);
 });
 
+window.addEventListener("message", (event) => {
+  if (event.data && event.data.parcelshop) {
+    selectedPickupPoint.value = event.data.parcelshop.detail
+    setSelectedPickupPoint(event.data.parcelshop.detail)
+    isGlsPointSelected.value = true
+  }
+})
+
 </script>
 
 <template>
@@ -68,19 +76,23 @@ onMounted(() => {
     <h2 class="text-xl font-medium text-secondary">Způsob dopravy</h2>
 
     <div class="space-y-4">
-      <div v-if="selectedShippingMethod === 'zasilkovna'" class="mb-4">
-        <button id="zasilkovna-button" @click="openPacketaWidget"
+      <button v-if="selectedShippingMethod === 'zasilkovna'" id="zasilkovna-button" @click="openPacketaWidget"
           class="mt-2 mb-2 bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary-dark transition-colors"
           :disabled="!isPacketaLoaded">
           Vybrat výdejní místo
         </button>
-        <div v-if="!isPacketaLoaded" class="text-xs text-gray-500">Načítání widgetu Zásilkovny...</div>
-        <div v-if="selectedPickupPoint" class="mt-2 p-3 border border-primary rounded-lg bg-primary bg-opacity-5">
+      <div v-if="selectedPickupPoint" class="mt-2 p-3 border border-primary rounded-lg bg-primary bg-opacity-5">
           <p class="font-medium">Vybrané výdejní místo:</p>
           <p>{{ selectedPickupPoint.name }}</p>
-          <p class="text-sm text-gray-600">{{ selectedPickupPoint.city }}, {{ selectedPickupPoint.street }}</p>
+          <p class="text-sm text-gray-600">{{ selectedPickupPoint.city }}, {{ selectedPickupPoint.street || selectedPickupPoint.address }}</p>
         </div>
+      <div v-if="selectedShippingMethod === 'zasilkovna'" class="mb-4">
+        <div v-if="!isPacketaLoaded" class="text-xs text-gray-500">Načítání widgetu Zásilkovny...</div>
         <div id="zasilkovna-branch"></div>
+      </div>
+      <div v-if="selectedShippingMethod === 'gls' && !isGlsPointSelected" class="mb-4">
+        <iframe src="https://ps-maps.gls-czech.cz/?tdetail=2&header=0&find=1"
+          style="width:100%; height:600px; border:0;"></iframe>
       </div>
       <div v-for="method in shippingMethods" :key="method.id"
         class="border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer"

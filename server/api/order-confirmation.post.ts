@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     .join("")
 
   const shippingHtml = selectedPickupPoint
-    ? `<p><b>Doručení:</b> Zásilkovna – ${selectedPickupPoint.name}, ${selectedPickupPoint.city}</p>`
+    ? `<p><b>Doručení:</b> ${shippingMethod} – ${selectedPickupPoint.name}, ${selectedPickupPoint.city}</p>`
     : `<p><b>Doručení:</b> ${shippingMethod}</p>`
 
   const customerName = `${customerInfo.firstName} ${customerInfo.lastName}`
