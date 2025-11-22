@@ -1,4 +1,3 @@
-
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
 import { useProduct } from '~/composables/useProduct';
@@ -17,6 +16,7 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const selectedVariantIndex = ref(0);
 const quantity = ref(1);
+const isHoveringImage = ref(false);
 
 const selectedVariant = computed(() => {
   if (!product.value || !product.value.variants || product.value.variants.length === 0) {
@@ -39,8 +39,8 @@ const decrementQuantity = () => {
 };
 
 onMounted(() => {
-  if(product.value?.variants?.length)
-  selectedVariant.value = product.value.variants[selectedVariantIndex.value]
+  if (product.value?.variants?.length)
+    selectedVariant.value = product.value.variants[selectedVariantIndex.value]
 })
 
 // Reset quantity and selected variant when product changes
@@ -79,7 +79,7 @@ const addItemToCart = () => {
 
     toastMessage.value = `${quantity.value}× ${product.value.name} (${selectedVariant.value.weight}g) přidáno do košíku`;
     showToast.value = true;
-    
+
     setTimeout(() => {
       showToast.value = false;
     }, 3000);
@@ -94,15 +94,11 @@ onMounted(() => {
 
 <template>
   <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification 
-      :show="showToast" 
-      :message="toastMessage" 
-      type="cart"
-      @close="showToast = false"
-    />
+    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <NuxtLink to="/products" class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
-        <span class="mr-2 text-xl transform group-hover:-translate-x-1 transition-transform">←</span> 
+      <NuxtLink to="/products"
+        class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
+        <span class="mr-2 text-xl transform group-hover:-translate-x-1 transition-transform">←</span>
         <span class="group-hover:underline">Zpět na produkty</span>
       </NuxtLink>
 
@@ -110,37 +106,41 @@ onMounted(() => {
         <div class="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
         <p class="text-lg text-gray-600 animate-pulse">Načítání produktu...</p>
       </div>
-      
+
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
         <p>{{ error }}</p>
-        <button @click="loadProduct" class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
+        <button @click="loadProduct"
+          class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
       </div>
-      
+
       <div v-else-if="!product" class="text-center py-12 text-gray-800">
         <p>Produkt nebyl nalezen.</p>
         <NuxtLink to="/products" class="inline-block mt-4 text-primary hover:underline">
           Zpět na seznam produktů
         </NuxtLink>
       </div>
-      
+
       <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8">
-        <div class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100">
-          <img 
-            :src="product.imageUrl || '/images/product-placeholder.jpg'" 
-            :alt="product.name" 
-            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
-          >
-          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          <span 
-            v-if="selectedVariant && !selectedVariant.inStock" 
-            class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2"
-          >
+        <div
+          class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100"
+          @mouseenter="isHoveringImage = true" @mouseleave="isHoveringImage = false">
+          <video v-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" autoplay loop muted playsinline
+            class="w-full h-full object-cover object-center">
+          </video>
+          <img v-else :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
+            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
+
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          </div>
+          <span v-if="selectedVariant && !selectedVariant.inStock"
+            class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2">
             Vyprodáno
           </span>
         </div>
-        
+
         <div class="flex flex-col gap-8">
           <div>
             <h1 class="text-4xl md:text-5xl text-secondary font-bold mb-2">{{ product.name }}</h1>
@@ -150,23 +150,18 @@ onMounted(() => {
             <div class="w-full" v-if="product.variants && product.variants?.length > 0">
               <label for="variant-select" class="block text-sm font-medium text-gray-700 mb-2">Vyberte hmotnost:</label>
               <div class="relative">
-                <select 
-                  id="variant-select" 
-                  v-model="selectedVariantIndex" 
-                  class="block w-full pl-4 pr-10 py-3 text-base border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary rounded-lg appearance-none bg-white shadow-sm"
-                >
-                  <option 
-                    v-for="(variant, index) in product.variants" 
-                    :key="index" 
-                    :value="index"
-                    :disabled="!variant?.inStock"
-                  >
+                <select id="variant-select" v-model="selectedVariantIndex"
+                  class="block w-full pl-4 pr-10 py-3 text-base border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary rounded-lg appearance-none bg-white shadow-sm">
+                  <option v-for="(variant, index) in product.variants" :key="index" :value="index"
+                    :disabled="!variant?.inStock">
                     {{ variant?.weight }}g - {{ variant?.price.toFixed(2) }} Kč {{ !variant?.inStock ? '(Vyprodáno)' : '' }}
                   </option>
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    <path fill-rule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clip-rule="evenodd"></path>
                   </svg>
                 </div>
               </div>
@@ -176,75 +171,64 @@ onMounted(() => {
               <div class="text-3xl font-bold text-secondary bg-gray-50 py-2 px-4 rounded-lg shadow-sm">
                 {{ selectedVariant ? selectedVariant.price.toFixed(2) * quantity : '0.00' }} Kč
               </div>
-              
+
               <div class="flex items-center gap-2" v-if="selectedVariant && selectedVariant.inStock">
                 <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm">
-                  <button 
-                    @click="decrementQuantity" 
+                  <button @click="decrementQuantity"
                     class="px-3 py-2 text-gray-600 hover:text-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="quantity <= 1"
-                  >
+                    :disabled="quantity <= 1">
                     <span class="text-xl font-medium">-</span>
                   </button>
                   <span class="px-3 py-2 text-gray-800 font-medium min-w-[40px] text-center">{{ quantity }}</span>
-                  <button 
-                    @click="incrementQuantity" 
+                  <button @click="incrementQuantity"
                     class="px-3 py-2 text-gray-600 hover:text-primary focus:outline-none"
-                    :disabled="quantity >= (selectedVariant.stockCount || 10)"
-                  >
+                    :disabled="quantity >= (selectedVariant.stockCount || 10)">
                     <span class="text-xl font-medium">+</span>
                   </button>
                 </div>
-                
-                <button 
-                  @click="addItemToCart"
-                  class="bg-primary text-white border-none py-2 px-4 rounded-lg text-base font-medium transition-all duration-300 hover:bg-accent hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1 flex items-center gap-2" 
-                >
+
+                <button @click="addItemToCart"
+                  class="bg-primary text-white border-none py-2 px-4 rounded-lg text-base font-medium transition-all duration-300 hover:bg-accent hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1 flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                    <path
+                      d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                   </svg>
                   Přidat do košíku
                 </button>
               </div>
-              
-              <button 
-                v-else
+
+              <button v-else
                 class="bg-gray-200 text-gray-500 border-none py-2 px-4 rounded-lg text-base font-medium cursor-not-allowed"
-                disabled
-              >
+                disabled>
                 Vyprodáno
               </button>
             </div>
           </div>
-          
+
           <div class="flex items-center gap-3 text-base bg-gray-50 p-3 rounded-lg">
-            <span 
-              :class="[selectedVariant && selectedVariant.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-4 h-4 rounded-full shadow-inner animate-pulse']"
-            ></span>
+            <span
+              :class="[selectedVariant && selectedVariant.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-4 h-4 rounded-full shadow-inner animate-pulse']"></span>
             <span class="font-medium">{{ selectedVariant && selectedVariant.inStock ? 'Skladem' : 'Vyprodáno' }}</span>
-            <span 
-              v-if="selectedVariant && selectedVariant.stockCount && selectedVariant.inStock" 
-              class="text-gray-600 bg-white py-1 px-2 rounded-md text-sm"
-            >
+            <span v-if="selectedVariant && selectedVariant.stockCount && selectedVariant.inStock"
+              class="text-gray-600 bg-white py-1 px-2 rounded-md text-sm">
               {{ selectedVariant.stockCount }} ks
             </span>
           </div>
-          
-          <div 
-            v-if="product.shortDescription" 
-            class="my-2 py-4 px-5 bg-gradient-to-r from-primary/5 to-transparent border-l-4 border-primary rounded-r-lg shadow-sm"
-          >
+
+          <div v-if="product.shortDescription"
+            class="my-2 py-4 px-5 bg-gradient-to-r from-primary/5 to-transparent border-l-4 border-primary rounded-r-lg shadow-sm">
             <p class="m-0 italic text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
           </div>
-          
+
           <div class="mt-6">
             <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
               <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
               Příběh
             </h2>
-            <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{ product.description }}</p>
+            <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{
+      product.description }}</p>
           </div>
-          
+
           <div class="mt-8 border-t border-gray-200 pt-6">
             <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -262,7 +246,7 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          
+
 
         </div>
       </div>
