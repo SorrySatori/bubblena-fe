@@ -91,7 +91,7 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
-      <h1 class="page-title">Naše produkty</h1>
+      <h1 class="page-title">Naše bomby do koupele</h1>
       
       <!-- Loading state -->
       <div v-if="loading" class="loading-container">

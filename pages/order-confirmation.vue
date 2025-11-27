@@ -26,7 +26,7 @@
             Zpět na úvodní stránku
           </NuxtLink>
           
-          <NuxtLink to="/products" class="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors">
+          <NuxtLink to="/bath-bombs" class="border border-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-50 transition-colors">
             Pokračovat v nákupu
           </NuxtLink>
         </div>

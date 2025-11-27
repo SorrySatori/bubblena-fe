@@ -95,8 +95,8 @@ onMounted(() => {
 <template>
   <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
     <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <NuxtLink to="/products"
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <NuxtLink to="/bath-bombs"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
         <span class="mr-2 text-xl transform group-hover:-translate-x-1 transition-transform">←</span>
         <span class="group-hover:underline">Zpět na produkty</span>
@@ -117,34 +117,57 @@ onMounted(() => {
 
       <div v-else-if="!product" class="text-center py-12 text-gray-800">
         <p>Produkt nebyl nalezen.</p>
-        <NuxtLink to="/products" class="inline-block mt-4 text-primary hover:underline">
+        <NuxtLink to="/bath-bombs" class="inline-block mt-4 text-primary hover:underline">
           Zpět na seznam produktů
         </NuxtLink>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8">
-        <div
-          class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100"
-          @mouseenter="isHoveringImage = true" @mouseleave="isHoveringImage = false">
-          <video v-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" autoplay loop muted playsinline
-            class="w-full h-full object-cover object-center">
-          </video>
-          <img v-else :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
-            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
+      <div v-else class="mt-8">
+        <!-- Two Column Layout: Image and Product Info -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Left Column: Image + Short Description -->
+          <div class="flex flex-col gap-6">
+            <div
+              class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100"
+              @mouseenter="isHoveringImage = true" @mouseleave="isHoveringImage = false">
+              <video v-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" autoplay loop muted playsinline
+                class="w-full h-full object-cover object-center">
+              </video>
+              <img v-else :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
+                class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              </div>
+              <span v-if="selectedVariant && !selectedVariant.inStock"
+                class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2">
+                Vyprodáno
+              </span>
+            </div>
+
+            <!-- Short Description beneath image -->
+            <div v-if="product.shortDescription"
+              class="py-4 px-5 bg-gradient-to-r from-primary/5 to-transparent border-l-4 border-primary rounded-r-lg shadow-sm">
+              <p class="m-0 italic text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
+            </div>
           </div>
-          <span v-if="selectedVariant && !selectedVariant.inStock"
-            class="absolute top-5 right-5 bg-red-500 text-white py-2 px-4 rounded-md text-sm font-medium shadow-lg transform -rotate-2">
-            Vyprodáno
-          </span>
-        </div>
 
-        <div class="flex flex-col gap-8">
+          <!-- Right Column: Product Info + Purchase Options -->
+          <div class="flex flex-col gap-6">
           <div>
-            <h1 class="text-4xl md:text-5xl text-secondary font-bold mb-2">{{ product.name }}</h1>
-            <div class="h-1 w-20 bg-primary rounded-full mb-6"></div>
+            <h1 class="text-3xl md:text-4xl text-secondary font-bold mb-2">{{ product.name }}</h1>
+            <div class="h-1 w-20 bg-primary rounded-full mb-4"></div>
+          </div>
+
+          <!-- Stock Status -->
+          <div class="flex items-center gap-3 text-base bg-gray-50 p-3 rounded-lg">
+            <span
+              :class="[selectedVariant && selectedVariant.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-4 h-4 rounded-full shadow-inner animate-pulse']"></span>
+            <span class="font-medium">{{ selectedVariant && selectedVariant.inStock ? 'Skladem' : 'Vyprodáno' }}</span>
+            <span v-if="selectedVariant && selectedVariant.stockCount && selectedVariant.inStock"
+              class="text-gray-600 bg-white py-1 px-2 rounded-md text-sm">
+              {{ selectedVariant.stockCount }} ks
+            </span>
           </div>
           <div class="flex flex-col gap-6 w-full">
             <div class="w-full" v-if="product.variants && product.variants?.length > 0">
@@ -205,21 +228,6 @@ onMounted(() => {
             </div>
           </div>
 
-          <div class="flex items-center gap-3 text-base bg-gray-50 p-3 rounded-lg">
-            <span
-              :class="[selectedVariant && selectedVariant.inStock ? 'bg-green-500' : 'bg-red-500', 'inline-block w-4 h-4 rounded-full shadow-inner animate-pulse']"></span>
-            <span class="font-medium">{{ selectedVariant && selectedVariant.inStock ? 'Skladem' : 'Vyprodáno' }}</span>
-            <span v-if="selectedVariant && selectedVariant.stockCount && selectedVariant.inStock"
-              class="text-gray-600 bg-white py-1 px-2 rounded-md text-sm">
-              {{ selectedVariant.stockCount }} ks
-            </span>
-          </div>
-
-          <div v-if="product.shortDescription"
-            class="my-2 py-4 px-5 bg-gradient-to-r from-primary/5 to-transparent border-l-4 border-primary rounded-r-lg shadow-sm">
-            <p class="m-0 italic text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
-          </div>
-
           <div class="border-t border-gray-200 pt-6">
             <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
             <div class="flex flex-col p-3">
@@ -240,18 +248,19 @@ onMounted(() => {
                 <span class="text-gray-800 font-medium">{{ formatDate(product.createdAt) }}</span>
               </div>
             </div>
-
-            <div class="my-6">
-              <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
-                <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
-                Příběh
-              </h2>
-              <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{
-                product.description }}</p>
-            </div>
           </div>
+        </div>
+      </div>
 
-
+        <!-- Full Width Story Section -->
+        <div class="my-8">
+          <div>
+            <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
+              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
+              Příběh
+            </h2>
+            <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{ product.description }}</p>
+          </div>
         </div>
       </div>
     </div>

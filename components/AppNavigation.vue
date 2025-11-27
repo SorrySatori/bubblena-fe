@@ -41,8 +41,8 @@ const mobileNavOpen = ref(false);
 
 const navItems = [
   { name: 'Domů', path: '/' },
-  { name: 'Produkty', path: '/products' },
-  { name: 'Vlastnosti', path: '/features' },
+  { name: 'Bomby do koupele', path: '/bath-bombs' },
+  { name: 'Steamery', path: '/steamers' },
   { name: 'O nás', path: '/about' },
   { name: 'Kontakt', path: '/contact' }
 ];

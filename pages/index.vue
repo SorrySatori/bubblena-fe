@@ -10,7 +10,7 @@
           <h1 class="text-5xl mb-4 text-secondary font-extrabold"><span class="text-primary font-bold">Bubblena</span></h1>
           <p class="text-2xl mb-8 text-dark opacity-80">Váš oblíbený e-shop s bombami do koupele</p>
           <div class="flex gap-4 mt-8">
-            <NuxtLink to="/products" class="bg-primary text-white border-none py-3 px-6 rounded text-base font-semibold cursor-pointer transition-all hover:bg-accent hover:-translate-y-0.5 hover:shadow-lg">Prohlédnout produkty</NuxtLink>
+            <NuxtLink to="/bath-bombs" class="bg-primary text-white border-none py-3 px-6 rounded text-base font-semibold cursor-pointer transition-all hover:bg-accent hover:-translate-y-0.5 hover:shadow-lg">Prohlédnout produkty</NuxtLink>
             <a href="#" class="bg-transparent text-secondary border-2 border-secondary py-3 px-6 rounded text-base font-semibold cursor-pointer transition-all hover:bg-secondary hover:text-white hover:-translate-y-0.5 hover:shadow-lg inline-block">Dozvědět se více</a>
           </div>
         </div>

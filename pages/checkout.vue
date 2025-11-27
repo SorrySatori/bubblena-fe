@@ -164,7 +164,7 @@ const submitOrder = async () => {
         </svg>
         <h2 class="text-xl font-medium text-secondary mb-4">Váš košík je prázdný</h2>
         <p class="text-gray-500 mb-6">Přidejte nějaké produkty do košíku a vraťte se zpět.</p>
-        <NuxtLink to="/products" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
+        <NuxtLink to="/bath-bombs" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-accent transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
