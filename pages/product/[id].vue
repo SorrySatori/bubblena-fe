@@ -220,17 +220,12 @@ onMounted(() => {
             <p class="m-0 italic text-gray-700 leading-relaxed">{{ product.shortDescription }}</p>
           </div>
 
-          <div class="mt-6">
-            <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
-              <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
-              Příběh
-            </h2>
-            <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{
-      product.description }}</p>
-          </div>
-
-          <div class="mt-8 border-t border-gray-200 pt-6">
+          <div class="border-t border-gray-200 pt-6">
             <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
+            <div class="flex flex-col p-3">
+              <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Složení</span>
+              <span class="text-gray-800 font-medium">{{ product.ingredients }}</span>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-if="product.storageMethod" class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
                 <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Způsob skladování</span>
@@ -244,6 +239,15 @@ onMounted(() => {
                 <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Přidáno</span>
                 <span class="text-gray-800 font-medium">{{ formatDate(product.createdAt) }}</span>
               </div>
+            </div>
+
+            <div class="my-6">
+              <h2 class="text-2xl mb-4 text-secondary font-semibold flex items-center">
+                <span class="inline-block w-2 h-6 bg-primary rounded-full mr-3"></span>
+                Příběh
+              </h2>
+              <p class="leading-relaxed text-gray-800 bg-white p-5 rounded-lg shadow-sm border border-gray-100">{{
+                product.description }}</p>
             </div>
           </div>
 

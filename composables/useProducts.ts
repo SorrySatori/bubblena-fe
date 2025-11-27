@@ -18,6 +18,7 @@ export interface Product {
   category?: string;
   storageMethod?: string;
   variants: ProductVariant[]
+  ingredients: string;
   createdAt?: string;
   updatedAt?: string;
   isDeleted?: boolean;

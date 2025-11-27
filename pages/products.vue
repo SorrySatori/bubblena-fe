@@ -120,7 +120,7 @@ onMounted(() => {
           </div>
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
-            <p class="product-description">{{ product.description }}</p>
+            <p class="product-description">{{ product.shortDescription }}</p>
             <div class="product-footer">
               <div class="product-price-container">
                 <span v-if="product.variants && product.variants.length > 1" class="product-price-note">od</span>
