@@ -1,5 +1,58 @@
 <script setup>
+import { ref, onMounted } from 'vue';
+import { useSteamers } from '~/composables/useSteamers';
+import { useRouter } from 'vue-router';
+import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
+import { useCartStore } from "~/stores/cart";
+
+// Get steamers data and methods from the composable
+const { steamers, loading, error, fetchSteamers } = useSteamers();
+const router = useRouter();
+const { addToCart: addItemToCart } = useCart();
+
+// Toast notification state
+const showToast = ref(false);
+const toastMessage = ref('');
+const cart = useCartStore();
+
+// Navigate to steamer detail page
+const navigateToSteamer = (steamerId) => {
+  router.push(`/steamer/${steamerId}`);
+};
+
+// Add to cart function
+const addToCart = (steamer, event) => {
+  if (event) event.stopPropagation();
+  
+  if (steamer && steamer.inStock) {
+    addItemToCart({
+      id: steamer._id,
+      name: `${steamer.name} (${steamer.weight}g)`,
+      price: steamer.price,
+      quantity: 1,
+      imageUrl: steamer.imageUrl
+    });
+    
+    // Show toast notification
+    toastMessage.value = `${steamer.name} přidáno do košíku`;
+    showToast.value = true;
+    
+    // Hide toast after 3 seconds
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }
+};
+
+// Fetch steamers when the component is mounted
+onMounted(() => {
+  fetchSteamers();
+});
+
+onMounted(() => {
+  cart.initCart();
+});
 
 </script>
 
@@ -10,9 +63,60 @@ import ToastNotification from '~/components/ToastNotification.vue';
       :show="showToast" 
       :message="toastMessage" 
       type="cart"
+      @close="showToast = false"
     />
     <div class="container">
       <h1 class="page-title">Steamery do sprchy</h1>
+      
+      <!-- Loading state -->
+      <div v-if="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Načítání steamerů...</p>
+      </div>
+      
+      <!-- Error state -->
+      <div v-else-if="error" class="error-message">
+        <p>{{ error }}</p>
+        <button @click="fetchSteamers" class="retry-button">Zkusit znovu</button>
+      </div>
+      
+      <!-- No steamers state -->
+      <div v-else-if="steamers.length === 0" class="no-products">
+        <p>Žádné steamery nebyly nalezeny.</p>
+      </div>
+      
+      <!-- Steamers grid -->
+      <div v-else class="products-grid">
+        <div v-for="steamer in steamers" :key="steamer.id" class="product-card" @click="navigateToSteamer(steamer._id)">
+          <div class="product-image">
+            <img :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name">
+            <span v-if="!steamer.inStock" class="out-of-stock-badge">Vyprodáno</span>
+          </div>
+          <div class="product-info">
+            <h3 class="product-name">{{ steamer.name }}</h3>
+            <p class="product-description">{{ steamer.shortDescription }}</p>
+            <div class="product-footer">
+              <div class="product-price-container">
+                <span class="product-price">{{ steamer.price.toFixed(2) }} Kč</span>
+                <span class="product-price-note">{{ steamer.weight }}g</span>
+              </div>
+              <button 
+                @click="addToCart(steamer, $event)" 
+                class="add-to-cart-btn"
+                :disabled="!steamer.inStock"
+              >
+                <span v-if="steamer.inStock">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                  </svg>
+                  Přidat do košíku
+                </span>
+                <span v-else>Vyprodáno</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

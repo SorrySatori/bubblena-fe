@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
       <tr>
         <td>${item.name}</td>
         <td style="text-align:center;">${item.quantity}×</td>
-        <td style="text-align:right;">${item.variant} g</td>
+        <td style="text-align:right;">${item.variant?.weight || item.weight} g</td>
         <td style="text-align:right;">${item.price} Kč</td>
       </tr>`
     )
@@ -68,6 +68,7 @@ export default defineEventHandler(async (event) => {
           <tr>
             <th style="text-align:left;">Produkt</th>
             <th style="text-align:center;">Množství</th>
+            <th style="text-align:right;">Hmotnost</th>
             <th style="text-align:right;">Cena</th>
           </tr>
         </thead>
