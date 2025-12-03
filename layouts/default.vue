@@ -26,7 +26,7 @@
       <slot />
     </main>
     
-    <footer class="bg-secondary text-white py-12 pb-4">
+    <footer class="bg-secondary text-white py-12 pb-4 relative">
       <div class="container">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
@@ -50,7 +50,6 @@
             <div class="flex gap-4">
               <a href="https://www.facebook.com/profile.php?id=61580744706557" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Facebook</a>
               <a href="https://www.instagram.com/bubblena.cz/" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Instagram</a>
-              <a href="https://www.tiktok.com/@bubblena.cz" target="_blank" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">TikTok</a>
             </div>
           </div>
         </div>
@@ -58,6 +57,8 @@
         <div class="border-t border-white/10 pt-4 text-center text-sm opacity-70">
           <p>&copy; {{ new Date().getFullYear() }} Bubblena. Všechna práva vyhrazena.</p>
         </div>
+        
+        <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="footer-logo-corner" />
       </div>
     </footer>
   </div>
@@ -250,6 +251,16 @@ ul {
   opacity: 0.8;
 }
 
+.footer-logo-corner {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  height: 75px;
+  width: auto;
+  opacity: 0.8;
+  z-index: 10;
+}
+
 .footer-section ul li {
   margin-bottom: 0.5rem;
 }
@@ -304,6 +315,14 @@ ul {
   .auth-buttons {
     width: 100%;
     justify-content: center;
+  }
+  
+  .footer-logo-corner {
+    position: static;
+    height: 80px;
+    margin: 2rem auto 0;
+    display: block;
+    opacity: 0.8;
   }
 }
 </style>

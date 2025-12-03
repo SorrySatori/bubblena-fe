@@ -84,8 +84,8 @@ const handleSubmit = async () => {
           <div class="info-icon">📍</div>
           <div>
             <h3>Adresa</h3>
-            <p>Bublinková 123</p>
-            <p>110 00 Praha 1</p>
+            <p>Pobialova 23</p>
+            <p>70200 Ostrava</p>
           </div>
         </div>
         
@@ -114,9 +114,6 @@ const handleSubmit = async () => {
             </a>
             <a href="https://www.instagram.com/bubblena.cz/" target="_blank" class="social-icon">
               <span>Instagram</span>
-            </a>
-            <a href="https://www.tiktok.com/@bubblena.cz" target="_blank" class="social-icon">
-              <span>TikTok</span>
             </a>
           </div>
         </div>
