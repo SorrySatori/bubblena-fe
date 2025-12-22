@@ -5,13 +5,21 @@
 <template>
   <div>
     <main>
-      <div class="min-h-[80vh] pt-24 flex items-center justify-between px-[5%] bg-gradient-to-br from-[#f5f7fa] to-[#e4e8eb] relative overflow-hidden">
-        <div class="max-w-xl z-10">
-          <h1 class="text-5xl mb-4 text-secondary font-extrabold"><span class="text-primary font-bold">Bubblena</span></h1>
-          <p class="text-2xl mb-8 text-dark opacity-80">Váš oblíbený e-shop s bombami do koupele</p>
-          <div class="flex gap-4 mt-8">
-            <NuxtLink to="/bath-bombs" class="bg-primary text-white border-none py-3 px-6 rounded text-base font-semibold cursor-pointer transition-all hover:bg-accent hover:-translate-y-0.5 hover:shadow-lg">Prohlédnout produkty</NuxtLink>
-            <a href="#" class="bg-transparent text-secondary border-2 border-secondary py-3 px-6 rounded text-base font-semibold cursor-pointer transition-all hover:bg-secondary hover:text-white hover:-translate-y-0.5 hover:shadow-lg inline-block">Dozvědět se více</a>
+      <div class="relative w-full h-[85vh] overflow-hidden">
+        <div class="absolute inset-0">
+          <img src="~/assets/bombs.png" alt="Bath Bombs" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
+        </div>
+        
+        <div class="relative h-full flex items-center px-[5%] pt-20">
+          <div class="max-w-2xl">
+            <h1 class="text-6xl md:text-7xl mb-6 text-white font-extrabold drop-shadow-2xl">
+              <span class="text-primary font-bold">Bubblena</span>
+            </h1>
+            <p class="text-3xl md:text-4xl mb-8 text-white font-medium drop-shadow-lg">Váš oblíbený e-shop s bombami do koupele</p>
+            <div class="flex flex-wrap gap-4 mt-10">
+              <NuxtLink to="/bath-bombs" class="bg-primary text-white border-none py-4 px-8 rounded-full text-lg font-bold cursor-pointer transition-all hover:bg-accent hover:scale-105 hover:shadow-2xl">Prohlédnout produkty</NuxtLink>
+            </div>
           </div>
         </div>
         <div class="relative w-2/5 h-full">
