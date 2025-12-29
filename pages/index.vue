@@ -22,11 +22,6 @@
             </div>
           </div>
         </div>
-        <div class="relative w-2/5 h-full">
-          <div class="absolute rounded-full bg-gradient-to-br from-primary to-accent opacity-70 w-[150px] h-[150px] top-[20%] right-[10%] animate-float"></div>
-          <div class="absolute rounded-full bg-gradient-to-br from-primary to-accent opacity-70 w-[100px] h-[100px] top-[50%] right-[30%] animate-float animation-delay-2000"></div>
-          <div class="absolute rounded-full bg-gradient-to-br from-primary to-accent opacity-70 w-[80px] h-[80px] top-[70%] right-[15%] animate-float animation-delay-4000"></div>
-        </div>
       </div>
       
       <div class="py-20 px-[5%] text-center bg-white">
