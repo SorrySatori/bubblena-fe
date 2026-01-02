@@ -42,6 +42,7 @@
               <li class="mb-2"><NuxtLink to="/features" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Vlastnosti</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/about" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">O nás</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/contact" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Kontakt</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/obchodni-podminky" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Obchodní podmínky</NuxtLink></li>
             </ul>
           </div>
           
