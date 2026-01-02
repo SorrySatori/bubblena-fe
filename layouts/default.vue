@@ -62,7 +62,7 @@
       </div>
       
       <!-- Floating Particles in Footer - Above content -->
-      <div class="absolute inset-0 z-20 pointer-events-none">
+      <div class="particles-container absolute inset-0 z-20 pointer-events-none">
         <div class="particle absolute rounded-full bg-gradient-to-br from-pink-400 to-purple-400 opacity-20 w-[60px] h-[60px] pointer-events-auto" style="left: 10%; top: 20%;"></div>
         <div class="particle absolute rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 opacity-20 w-[50px] h-[50px] pointer-events-auto" style="left: 85%; top: 30%;"></div>
         <div class="particle absolute rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 w-[55px] h-[55px] pointer-events-auto" style="left: 70%; top: 70%;"></div>
@@ -330,6 +330,13 @@ ul {
   cursor: default;
   pointer-events: auto;
   will-change: transform, opacity;
+}
+
+/* Hide particles on mobile devices */
+@media (max-width: 768px) {
+  .particles-container {
+    display: none;
+  }
 }
 
 /* Animation delays */
