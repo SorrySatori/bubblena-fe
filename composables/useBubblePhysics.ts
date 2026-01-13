@@ -63,13 +63,13 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
             element: particle,
             x: initialFloatX,
             y: initialFloatY,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2,
+            vx: (Math.random() - 0.5) * 0.5, // Slower initial velocity
+            vy: (Math.random() - 0.5) * 0.5,
             originalX: relativeX,
             originalY: relativeY - floatOffset,
             radius: particleRect.width / 2,
             floatPhase: Math.random() * Math.PI * 2,
-            floatSpeed: 0.005 + Math.random() * 0.005,
+            floatSpeed: 0.002 + Math.random() * 0.002, // Slower floating phase
             isHit: false,
             hitTime: 0
           });
@@ -115,12 +115,12 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
       const currentX = particleRect.left - (footerRect?.left || 0) + particleRect.width / 2;
       const currentY = particleRect.top - (footerRect?.top || 0) + particleRect.height / 2;
 
-      // Physics constants
-      const damping = 0.98;
-      const springStrength = 0.002;
-      const repulsionForce = 5;
-      const bounceRestitution = 0.8;
-      const ambientForce = 0.15;
+      // Physics constants - adjusted for smooth underwater-like movement
+      const damping = 0.92; // Higher damping = more resistance (like water)
+      const springStrength = 0.001; // Weaker spring = slower return to position
+      const repulsionForce = 3; // Gentler mouse repulsion
+      const bounceRestitution = 0.6; // Less bouncy collisions
+      const ambientForce = 0.08; // Smaller floating movements
 
       // Only apply ambient floating and spring force if particle is not flying from a hit
       if (!particle.isHit) {
@@ -163,8 +163,9 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
       particle.vx *= damping;
       particle.vy *= damping;
 
-      particle.x += particle.vx * 0.5;
-      particle.y += particle.vy * 0.5;
+      // Slower position updates for smoother movement
+      particle.x += particle.vx * 0.3;
+      particle.y += particle.vy * 0.3;
 
       if (footerRect) {
         const futureX = particle.originalX + particle.x;
