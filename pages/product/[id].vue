@@ -195,36 +195,16 @@ onMounted(() => {
                 {{ selectedVariant ? selectedVariant.price.toFixed(2) * quantity : '0.00' }} Kč
               </div>
 
-              <div class="flex items-center gap-2" v-if="selectedVariant && selectedVariant.inStock">
-                <div class="flex items-center bg-white border border-gray-200 rounded-lg shadow-sm">
-                  <button @click="decrementQuantity"
-                    class="px-3 py-2 text-gray-600 hover:text-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
-                    :disabled="quantity <= 1">
-                    <span class="text-xl font-medium">-</span>
-                  </button>
-                  <span class="px-3 py-2 text-gray-800 font-medium min-w-[40px] text-center">{{ quantity }}</span>
-                  <button @click="incrementQuantity"
-                    class="px-3 py-2 text-gray-600 hover:text-primary focus:outline-none"
-                    :disabled="quantity >= (selectedVariant.stockCount || 10)">
-                    <span class="text-xl font-medium">+</span>
-                  </button>
+              <!-- Preview Mode - Coming Soon Message -->
+              <div class="bg-gradient-to-r from-primary/10 to-accent/10 border-2 border-primary/30 rounded-lg p-4 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p class="font-semibold text-secondary mb-1">Brzy k dispozici!</p>
+                  <p class="text-sm text-gray-600">E-shop se připravuje na spuštění. Sledujte nás na sociálních sítích pro aktuální informace.</p>
                 </div>
-
-                <button @click="addItemToCart"
-                  class="bg-primary text-white border-none py-2 px-4 rounded-lg text-base font-medium transition-all duration-300 hover:bg-accent hover:shadow-lg hover:shadow-primary/20 transform hover:-translate-y-1 flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                      d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                  </svg>
-                  Přidat do košíku
-                </button>
               </div>
-
-              <button v-else
-                class="bg-gray-200 text-gray-500 border-none py-2 px-4 rounded-lg text-base font-medium cursor-not-allowed"
-                disabled>
-                Vyprodáno
-              </button>
             </div>
           </div>
 
