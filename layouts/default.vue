@@ -14,7 +14,7 @@
       <div class="container flex flex-wrap justify-between items-center p-4">
         <div class="flex items-center">
           <NuxtLink to="/" class="flex items-center transition-opacity hover:opacity-90">
-            <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="h-10 w-auto" />
+            <img src="~/assets/bubblena_logo_header.png" alt="Bubblena Logo" class="h-12 w-auto" />
           </NuxtLink>
         </div>
         
@@ -275,7 +275,7 @@ ul {
   position: absolute;
   bottom: 40px;
   right: 40px;
-  height: 75px;
+  height: 120px;
   width: auto;
   opacity: 0.8;
   z-index: 10;
