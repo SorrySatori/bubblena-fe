@@ -100,19 +100,17 @@ onMounted(() => {
                 <span class="product-price">{{ steamer.price.toFixed(2) }} Kč</span>
                 <span class="product-price-note">{{ steamer.weight }}g</span>
               </div>
-              <button 
-                @click="addToCart(steamer, $event)" 
+              <NuxtLink 
+                :to="`/steamer/${steamer._id}`"
                 class="add-to-cart-btn"
-                :disabled="!steamer.inStock"
+                @click.stop
               >
-                <span v-if="steamer.inStock">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                  </svg>
-                  Přidat do košíku
-                </span>
-                <span v-else>Vyprodáno</span>
-              </button>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Zobrazit detail
+              </NuxtLink>
             </div>
           </div>
         </div>

@@ -58,13 +58,6 @@
               <li>Neustálému zlepšování našich receptů a výrobních postupů</li>
             </ul>
           </div>
-          <div class="mission-image">
-            <div class="image-placeholder">
-              <div class="bubble bubble-1"></div>
-              <div class="bubble bubble-2"></div>
-              <div class="bubble bubble-3"></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
