@@ -23,9 +23,17 @@ export const useCartStore = defineStore('cart', {
   actions: {
     async initCart() {
       let sessionId = localStorage.getItem('cartSessionId')
-      if (sessionId !== undefined && sessionId !== null) {
-        const existingCart = await $fetch<Cart>(`/api/cart/${sessionId}`)
-        this.cart = existingCart
+      if (sessionId && sessionId !== 'undefined' && sessionId !== 'null') {
+        try {
+          const existingCart = await $fetch<Cart>(`/api/cart/${sessionId}`)
+          this.cart = existingCart
+        } catch (error) {
+          console.error('Failed to load existing cart:', error)
+          localStorage.removeItem('cartSessionId')
+          const newCart = await $fetch<Cart>('/api/cart/cart', { method: 'POST' })
+          this.cart = newCart
+          localStorage.setItem('cartSessionId', newCart.cartId)
+        }
       }
       else {
         const newCart = await $fetch<Cart>('/api/cart/cart', { method: 'POST' })

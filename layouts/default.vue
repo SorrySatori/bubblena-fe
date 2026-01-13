@@ -64,12 +64,12 @@
       
       <!-- Floating Particles in Footer - Above content -->
       <div class="particles-container absolute inset-0 z-20 pointer-events-none">
-        <div class="particle absolute rounded-full bg-gradient-to-br from-pink-400 to-purple-400 opacity-20 w-[60px] h-[60px] pointer-events-auto" style="left: 10%; top: 20%;"></div>
-        <div class="particle absolute rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 opacity-20 w-[50px] h-[50px] pointer-events-auto" style="left: 85%; top: 30%;"></div>
-        <div class="particle absolute rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 w-[55px] h-[55px] pointer-events-auto" style="left: 70%; top: 70%;"></div>
-        <div class="particle absolute rounded-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-20 w-[65px] h-[65px] pointer-events-auto" style="left: 15%; top: 60%;"></div>
-        <div class="particle absolute rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 opacity-20 w-[45px] h-[45px] pointer-events-auto" style="left: 40%; top: 80%;"></div>
-        <div class="particle absolute rounded-full bg-gradient-to-br from-orange-400 to-pink-400 opacity-20 w-[58px] h-[58px] pointer-events-auto" style="left: 55%; top: 40%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-pink-400 to-purple-400 opacity-20 w-[60px] h-[60px] pointer-events-auto" style="left: 10%; top: 10%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 opacity-20 w-[50px] h-[50px] pointer-events-auto" style="left: 85%; top: 15%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-yellow-400 to-orange-400 opacity-20 w-[55px] h-[55px] pointer-events-auto" style="left: 70%; top: 55%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-purple-400 to-pink-400 opacity-20 w-[65px] h-[65px] pointer-events-auto" style="left: 15%; top: 40%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-cyan-400 to-blue-400 opacity-20 w-[45px] h-[45px] pointer-events-auto" style="left: 40%; top: 65%;"></div>
+        <div class="particle absolute rounded-full bg-gradient-to-br from-orange-400 to-pink-400 opacity-20 w-[58px] h-[58px] pointer-events-auto" style="left: 55%; top: 25%;"></div>
       </div>
     </footer>
   </div>
@@ -331,6 +331,10 @@ ul {
   cursor: default;
   pointer-events: auto;
   will-change: transform, opacity;
+  /* Initial floating state - bubbles start elevated */
+  transform: translateY(-30px);
+  opacity: 0.2;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 /* Hide particles on mobile devices */

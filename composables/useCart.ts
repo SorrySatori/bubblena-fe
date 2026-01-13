@@ -15,8 +15,12 @@ export interface CartItem {
 
 // Define the cart response interface
 export interface CartResponse {
-  id: string;
+  _id: string;
+  sessionId: string;
+  cartId: string;
   items: CartItem[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Create a reactive cart state that persists using localStorage and database
@@ -32,20 +36,22 @@ export const useCart = () => {
   // Initialize cart from database if session ID exists, otherwise from localStorage
   const loadCart = async (): Promise<CartItem[]> => {
     if (import.meta.client) {
-      // Check if we have a cart session ID
-      if (cartSessionId.value) {
+      // Check if we have a valid cart session ID (not null, undefined, or 'undefined' string)
+      if (cartSessionId.value && cartSessionId.value !== 'undefined' && cartSessionId.value !== 'null') {
         try {
           // Load cart from database using the session ID
           const response = await $fetch<CartResponse>(`/api/cart/${cartSessionId.value}`);
           return response.items || [];
         } catch (error) {
           console.error('Failed to load cart from database:', error);
-          // If loading from database fails, try localStorage as fallback
+          // If loading from database fails, clear invalid session ID and try localStorage
+          sessionStorage.removeItem('bubblena-cart-id');
+          cartSessionId.value = null;
           const savedCart = localStorage.getItem('bubblena-cart');
           return savedCart ? JSON.parse(savedCart) : [];
         }
       } else {
-        // No session ID, try to load from localStorage
+        // No valid session ID, try to load from localStorage
         const savedCart = localStorage.getItem('bubblena-cart');
         return savedCart ? JSON.parse(savedCart) : [];
       }
@@ -73,10 +79,22 @@ export const useCart = () => {
       // Save to database if we have a session ID
       if (cartSessionId.value) {
         try {
+          // Transform frontend cart items to backend format
+          const backendItems = cartItems.value.map(item => {
+            // Extract productId and variantId from item.id
+            // Format is typically: productId or productId-variantId
+            const parts = item.id.split('-');
+            return {
+              productId: parts[0],
+              variantId: parts.length > 1 ? parts[1] : undefined,
+              quantity: item.quantity
+            };
+          });
+          
           await $fetch(`/api/cart/${cartSessionId.value}/items`, {
             method: 'PUT',
             body: {
-              items: cartItems.value
+              items: backendItems
             }
           });
         } catch (error) {
@@ -90,17 +108,32 @@ export const useCart = () => {
           });
           
           // Store the new cart session ID
-          cartSessionId.value = response.id;
-          sessionStorage.setItem('bubblena-cart-id', response.id);
+          cartSessionId.value = response.cartId;
+          sessionStorage.setItem('bubblena-cart-id', response.cartId);
           
-          // Now save the items to this new cart
-          await $fetch(`/api/cart/items`, {
-            method: 'POST',
-            body: {
-              sessionId: response.id,
-              items: cartItems.value
-            }
-          });
+          // Now sync the items to the newly created cart
+          try {
+            // Transform frontend cart items to backend format
+            const backendItems = cartItems.value.map(item => {
+              // Extract productId and variantId from item.id
+              // Format is typically: productId or productId-variantId
+              const parts = item.id.split('-');
+              return {
+                productId: parts[0],
+                variantId: parts.length > 1 ? parts[1] : undefined,
+                quantity: item.quantity
+              };
+            });
+            
+            await $fetch(`/api/cart/${response.cartId}/items`, {
+              method: 'PUT',
+              body: {
+                items: backendItems
+              }
+            });
+          } catch (syncError) {
+            console.error('Failed to sync items to new cart:', syncError);
+          }
         } catch (error) {
           console.error('Failed to create new cart in database:', error);
         }

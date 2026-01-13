@@ -24,35 +24,59 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
   let footerRect: DOMRect | null = null;
 
   onMounted(() => {
-    setTimeout(() => {
-      const container = document.querySelector(containerSelector) as HTMLElement;
+    const container = document.querySelector(containerSelector) as HTMLElement;
+    
+    if (!container) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && particles.length === 0) {
+          initializeParticles();
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    observer.observe(container);
+
+    function initializeParticles() {
       particleElements = Array.from(document.querySelectorAll(particleSelector));
       console.log('Found particles:', particleElements.length);
 
-      if (container && particleElements.length > 0) {
+      if (particleElements.length > 0) {
         footerRect = container.getBoundingClientRect();
 
-        // Initialize physics data for each particle
         particleElements.forEach((particle) => {
-          const rect = particle.getBoundingClientRect();
+          const particleRect = particle.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          
+          const relativeX = particleRect.left - containerRect.left + particleRect.width / 2;
+          const relativeY = particleRect.top - containerRect.top + particleRect.height / 2;
+          
+          const initialFloatY = -20 - Math.random() * 30;
+          const initialFloatX = (Math.random() - 0.5) * 20;
+          
+          const floatOffset = 30 + Math.random() * 20;
+          
           particles.push({
             element: particle,
-            x: 0,
-            y: 0,
+            x: initialFloatX,
+            y: initialFloatY,
             vx: (Math.random() - 0.5) * 2,
             vy: (Math.random() - 0.5) * 2,
-            originalX: rect.left + rect.width / 2,
-            originalY: rect.top + rect.height / 2,
-            radius: rect.width / 2,
+            originalX: relativeX,
+            originalY: relativeY - floatOffset,
+            radius: particleRect.width / 2,
             floatPhase: Math.random() * Math.PI * 2,
             floatSpeed: 0.005 + Math.random() * 0.005,
             isHit: false,
             hitTime: 0
           });
           particle.style.animation = 'none';
+          particle.style.transform = `translate(${initialFloatX}px, ${initialFloatY}px)`;
+          particle.style.opacity = '0.2';
         });
-
-        // Mouse tracking
         container.addEventListener('mousemove', (e: MouseEvent) => {
           mouseX = e.clientX;
           mouseY = e.clientY;
@@ -68,7 +92,7 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
 
         console.log('Physics simulation started');
       }
-    }, 500);
+    }
   });
 
   onUnmounted(() => {
@@ -78,10 +102,18 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
   });
 
   function animate() {
+    if (footerRect) {
+      const container = document.querySelector(containerSelector) as HTMLElement;
+      if (container) {
+        footerRect = container.getBoundingClientRect();
+      }
+    }
+
     particles.forEach((particle) => {
-      const rect = particle.element.getBoundingClientRect();
-      const currentX = rect.left + rect.width / 2;
-      const currentY = rect.top + rect.height / 2;
+      // Calculate current position relative to footer (not viewport)
+      const particleRect = particle.element.getBoundingClientRect();
+      const currentX = particleRect.left - (footerRect?.left || 0) + particleRect.width / 2;
+      const currentY = particleRect.top - (footerRect?.top || 0) + particleRect.height / 2;
 
       // Physics constants
       const damping = 0.98;
@@ -109,9 +141,13 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
       }
 
       // Mouse repulsion (only when directly over particle)
-      if (mouseX !== null && mouseY !== null) {
-        const deltaX = currentX - mouseX;
-        const deltaY = currentY - mouseY;
+      if (mouseX !== null && mouseY !== null && footerRect) {
+        // Convert mouse position to footer-relative coordinates
+        const mouseXRelative = mouseX - footerRect.left;
+        const mouseYRelative = mouseY - footerRect.top;
+        
+        const deltaX = currentX - mouseXRelative;
+        const deltaY = currentY - mouseYRelative;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
         if (distance < particle.radius) {
@@ -127,35 +163,31 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
       particle.vx *= damping;
       particle.vy *= damping;
 
-      // Update position
       particle.x += particle.vx * 0.5;
       particle.y += particle.vy * 0.5;
 
-      // Bounce off container boundaries
       if (footerRect) {
         const futureX = particle.originalX + particle.x;
         const futureY = particle.originalY + particle.y;
 
         let bounced = false;
 
-        // Left/Right boundaries
-        if (futureX - particle.radius < footerRect.left) {
-          particle.x = footerRect.left - particle.originalX + particle.radius;
+        if (futureX - particle.radius < 0) {
+          particle.x = 0 - particle.originalX + particle.radius;
           particle.vx *= -bounceRestitution;
           bounced = true;
-        } else if (futureX + particle.radius > footerRect.right) {
-          particle.x = footerRect.right - particle.originalX - particle.radius;
+        } else if (futureX + particle.radius > footerRect.width) {
+          particle.x = footerRect.width - particle.originalX - particle.radius;
           particle.vx *= -bounceRestitution;
           bounced = true;
         }
 
-        // Top/Bottom boundaries
-        if (futureY - particle.radius < footerRect.top) {
-          particle.y = footerRect.top - particle.originalY + particle.radius;
+        if (futureY - particle.radius < 0) {
+          particle.y = 0 - particle.originalY + particle.radius;
           particle.vy *= -bounceRestitution;
           bounced = true;
-        } else if (futureY + particle.radius > footerRect.bottom) {
-          particle.y = footerRect.bottom - particle.originalY - particle.radius;
+        } else if (futureY + particle.radius > footerRect.height) {
+          particle.y = footerRect.height - particle.originalY - particle.radius;
           particle.vy *= -bounceRestitution;
           bounced = true;
         }
@@ -165,13 +197,12 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
         }
       }
 
-      // Check collisions with other particles
       particles.forEach((otherParticle) => {
         if (otherParticle === particle) return;
 
         const otherRect = otherParticle.element.getBoundingClientRect();
-        const otherX = otherRect.left + otherRect.width / 2;
-        const otherY = otherRect.top + otherRect.height / 2;
+        const otherX = otherRect.left - (footerRect?.left || 0) + otherRect.width / 2;
+        const otherY = otherRect.top - (footerRect?.top || 0) + otherRect.height / 2;
 
         const dx = currentX - otherX;
         const dy = currentY - otherY;
