@@ -9,7 +9,6 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { key: 'description', name: 'description', content: 'Bubblena Frontend Application' },
-        { name: 'robots', content: 'noindex, nofollow' }
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
