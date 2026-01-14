@@ -20,6 +20,7 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const quantity = ref(1);
 const isHoveringImage = ref(false);
+const isVideoLoaded = ref(false);
 
 const incrementQuantity = () => {
   const maxQuantity = steamer.value?.stockCount || 10;
@@ -55,6 +56,10 @@ const loadSteamer = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleVideoLoaded = () => {
+  isVideoLoaded.value = true;
 };
 
 const addItemToCart = () => {
@@ -119,10 +124,13 @@ onMounted(() => {
             <div
               class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100"
               @mouseenter="isHoveringImage = true" @mouseleave="isHoveringImage = false">
-              <video v-if="steamer.videoUrl && isHoveringImage" :src="steamer.videoUrl" autoplay loop muted playsinline
-                class="w-full h-full object-cover object-center">
+              <video v-if="steamer.videoUrl && isHoveringImage && isVideoLoaded" :src="steamer.videoUrl" autoplay loop muted playsinline
+                class="w-full h-full object-cover object-center" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-else :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name"
+              <video v-else-if="steamer.videoUrl && isHoveringImage" :src="steamer.videoUrl" muted playsinline
+                class="hidden" @loadeddata="handleVideoLoaded">
+              </video>
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
