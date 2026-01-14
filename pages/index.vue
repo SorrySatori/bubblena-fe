@@ -7,7 +7,7 @@
     <main>
       <div class="relative w-full h-[85vh] overflow-hidden">
         <div class="absolute inset-0">
-          <img src="~/assets/bombs.png" alt="Bath Bombs" class="w-full h-full object-cover" />
+          <img src="~/assets/bombs.png" alt="Bath Bombs" class="w-full h-full object-cover" style="object-position: center 30%;" />
           <div class="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
         </div>
         
