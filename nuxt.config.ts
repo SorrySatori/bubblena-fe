@@ -2,6 +2,24 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-07-15',
+  
+  modules: ['@nuxtjs/sitemap'],
+  
+  site: {
+    url: 'https://bubblena.cz',
+  },
+  
+  sitemap: {
+    exclude: [
+      '/checkout',
+      '/order-confirmation'
+    ],
+    urls: async () => {
+      const urls: any[] = []
+      
+      return urls
+    }
+  },
   app: {
     head: {
       title: 'Bubblena',
