@@ -21,10 +21,10 @@
 
           <div class="mb-8">
             <h3 class="text-xl font-semibold text-secondary mb-3">2. UŽIVATELSKÝ ÚČET</h3>
-            <p class="mb-3">2.1. Kupující může provádět objednávky bez registrace nebo prostřednictvím uživatelského účtu.</p>
+            <p class="mb-3">2.1. Kupující může provádět objednávky bez registrace.</p>
             <p class="mb-3">2.2. Kupující je povinen uvádět pravdivé a aktuální údaje.</p>
-            <p class="mb-3">2.3. Přístup k uživatelskému účtu je zabezpečen přihlašovacími údaji, které je kupující povinen chránit.</p>
-            <p class="mb-3">2.4. Prodávající může uživatelský účet zrušit zejména při jeho dlouhodobé neaktivitě nebo porušení obchodních podmínek.</p>
+            <!-- <p class="mb-3">2.3. Přístup k uživatelskému účtu je zabezpečen přihlašovacími údaji, které je kupující povinen chránit.</p> -->
+            <!-- <p class="mb-3">2.4. Prodávající může uživatelský účet zrušit zejména při jeho dlouhodobé neaktivitě nebo porušení obchodních podmínek.</p> -->
           </div>
 
           <div class="mb-8">
@@ -41,8 +41,8 @@
             <p class="mb-3">4.1. Ceny jsou uvedeny včetně DPH a všech souvisejících poplatků.</p>
             <p class="mb-3">4.2. Kupující může cenu uhradit:</p>
             <ul class="list-disc pl-6 space-y-2 mb-3">
-              <li>bezhotovostně platební kartou,</li>
-              <li>online platební bránou (např. Stripe).</li>
+              <!-- <li>bezhotovostně platební kartou,</li> -->
+              <li>online platební bránou.</li>
             </ul>
             <p class="mb-3">4.3. Náklady na dopravu jsou uvedeny samostatně v objednávce.</p>
             <p class="mb-3">4.4. Prodávající nepožaduje zálohu, pokud není uvedeno jinak.</p>
@@ -62,7 +62,7 @@
 
           <div class="mb-8">
             <h3 class="text-xl font-semibold text-secondary mb-3">6. DODÁNÍ ZBOŽÍ</h3>
-            <p class="mb-3">6.1. Zboží je doručováno prostřednictvím smluvních dopravců (např. Zásilkovna, GLS, DPD).</p>
+            <p class="mb-3">6.1. Zboží je doručováno prostřednictvím smluvních dopravců.</p>
             <p class="mb-3">6.2. Dodací lhůta je obvykle 2–7 pracovních dnů.</p>
             <p class="mb-3">6.3. Kupující je povinen při převzetí zkontrolovat stav zásilky.</p>
           </div>
@@ -173,8 +173,8 @@
             <h3 class="text-xl font-semibold text-secondary mb-3">6. PŘEDÁVÁNÍ OSOBNÍCH ÚDAJŮ TŘETÍM STRANÁM</h3>
             <p class="mb-3">Osobní údaje mohou být předány těmto zpracovatelům:</p>
             <ul class="list-disc pl-6 space-y-2">
-              <li>dopravní společnosti (např. Zásilkovna, GLS, DPD)</li>
-              <li>poskytovatelé platebních služeb (např. Stripe)</li>
+              <li>dopravní společnosti</li>
+              <li>poskytovatelé platebních služeb</li>
               <li>poskytovatelé IT služeb, hostingu a e-mailových služeb</li>
             </ul>
             <p class="mt-3">Se všemi zpracovateli jsou uzavřeny odpovídající smlouvy o zpracování osobních údajů.</p>
