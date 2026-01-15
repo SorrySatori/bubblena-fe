@@ -1,2 +1,4 @@
 User-Agent: *
 Disallow:
+
+Sitemap: https://bubblena.cz/sitemap.xml
