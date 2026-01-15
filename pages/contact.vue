@@ -89,14 +89,13 @@ const handleSubmit = async () => {
           </div>
         </div>
         
-        <div class="info-item">
+        <!-- <div class="info-item">
           <div class="info-icon">📞</div>
           <div>
             <h3>Telefon</h3>
             <p>+420 123 456 789</p>
           </div>
-        </div>
-        
+        </div> -->
         <div class="info-item">
           <div class="info-icon">✉️</div>
           <div>
