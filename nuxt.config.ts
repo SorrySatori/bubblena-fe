@@ -22,14 +22,54 @@ export default defineNuxtConfig({
   },
   app: {
     head: {
-      title: 'Bubblena',
+      htmlAttrs: {
+        lang: 'cs'
+      },
+      title: 'Šumivé bomby do vany a další koupelnová kosmetika',
+      titleTemplate: '%s | Bubblena',
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { key: 'description', name: 'description', content: 'Bubblena Frontend Application' },
+        
+        // Primary Meta Tags
+        { name: 'title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
+        { name: 'description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
+        { name: 'keywords', content: 'šumivé bomby do vany, koupelnová kosmetika, šumivé koule do koupele, bomby do koupele, shower steamery' },
+        { name: 'author', content: 'Bubblena' },
+        { name: 'robots', content: 'index, follow' },
+        { name: 'language', content: 'Czech' },
+        { name: 'revisit-after', content: '7 days' },
+        
+        // Open Graph / Facebook
+        { property: 'og:type', content: 'website' },
+        { property: 'og:url', content: 'https://bubblena.cz' },
+        { property: 'og:title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
+        { property: 'og:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
+        { property: 'og:image', content: 'https://www.bubblena.cz/_nuxt/bubblena_logo_header.CiffOvXT.png' },
+        { property: 'og:image:width', content: '1200' },
+        { property: 'og:image:height', content: '630' },
+        { property: 'og:site_name', content: 'Bubblena' },
+        { property: 'og:locale', content: 'cs_CZ' },
+        
+        // Twitter Card
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:url', content: 'https://bubblena.cz' },
+        { name: 'twitter:title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
+        { name: 'twitter:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
+        { name: 'twitter:image', content: 'https://www.bubblena.cz/_nuxt/bubblena_logo_header.CiffOvXT.png' },
+        
+        // Additional SEO
+        { name: 'format-detection', content: 'telephone=no' },
+        { name: 'theme-color', content: '#ffffff' },
+        { name: 'msapplication-TileColor', content: '#ffffff' },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'canonical', href: 'https://bubblena.cz' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
+        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        { rel: 'manifest', href: '/site.webmanifest' }
       ]
     }
   },
