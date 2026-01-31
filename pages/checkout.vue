@@ -36,11 +36,12 @@ const {
 const showToast = ref(false);
 const toastMessage = ref('');
 const toastType = ref('cart');
+const customerInformationRef = ref(null);
 
 // Redirect to products if cart is empty
 onMounted(() => {
   if (isEmpty.value) {
-    router.push('/products');
+    router.push('/bath-bombs');
   }
 });
 
@@ -79,6 +80,28 @@ const removeItem = (itemId) => {
 // Go to specific checkout step
 const goToStep = (step) => {
   checkoutState.value.step = step;
+};
+
+const handleNextStep = () => {
+  if (checkoutState.value.step === 'information') {
+    if (customerInformationRef.value) {
+      const isValid = customerInformationRef.value.validateAllFields();
+      
+      if (!isValid) {
+        toastMessage.value = 'Prosím vyplňte všechna povinná pole správně';
+        toastType.value = 'error';
+        showToast.value = true;
+        
+        setTimeout(() => {
+          showToast.value = false;
+        }, 4000);
+        
+        return;
+      }
+    }
+  }
+  
+  nextStep();
 };
 
 // Validate customer information
@@ -219,7 +242,8 @@ const submitOrder = async () => {
             <!-- Customer Information Step -->
             <CustomerInformation 
               v-if="checkoutState.step === 'information'" 
-              @next="nextStep"
+              ref="customerInformationRef"
+              @next="handleNextStep"
             />
             
             <!-- Shipping Method Step -->
@@ -269,7 +293,7 @@ const submitOrder = async () => {
                     <p class="truncate">{{ item.name }}</p>
                   </div>
                   <div class="text-right whitespace-nowrap">
-                    <p>{{ item.quantity }} × {{ item.price.toFixed(2) }} Kč</p>
+                    <p>{{ item.quantity }} × {{ item.price?.toFixed(2) }} Kč</p>
                   </div>
                 </div>
               </div>
@@ -279,22 +303,22 @@ const submitOrder = async () => {
             <div class="space-y-3 border-t border-gray-200 pt-4">
               <div class="flex justify-between">
                 <span class="text-gray-600">Mezisoučet</span>
-                <span class="font-medium">{{ totalPrice.toFixed(2) }} Kč</span>
+                <span class="font-medium">{{ totalPrice?.toFixed(2) }} Kč</span>
               </div>
               
               <div class="flex justify-between" v-if="selectedShipping">
                 <span class="text-gray-600">Doprava: {{ selectedShipping.name }}</span>
-                <span class="font-medium">{{ shippingCost.toFixed(2) }} Kč</span>
+                <span class="font-medium">{{ shippingCost?.toFixed(2) }} Kč</span>
               </div>
               
               <div class="flex justify-between" v-if="selectedPayment && paymentSurcharge > 0">
                 <span class="text-gray-600">Platba: {{ selectedPayment.name }}</span>
-                <span class="font-medium">{{ paymentSurcharge.toFixed(2) }} Kč</span>
+                <span class="font-medium">{{ paymentSurcharge?.toFixed(2) }} Kč</span>
               </div>
               
               <div class="border-t border-gray-200 pt-3 flex justify-between">
                 <span class="text-lg font-medium text-secondary">Celkem</span>
-                <span class="text-lg font-bold text-secondary">{{ orderTotal.toFixed(2) }} Kč</span>
+                <span class="text-lg font-bold text-secondary">{{ orderTotal?.toFixed(2) }} Kč</span>
               </div>
             </div>
             
@@ -302,9 +326,8 @@ const submitOrder = async () => {
             <!-- Information step button -->
             <button 
               v-if="checkoutState.step === 'information'" 
-              @click="nextStep" 
+              @click="handleNextStep" 
               class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
-              :disabled="!isCustomerInfoValid"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

@@ -56,10 +56,10 @@
             <div class="font-medium text-secondary">{{ item.name }}</div>
             <div class="flex justify-between items-center mt-1">
               <div class="text-sm text-gray-500">
-                {{ item.price.toFixed(2) }} Kč × {{ item.quantity }}
+                {{ item.price?.toFixed(2) }} Kč × {{ item.quantity }}
               </div>
               <div class="text-primary font-medium">
-                {{ (item.price * item.quantity).toFixed(2) }} Kč
+                {{ (item.price * item.quantity)?.toFixed(2) }} Kč
               </div>
             </div>
           </div>
@@ -79,7 +79,7 @@
       <div v-if="!isEmpty" class="p-4 bg-gray-50">
         <div class="flex justify-between items-center mb-4">
           <span class="font-medium">Celkem:</span>
-          <span class="text-lg font-bold text-secondary">{{ totalPrice.toFixed(2) }} Kč</span>
+          <span class="text-lg font-bold text-secondary">{{ totalPrice?.toFixed(2) }} Kč</span>
         </div>
         <div>
           <NuxtLink 
