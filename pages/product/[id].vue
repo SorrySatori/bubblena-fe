@@ -104,7 +104,7 @@ onMounted(() => {
       <NuxtLink to="/bath-bombs"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
         <span class="mr-2 text-xl transform group-hover:-translate-x-1 transition-transform">←</span>
-        <span class="group-hover:underline">Zpět na produkty</span>
+        <span class="group-hover:underline">Zpět na bomby do koupele</span>
       </NuxtLink>
 
       <div v-if="loading" class="flex flex-col items-center justify-center py-20">
