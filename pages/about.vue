@@ -18,32 +18,6 @@
         </p>
       </div>
 
-      <!-- <div class="team-section">
-        <h2>Náš tým</h2>
-        <div class="team-grid">
-          <div class="team-member">
-            <div class="member-avatar">BN</div>
-            <h3>Barbora Nováková</h3>
-            <p>Zakladatelka & hlavní vývojářka</p>
-          </div>
-          <div class="team-member">
-            <div class="member-avatar">JK</div>
-            <h3>Jan Kovář</h3>
-            <p>Kreativní ředitel</p>
-          </div>
-          <div class="team-member">
-            <div class="member-avatar">MH</div>
-            <h3>Martina Horáková</h3>
-            <p>Vedoucí výroby</p>
-          </div>
-          <div class="team-member">
-            <div class="member-avatar">PV</div>
-            <h3>Petr Veselý</h3>
-            <p>Marketingový specialista</p>
-          </div>
-        </div>
-      </div> -->
-
       <div class="about-section">
         <h2>Naše poslání</h2>
         <div>

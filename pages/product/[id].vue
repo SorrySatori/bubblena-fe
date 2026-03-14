@@ -17,6 +17,7 @@ const toastMessage = ref('');
 const selectedVariantIndex = ref(0);
 const quantity = ref(1);
 const isHoveringImage = ref(false);
+const isVideoLoaded = ref(false);
 
 const selectedVariant = computed(() => {
   if (!product.value || !product.value.variants || product.value.variants.length === 0) {
@@ -62,6 +63,10 @@ const formatDate = (dateString) => {
 
 const loadProduct = async () => {
   await fetchProduct(productId);
+};
+
+const handleVideoLoaded = () => {
+  isVideoLoaded.value = true;
 };
 
 const addItemToCart = () => {
@@ -130,10 +135,13 @@ onMounted(() => {
             <div
               class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100"
               @mouseenter="isHoveringImage = true" @mouseleave="isHoveringImage = false">
-              <video v-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" autoplay loop muted playsinline
-                class="w-full h-full object-cover object-center">
+              <video v-if="product.videoUrl && isHoveringImage && isVideoLoaded" :src="product.videoUrl" autoplay loop muted playsinline
+                class="w-full h-full object-cover object-center" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-else :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
+              <video v-else-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" muted playsinline
+                class="hidden" @loadeddata="handleVideoLoaded">
+              </video>
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
