@@ -228,10 +228,6 @@ onMounted(() => {
                 <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Hmotnost</span>
                 <span class="text-gray-800 font-medium">{{ steamer.weight }} g</span>
               </div>
-              <div v-if="steamer.createdAt" class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
-                <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Přidáno</span>
-                <span class="text-gray-800 font-medium">{{ formatDate(steamer.createdAt) }}</span>
-              </div>
             </div>
           </div>
         </div>
