@@ -103,7 +103,7 @@
           v-model="customerInfo.address.street" 
           type="text" 
           :class="[
-            'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+            'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-shipping smartform-address-street-and-number',
             touched.street && errors.street ? 'border-red-500' : 'border-gray-300'
           ]"
           @blur="handleBlur('street')"
@@ -122,7 +122,7 @@
             v-model="customerInfo.address.city" 
             type="text" 
             :class="[
-              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-shipping smartform-address-city',
               touched.city && errors.city ? 'border-red-500' : 'border-gray-300'
             ]"
             @blur="handleBlur('city')"
@@ -140,7 +140,7 @@
             v-model="customerInfo.address.postalCode" 
             type="text" 
             :class="[
-              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-shipping smartform-address-zip',
               touched.postalCode && errors.postalCode ? 'border-red-500' : 'border-gray-300'
             ]"
             @blur="handleBlur('postalCode')"
@@ -189,7 +189,7 @@
           v-model="billingAddress.street" 
           type="text" 
           :class="[
-            'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+            'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-billing smartform-address-street-and-number',
             touched.billingStreet && errors.billingStreet ? 'border-red-500' : 'border-gray-300'
           ]"
           @blur="handleBlur('billingStreet')"
@@ -208,7 +208,7 @@
             v-model="billingAddress.city" 
             type="text" 
             :class="[
-              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-billing smartform-address-city',
               touched.billingCity && errors.billingCity ? 'border-red-500' : 'border-gray-300'
             ]"
             @blur="handleBlur('billingCity')"
@@ -226,7 +226,7 @@
             v-model="billingAddress.postalCode" 
             type="text" 
             :class="[
-              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary',
+              'w-full px-4 py-2 border rounded-md focus:ring-primary focus:border-primary smartform-instance-billing smartform-address-zip',
               touched.billingPostalCode && errors.billingPostalCode ? 'border-red-500' : 'border-gray-300'
             ]"
             @blur="handleBlur('billingPostalCode')"
@@ -254,7 +254,7 @@
 </template>
 
 <script setup>
-import { computed, watch, reactive } from 'vue';
+import { computed, watch, reactive, onMounted, onUnmounted, nextTick } from 'vue';
 import { useCheckout } from '~/composables/useCheckout';
 import { useFormValidation } from '~/composables/useFormValidation';
 
@@ -302,12 +302,103 @@ watch(() => customerInfo.value.billingAddressSameAsShipping, (isSame) => {
     clearBillingErrors();
   } else {
     customerInfo.value.billingAddress = { ...billingAddress };
+    nextTick(() => {
+      const sf = window.smartform;
+      if (sf) {
+        sf.rebindAllForms();
+      }
+    });
   }
+});
+
+const syncSmartformValues = () => {
+  const streetEl = document.getElementById('street');
+  const cityEl = document.getElementById('city');
+  const postalCodeEl = document.getElementById('postalCode');
+  if (streetEl && streetEl.value !== customerInfo.value.address.street) {
+    customerInfo.value.address.street = streetEl.value;
+    handleBlur('street');
+  }
+  if (cityEl && cityEl.value !== customerInfo.value.address.city) {
+    customerInfo.value.address.city = cityEl.value;
+    handleBlur('city');
+  }
+  if (postalCodeEl && postalCodeEl.value !== customerInfo.value.address.postalCode) {
+    customerInfo.value.address.postalCode = postalCodeEl.value;
+    handleBlur('postalCode');
+  }
+
+  if (!customerInfo.value.billingAddressSameAsShipping) {
+    const bStreetEl = document.getElementById('billingStreet');
+    const bCityEl = document.getElementById('billingCity');
+    const bPostalCodeEl = document.getElementById('billingPostalCode');
+    if (bStreetEl && bStreetEl.value !== billingAddress.street) {
+      billingAddress.street = bStreetEl.value;
+      handleBlur('billingStreet');
+    }
+    if (bCityEl && bCityEl.value !== billingAddress.city) {
+      billingAddress.city = bCityEl.value;
+      handleBlur('billingCity');
+    }
+    if (bPostalCodeEl && bPostalCodeEl.value !== billingAddress.postalCode) {
+      billingAddress.postalCode = bPostalCodeEl.value;
+      handleBlur('billingPostalCode');
+    }
+  }
+};
+
+const initSmartform = () => {
+  const sf = window.smartform;
+  if (!sf) return;
+
+  sf.rebindAllForms();
+
+  const setupCallback = (instanceName) => {
+    try {
+      const instance = sf.getInstance(instanceName);
+      if (instance?.addressControl) {
+        instance.addressControl.addValidationCallback(() => {
+          nextTick(syncSmartformValues);
+        });
+      }
+    } catch (_) {}
+  };
+
+  setupCallback('shipping');
+  setupCallback('billing');
+};
+
+onMounted(() => {
+  const waitForSmartform = () => {
+    if (window.smartform) {
+      initSmartform();
+    } else {
+      setTimeout(waitForSmartform, 200);
+    }
+  };
+  waitForSmartform();
+
+  const addressFields = ['street', 'city', 'postalCode', 'billingStreet', 'billingCity', 'billingPostalCode'];
+  addressFields.forEach(id => {
+    document.getElementById(id)?.addEventListener('change', syncSmartformValues);
+  });
+});
+
+onUnmounted(() => {
+  const addressFields = ['street', 'city', 'postalCode', 'billingStreet', 'billingCity', 'billingPostalCode'];
+  addressFields.forEach(id => {
+    document.getElementById(id)?.removeEventListener('change', syncSmartformValues);
+  });
 });
 
 defineEmits(['next']);
 
+const wrappedValidateAllFields = () => {
+  syncSmartformValues();
+  return validateAllFields();
+};
+
 defineExpose({
-  validateAllFields
+  validateAllFields: wrappedValidateAllFields
 });
 </script>

@@ -36,25 +36,8 @@ export const useCart = () => {
   // Initialize cart from database if session ID exists, otherwise from localStorage
   const loadCart = async (): Promise<CartItem[]> => {
     if (import.meta.client) {
-      // Check if we have a valid cart session ID (not null, undefined, or 'undefined' string)
-      if (cartSessionId.value && cartSessionId.value !== 'undefined' && cartSessionId.value !== 'null') {
-        try {
-          // Load cart from database using the session ID
-          const response = await $fetch<CartResponse>(`/api/cart/${cartSessionId.value}`);
-          return response.items || [];
-        } catch (error) {
-          console.error('Failed to load cart from database:', error);
-          // If loading from database fails, clear invalid session ID and try localStorage
-          sessionStorage.removeItem('bubblena-cart-id');
-          cartSessionId.value = null;
-          const savedCart = localStorage.getItem('bubblena-cart');
-          return savedCart ? JSON.parse(savedCart) : [];
-        }
-      } else {
-        // No valid session ID, try to load from localStorage
-        const savedCart = localStorage.getItem('bubblena-cart');
-        return savedCart ? JSON.parse(savedCart) : [];
-      }
+      const savedCart = localStorage.getItem('bubblena-cart');
+      return savedCart ? JSON.parse(savedCart) : [];
     }
     return [];
   };

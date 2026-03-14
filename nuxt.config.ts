@@ -70,6 +70,13 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'manifest', href: '/site.webmanifest' }
+      ],
+      script: [
+        {
+          type: 'text/javascript',
+          innerHTML: `var smartform = smartform || {}; smartform.beforeInit = function() { smartform.setClientId('${process.env.NUXT_PUBLIC_SMARTFORM_CLIENT_ID || ''}'); };`
+        },
+        { src: 'https://client.smartform.cz/v2/smartform.js', type: 'text/javascript', async: true }
       ]
     }
   },
