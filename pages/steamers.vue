@@ -89,7 +89,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <div v-for="steamer in steamers" :key="steamer.id" class="product-card" @click="navigateToSteamer(steamer._id)">
           <div class="product-image">
-            <img :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name">
+            <img :src="steamer.imageUrl" :alt="steamer.name">
             <span v-if="!steamer.inStock" class="out-of-stock-badge">Vyprodáno</span>
           </div>
           <div class="product-info">

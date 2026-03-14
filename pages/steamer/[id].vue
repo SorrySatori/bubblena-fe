@@ -130,7 +130,7 @@ onMounted(() => {
               <video v-else-if="steamer.videoUrl && isHoveringImage" :src="steamer.videoUrl" muted playsinline
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name"
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl" :alt="steamer.name"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div

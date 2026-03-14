@@ -1,4 +1,10 @@
 import nodemailer from "nodemailer"
+import {
+  createSubject,
+  createInvoice,
+  markInvoiceAsPaid,
+  downloadInvoicePdf,
+} from "../utils/fakturoid"
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
@@ -20,6 +26,19 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  let invoicePdfBuffer: Buffer | null = null
+  let invoiceNumber: string | null = null
+  try {
+    const subject = await createSubject(customerInfo)
+    const invoice = await createInvoice(subject.id, orderId, items, totals)
+    invoiceNumber = invoice.number
+    await markInvoiceAsPaid(invoice.id)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    invoicePdfBuffer = await downloadInvoicePdf(invoice.id)
+  } catch (err) {
+    console.error("Fakturoid invoice error:", err)
+  }
+
   const transporter = nodemailer.createTransport({
     host: process.env.NUXT_SMTP_HOST,
     port: Number(process.env.NUXT_SMTP_PORT) || 465,
@@ -30,7 +49,6 @@ export default defineEventHandler(async (event) => {
     },
   })
 
-  // 🧾 Přehled položek
   const itemsHtml = items
     .map(
       (item: any) => `
@@ -49,7 +67,6 @@ export default defineEventHandler(async (event) => {
 
   const customerName = `${customerInfo.firstName} ${customerInfo.lastName}`
 
-  // 🧠 Formátovaný JSON pro interní e-mail
   const prettyJson = `<pre style="background:#f4f4f4;padding:12px;border-radius:6px;font-size:13px;line-height:1.4;">${JSON.stringify(
     body,
     null,
@@ -97,10 +114,9 @@ export default defineEventHandler(async (event) => {
     </div>
   `
 
-  // 💌 E-mail pro tebe (s JSONem navíc)
-  const mailOptions = {
+  const mailOptions: nodemailer.SendMailOptions = {
     from: process.env.NUXT_CONTACT_ORDERS,
-    to: process.env.NUXT_CONTACT_ORDERS, // interní kopie objednávky
+    to: process.env.NUXT_CONTACT_ORDERS,
     subject: `🧼 Nová objednávka č. ${orderId}`,
     html: `
       ${htmlContent}
@@ -108,19 +124,56 @@ export default defineEventHandler(async (event) => {
       <h3>📦 Kompletní data objednávky (JSON):</h3>
       ${prettyJson}
     `,
+    ...(invoicePdfBuffer
+      ? {
+          attachments: [
+            {
+              filename: `faktura-${invoiceNumber || orderId}.pdf`,
+              content: invoicePdfBuffer,
+              contentType: "application/pdf",
+            },
+          ],
+        }
+      : {}),
   }
 
-  // 💌 E-mail pro zákazníka
-  const confirmationMailOptions = {
+  const confirmationMailOptions: nodemailer.SendMailOptions = {
     from: process.env.NUXT_CONTACT_ORDERS,
     to: customerInfo.email,
     subject: `Potvrzení objednávky č. ${orderId} – Bubblena.cz`,
     html: htmlContent,
   }
 
+  const invoiceMailOptions: nodemailer.SendMailOptions | null = invoicePdfBuffer
+    ? {
+        from: process.env.NUXT_CONTACT_ORDERS,
+        to: customerInfo.email,
+        subject: `Faktura k objednávce č. ${orderId} – Bubblena.cz`,
+        html: `
+          <div style="font-family:Arial, sans-serif; color:#333; line-height:1.6;">
+            <p>Dobrý den, <b>${customerName}</b>,</p>
+            <p>děkujeme za zaplacení objednávky. Fakturu k objednávce <b>${orderId}</b> najdete v příloze.</p>
+            <p>Jakmile bude vaše objednávka na cestě, dáme vám vědět.</p>
+            <hr style="margin:24px 0;"/>
+            <p>S pozdravem,<br/>Tým Bubblena.cz</p>
+          </div>
+        `,
+        attachments: [
+          {
+            filename: `faktura-${invoiceNumber || orderId}.pdf`,
+            content: invoicePdfBuffer,
+            contentType: "application/pdf",
+          },
+        ],
+      }
+    : null
+
   try {
     await transporter.sendMail(mailOptions)
     await transporter.sendMail(confirmationMailOptions)
+    if (invoiceMailOptions) {
+      await transporter.sendMail(invoiceMailOptions)
+    }
     return { success: true, message: "Order confirmation sent successfully." }
   } catch (err: any) {
     console.error("Order confirmation email error:", err)

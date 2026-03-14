@@ -111,7 +111,7 @@
         >
           <div class="h-16 w-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-100 mr-4">
             <img 
-              :src="item.imageUrl || '/images/product-placeholder.jpg'" 
+              :src="item.imageUrl" 
               :alt="item.name" 
               class="h-full w-full object-cover object-center"
             />

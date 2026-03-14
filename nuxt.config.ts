@@ -82,6 +82,10 @@ export default defineNuxtConfig({
     apiKey: process.env.NUXT_API_KEY || '',
     basicUser: process.env.NUXT_BASIC_USER || '',
     basicPass: process.env.NUXT_BASIC_PASS || '',
+    fakturoidSlug: process.env.NUXT_FAKTUROID_SLUG || '',
+    fakturoidClientId: process.env.NUXT_FAKTUROID_CLIENT_ID || '',
+    fakturoidClientSecret: process.env.NUXT_FAKTUROID_CLIENT_SECRET || '',
+    fakturoidUserAgent: process.env.NUXT_FAKTUROID_USER_AGENT || '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
       apiKey: process.env.NUXT_PUBLIC_API_KEY || ''

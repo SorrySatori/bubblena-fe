@@ -114,7 +114,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <div v-for="product in products" :key="product.id" class="product-card" @click="navigateToProduct(product._id)">
           <div class="product-image">
-            <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name">
+            <img :src="product.imageUrl" :alt="product.name">
             <span v-if="!hasInStockVariant(product)" class="out-of-stock-badge">Vyprodáno</span>
             <span v-if="product.variants && product.variants.length > 1" class="variants-badge">{{ product.variants.length }} variant{{ product.variants.length > 1 ? 'y' : 'a' }}</span>
           </div>

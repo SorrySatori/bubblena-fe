@@ -111,7 +111,7 @@ onMounted(() => {
           <div class="flex flex-col gap-6">
             <div
               class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100">
-              <img :src="damagedProduct.imageUrl || '/images/product-placeholder.jpg'" :alt="damagedProduct.bathBombType"
+              <img :src="damagedProduct.imageUrl" :alt="damagedProduct.bathBombType"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div

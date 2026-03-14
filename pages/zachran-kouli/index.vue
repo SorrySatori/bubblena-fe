@@ -99,7 +99,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <div v-for="product in damagedProducts" :key="product._id" class="product-card" @click="navigateToProduct(product._id)">
           <div class="product-image">
-            <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.bathBombType">
+            <img :src="product.imageUrl" :alt="product.bathBombType">
             <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
             <span class="damage-badge" :class="getDamageLevelClass(product.damageLevel)">
               {{ getDamageLevelLabel(product.damageLevel) }}

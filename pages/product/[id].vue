@@ -141,7 +141,7 @@ onMounted(() => {
               <video v-else-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" muted playsinline
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl" :alt="product.name"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div

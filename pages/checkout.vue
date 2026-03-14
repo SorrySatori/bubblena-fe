@@ -284,7 +284,7 @@ const submitOrder = async () => {
                 >
                   <div class="h-10 w-10 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
                     <img 
-                      :src="item.imageUrl || '/images/product-placeholder.jpg'" 
+                      :src="item.imageUrl" 
                       :alt="item.name" 
                       class="h-full w-full object-cover object-center"
                     />

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       name: 'Bubblena Basic',
       description: 'Our entry-level bubble tea with classic flavors',
       price: 19.99,
-      imageUrl: '/images/product-placeholder.jpg',
+      imageUrl: '',
       category: 'classic',
       inStock: true,
       quantity: 100
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
       name: 'Bubblena Premium',
       description: 'Premium bubble tea with exotic flavors and special toppings',
       price: 29.99,
-      imageUrl: '/images/product-placeholder.jpg',
+      imageUrl: '',
       category: 'premium',
       inStock: true,
       quantity: 50
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
       name: 'Bubblena Seasonal',
       description: 'Limited edition seasonal flavors',
       price: 24.99,
-      imageUrl: '/images/product-placeholder.jpg',
+      imageUrl: '',
       category: 'seasonal',
       inStock: false,
       quantity: 0
