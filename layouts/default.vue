@@ -1,22 +1,22 @@
 <template>
   <div class="min-h-screen flex flex-col">
     <header class="bg-white shadow-md sticky top-0 z-40 py-1">
-      <div class="container flex flex-wrap justify-between items-center p-4">
-        <div class="flex items-center">
+      <div class="flex flex-wrap justify-between items-center p-4">
+        <div class="flex items-center shrink-0">
           <NuxtLink to="/" class="flex items-center transition-opacity hover:opacity-90">
             <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="h-10 w-auto" />
           </NuxtLink>
         </div>
         
-        <div class="order-3 lg:order-2 w-full lg:w-auto lg:flex-1 px-0 lg:px-8 mt-4 lg:mt-0">
+        <div class="order-3 lg:order-2 w-full lg:w-auto lg:flex-1 px-0 lg:px-2 mt-4 lg:mt-0">
           <AppNavigation />
         </div>
         
-        <div class="order-2 lg:order-3 flex items-center gap-4">
+        <div class="order-2 lg:order-3 flex items-center gap-2 shrink-0">
           <ShoppingCart />
-          <div class="hidden lg:flex gap-2">
-            <button class="bg-transparent text-secondary border border-secondary px-4 py-2 rounded hover:bg-secondary hover:text-white transition-all">Přihlásit</button>
-            <button class="bg-primary text-white border-none px-4 py-2 rounded hover:bg-accent transition-all hover:-translate-y-0.5">Registrovat</button>
+          <div class="hidden lg:flex gap-1.5">
+            <button class="bg-transparent text-secondary border border-secondary px-3 py-1.5 rounded text-sm hover:bg-secondary hover:text-white transition-all whitespace-nowrap">Přihlásit</button>
+            <button class="bg-primary text-white border-none px-3 py-1.5 rounded text-sm hover:bg-accent transition-all hover:-translate-y-0.5 whitespace-nowrap">Registrovat</button>
           </div>
         </div>
       </div>

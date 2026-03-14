@@ -43,6 +43,7 @@ const navItems = [
   { name: 'Domů', path: '/' },
   { name: 'Bomby do koupele', path: '/bath-bombs' },
   { name: 'Steamery', path: '/steamers' },
+  { name: 'Zachraň kouli', path: '/zachran-kouli' },
   { name: 'O nás', path: '/about' },
   { name: 'Kontakt', path: '/contact' }
 ];
