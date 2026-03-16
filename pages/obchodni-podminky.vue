@@ -114,7 +114,7 @@
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="mb-1"><strong>Bubblena</strong></p>
               <p class="mb-1">IČO: 01004204</p>
-              <p class="mb-1">Sídlo: Pobialova 23, 70200 Ostrava</p>
+              <p class="mb-1">Sídlo: Fráni Šrámka 5, 70900 Ostrava</p>
               <p class="mb-1">E-mail: <a href="mailto:info@bubblena.cz" class="text-primary hover:underline">info@bubblena.cz</a></p>
               <p>Web: <a href="https://www.bubblena.cz" class="text-primary hover:underline">www.bubblena.cz</a></p>
             </div>
