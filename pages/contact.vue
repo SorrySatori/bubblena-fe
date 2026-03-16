@@ -84,8 +84,8 @@ const handleSubmit = async () => {
           <div class="info-icon">📍</div>
           <div>
             <h3>Adresa</h3>
-            <p>Pobialova 23</p>
-            <p>70200 Ostrava</p>
+            <p>Fráni Šrámka 5</p>
+            <p>70900 Ostrava</p>
           </div>
         </div>
         
