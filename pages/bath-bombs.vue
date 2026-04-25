@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useProducts } from '~/composables/useProducts';
 import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
@@ -16,18 +16,34 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const cart = useCartStore();
 
+// Per-product selected variant index and quantity
+const selectedVariantIndexes = reactive({});
+const quantities = reactive({});
+
+// Initialize selection state when products load
+watch(products, (newProducts) => {
+  if (newProducts) {
+    newProducts.forEach((product) => {
+      if (!(product._id in selectedVariantIndexes)) {
+        // Default to first in-stock variant
+        const inStockIndex = product.variants?.findIndex(v => v.inStock) ?? 0;
+        selectedVariantIndexes[product._id] = inStockIndex >= 0 ? inStockIndex : 0;
+        quantities[product._id] = 1;
+      }
+    });
+  }
+}, { immediate: true });
+
 // Navigate to product detail page
 const navigateToProduct = (productId) => {
   router.push(`/product/${productId}`);
 };
 
-// Get the first available variant or the first variant if none are in stock
-const getDefaultVariant = (product) => {
+// Get selected variant for a product
+const getSelectedVariant = (product) => {
   if (!product.variants || product.variants.length === 0) return null;
-  
-  // Try to find an in-stock variant first
-  const inStockVariant = product.variants.find(variant => variant.inStock);
-  return inStockVariant || product.variants[0]; // Return first in-stock variant or just first variant
+  const index = selectedVariantIndexes[product._id] ?? 0;
+  return product.variants[index];
 };
 
 // Check if product has any variant in stock
@@ -35,31 +51,47 @@ const hasInStockVariant = (product) => {
   return product.variants && product.variants.some(variant => variant.inStock);
 };
 
-// Get the lowest price from all variants
-const getLowestPrice = (product) => {
-  if (!product.variants || product.variants.length === 0) return 0;
-  
-  return Math.min(...product.variants.map(variant => variant.price));
+const incrementQuantity = (product, event) => {
+  if (event) event.stopPropagation();
+  const variant = getSelectedVariant(product);
+  const maxQuantity = variant?.stockCount || 10;
+  if ((quantities[product._id] || 1) < maxQuantity) {
+    quantities[product._id] = (quantities[product._id] || 1) + 1;
+  }
+};
+
+const decrementQuantity = (product, event) => {
+  if (event) event.stopPropagation();
+  if ((quantities[product._id] || 1) > 1) {
+    quantities[product._id] = (quantities[product._id] || 1) - 1;
+  }
+};
+
+const onVariantChange = (product, event) => {
+  if (event) event.stopPropagation();
+  // Reset quantity when variant changes
+  quantities[product._id] = 1;
 };
 
 // Add to cart function
 const addToCart = (product, event) => {
   if (event) event.stopPropagation();
-  const variant = getDefaultVariant(product);
+  const variant = getSelectedVariant(product);
+  const qty = quantities[product._id] || 1;
   
   if (product && variant && variant.inStock) {
     addItemToCart({
       id: `${product._id}-${variant.weight}`,
       name: `${product.name} (${variant.weight}g)`,
       price: variant.price,
-      quantity: 1,
+      quantity: qty,
       variant,
       imageUrl: product.imageUrl
     });
-    cart.addItem(product._id, variant.weight, 1)
+    cart.addItem(product._id, variant.weight, qty)
     
     // Show toast notification
-    toastMessage.value = `${product.name} (${variant.weight}g) přidáno do košíku`;
+    toastMessage.value = `${qty}× ${product.name} (${variant.weight}g) přidáno do košíku`;
     showToast.value = true;
     
     // Hide toast after 3 seconds
@@ -121,23 +153,51 @@ onMounted(() => {
           <div class="product-info">
             <h3 class="product-name">{{ product.name }}</h3>
             <p class="product-description">{{ product.shortDescription }}</p>
+
+            <!-- Variant selector -->
+            <div v-if="product.variants && product.variants.length > 1" class="variant-selector" @click.stop>
+              <select 
+                :value="selectedVariantIndexes[product._id]" 
+                @change="selectedVariantIndexes[product._id] = Number($event.target.value); onVariantChange(product, $event)"
+                class="variant-select"
+              >
+                <option v-for="(variant, index) in product.variants" :key="index" :value="index" :disabled="!variant.inStock">
+                  {{ variant.weight }}g - {{ variant.price.toFixed(2) }} Kč {{ !variant.inStock ? '(Vyprodáno)' : '' }}
+                </option>
+              </select>
+            </div>
+
             <div class="product-footer">
               <div class="product-price-container">
-                <span v-if="product.variants && product.variants.length > 1" class="product-price-note">od</span>
-                <span class="product-price">{{ getLowestPrice(product).toFixed(2) }} Kč</span>
+                <span class="product-price">
+                  {{ getSelectedVariant(product) ? (getSelectedVariant(product).price * (quantities[product._id] || 1)).toFixed(2) : '0.00' }} Kč
+                </span>
               </div>
-              <button 
-                class="add-to-cart-btn" 
-                :disabled="!hasInStockVariant(product)" 
-                @click.stop="addToCart(product, $event)"
-              >
-                <span v-if="hasInStockVariant(product)">
+
+              <div v-if="getSelectedVariant(product)?.inStock" class="cart-controls" @click.stop>
+                <!-- Quantity picker -->
+                <div class="quantity-picker">
+                  <button @click="decrementQuantity(product, $event)" class="qty-btn" :disabled="(quantities[product._id] || 1) <= 1">−</button>
+                  <span class="qty-value">{{ quantities[product._id] || 1 }}</span>
+                  <button @click="incrementQuantity(product, $event)" class="qty-btn" :disabled="(quantities[product._id] || 1) >= (getSelectedVariant(product)?.stockCount || 10)">+</button>
+                </div>
+
+                <button 
+                  class="add-to-cart-btn" 
+                  @click.stop="addToCart(product, $event)"
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                   </svg>
-                  Přidat do košíku
-                </span>
-                <span v-else>Vyprodáno</span>
+                  Do košíku
+                </button>
+              </div>
+
+              <button v-else
+                class="add-to-cart-btn" 
+                disabled
+              >
+                Vyprodáno
               </button>
             </div>
           </div>
@@ -294,7 +354,9 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .product-price-container {
@@ -307,12 +369,6 @@ onMounted(() => {
   font-size: 1.2rem;
   font-weight: 700;
   color: var(--secondary-color);
-}
-
-.product-price-note {
-  font-size: 0.7rem;
-  color: #6c757d;
-  margin-top: -3px;
 }
 
 .variants-badge {
@@ -348,6 +404,75 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+/* Variant selector */
+.variant-selector {
+  margin-top: 0.75rem;
+}
+
+.variant-select {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background-color: white;
+  color: #374151;
+  cursor: pointer;
+  appearance: auto;
+}
+
+.variant-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(65, 184, 131, 0.2);
+}
+
+/* Cart controls (quantity + button) */
+.cart-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Quantity picker */
+.quantity-picker {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.qty-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #374151;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.qty-btn:hover:not(:disabled) {
+  color: var(--primary-color);
+}
+
+.qty-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.qty-value {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-width: 28px;
+  text-align: center;
+  color: #374151;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .products-grid {
@@ -374,6 +499,15 @@ onMounted(() => {
   .add-to-cart-btn {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
+  }
+
+  .product-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cart-controls {
+    justify-content: space-between;
   }
 }
 </style>
