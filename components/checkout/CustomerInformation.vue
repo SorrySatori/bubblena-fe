@@ -67,7 +67,7 @@
             touched.email && errors.email ? 'border-red-500' : 'border-gray-300'
           ]"
           @blur="handleBlur('email')"
-          @input="handleInput('email')"
+          @input="handleTextInput('email')"
           placeholder="priklad@email.cz"
           required
         />
