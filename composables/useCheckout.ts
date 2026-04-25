@@ -197,11 +197,7 @@ export const useCheckout = () => {
           total: orderTotal.value
         }
       };
-      const paymentResponse = await $fetch('/api/orders', {
-      method: 'POST',
-      body: orderPayload
-      }) as { url: string }
-
+      // 1. Create delivery shipment
       const deliveryEndpoint = getDeliveryEndpoint(checkoutState.value.selectedShippingMethod)
       let deliveryResponse = null
       if (deliveryEndpoint) {
@@ -210,19 +206,29 @@ export const useCheckout = () => {
           body: orderPayload
         })
       }
-      const order =  await $fetch('/api/order/order', {
-        method: 'POST',
-        body: orderPayload
-      })
-      await $fetch('/api/order-confirmation', {
+
+      // 2. Create order in database
+      const order = await $fetch('/api/order/order', {
         method: 'POST',
         body: orderPayload
       })
 
-      if (deliveryResponse && paymentResponse && order) {
-        clearCart()
-        navigateTo(paymentResponse.url, { external: true })
+      if (!order) {
+        throw new Error('Failed to create order')
       }
+
+      // 3. Process payment (get Stripe redirect URL)
+      const paymentResponse: { url: string } = await $fetch('/api/orders', {
+        method: 'POST',
+        body: orderPayload
+      })
+
+      if (!paymentResponse?.url) {
+        throw new Error('Failed to process payment')
+      }
+
+      // 4. Redirect to payment — email and cart clearing happen after payment on order-confirmation page
+      navigateTo(paymentResponse.url, { external: true })
       
     } catch (error) {
       console.error('Failed to submit order:', error);

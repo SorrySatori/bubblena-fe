@@ -70,6 +70,25 @@ function getSlug() {
   return process.env.NUXT_FAKTUROID_SLUG || 'hedvikaantosova'
 }
 
+async function searchSubjectByEmail(email: string): Promise<FakturoidSubject | null> {
+  const token = await getAccessToken()
+  const slug = getSlug()
+
+  const subjects = await $fetch<FakturoidSubject[]>(
+    `${FAKTUROID_API_BASE}/accounts/${slug}/subjects/search.json`,
+    {
+      method: 'GET',
+      headers: getHeaders(token),
+      params: { query: email },
+    }
+  )
+
+  if (subjects && subjects.length > 0) {
+    return subjects.find(s => s.email === email) || subjects[0]
+  }
+  return null
+}
+
 export async function createSubject(customerInfo: {
   firstName: string
   lastName: string
@@ -77,6 +96,12 @@ export async function createSubject(customerInfo: {
   phone: string
   address: { street: string; city: string; postalCode: string; country?: string }
 }): Promise<FakturoidSubject> {
+  // Try to find an existing subject with this email first
+  const existing = await searchSubjectByEmail(customerInfo.email)
+  if (existing) {
+    return existing
+  }
+
   const token = await getAccessToken()
   const slug = getSlug()
 

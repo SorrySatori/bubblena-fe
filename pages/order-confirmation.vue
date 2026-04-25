@@ -37,7 +37,39 @@
 
 <script setup>
 import { useRoute } from 'vue-router';
+import { useCart } from '~/composables/useCart';
 
 const route = useRoute();
 const orderId = computed(() => route.query.orderId || 'N/A');
+const { clearCart } = useCart();
+
+const confirmationSent = useState(`order-confirmed-${route.query.orderId}`, () => false);
+
+onMounted(async () => {
+  if (confirmationSent.value || !route.query.orderId) return;
+  confirmationSent.value = true;
+
+  try {
+    // Fetch full order data from backend
+    const orderData = await $fetch(`/api/order/${route.query.orderId}`);
+    console.log('Order data fetched:', orderData);
+
+    // The backend returns { success: true, order: {...} }
+    const order = orderData?.order || orderData;
+    if (order?.orderId || order?.customerInfo) {
+      // Send confirmation email + Fakturoid invoice
+      await $fetch('/api/order-confirmation', {
+        method: 'POST',
+        body: order
+      });
+      console.log('Confirmation email sent');
+    } else {
+      console.error('Order data missing or invalid:', orderData);
+    }
+  } catch (err) {
+    console.error('Failed to send order confirmation:', err);
+  }
+
+  clearCart();
+});
 </script>
