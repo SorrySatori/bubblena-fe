@@ -56,6 +56,15 @@ export interface CheckoutState {
 // Create a composable for checkout functionality
 export const useCheckout = () => {
   const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
+
+  const getDeliveryEndpoint = (shippingMethod: string | null): string | null => {
+    switch (shippingMethod) {
+      case 'zasilkovna': return '/api/delivery/packeta'
+      case 'gls': return '/api/delivery/gls'
+      default: return null
+    }
+  }
+
   // Available shipping methods
   const shippingMethods = ref<ShippingMethod[]>([
     {
@@ -189,15 +198,18 @@ export const useCheckout = () => {
         }
       };
       const paymentResponse = await $fetch('/api/orders', {
-        method: 'POST',
-        body: orderPayload
+      method: 'POST',
+      body: orderPayload
       }) as { url: string }
 
-      const deliveryResponse = await $fetch('/api/delivery/packeta', {
-        method: 'POST',
-        body: orderPayload
-      })
-
+      const deliveryEndpoint = getDeliveryEndpoint(checkoutState.value.selectedShippingMethod)
+      let deliveryResponse = null
+      if (deliveryEndpoint) {
+        deliveryResponse = await $fetch(deliveryEndpoint, {
+          method: 'POST',
+          body: orderPayload
+        })
+      }
       const order =  await $fetch('/api/order/order', {
         method: 'POST',
         body: orderPayload
