@@ -89,13 +89,6 @@ export const useCheckout = () => {
       description: 'Doručení pomocí společnosti GLS',
       price: 99,
       estimatedDelivery: '2-3 pracovní dny'
-    },
-    {
-      id: 'pickup',
-      name: 'Osobní odběr',
-      description: 'Vyzvednutí na výdejním místě',
-      price: 0,
-      estimatedDelivery: 'Ihned po připravení'
     }
   ]);
   

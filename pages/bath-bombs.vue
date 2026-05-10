@@ -124,6 +124,11 @@ onMounted(() => {
     />
     <div class="container">
       <h1 class="page-title">Naše bomby do koupele</h1>
+      <div class="category-description">
+        <p>
+          Bomby do koupele jsou šumivé koule, které se po vložení do vody začnou rozpouštět, jemně perlit a uvolňovat vůni, barvy či pečující složky. Každá bomba má svůj unikátní charakter a účinky. S některými zažijete zábavný koktejl barev, jiné vám pomohou uvolnit se, zklidnit mysl nebo si jen dopřát chvilku pro sebe.
+        </p>
+      </div>
       
       <!-- Loading state -->
       <div v-if="loading" class="loading-container">
@@ -214,9 +219,22 @@ onMounted(() => {
 
 .page-title {
   font-size: 2.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   text-align: center;
   color: var(--secondary-color);
+}
+
+.category-description {
+  max-width: 820px;
+  margin: 0 auto 2rem;
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.category-description p + p {
+  margin-top: 0.75rem;
 }
 
 /* Loading state */

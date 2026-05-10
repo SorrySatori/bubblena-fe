@@ -67,6 +67,11 @@ onMounted(() => {
     />
     <div class="container">
       <h1 class="page-title">Steamery do sprchy</h1>
+      <div class="category-description">
+        <p>
+          Shower steamery jsou aromatické tablety do sprchy. Ve vodě se postupně rozpouštějí a díky páře uvolňují vůni do celé sprchy.           Jsou ideální, když nemáte čas na vanu, ale chcete si dopřát krátký voňavý rituál.
+        </p>  
+      </div>
       
       <!-- Loading state -->
       <div v-if="loading" class="loading-container">
@@ -128,9 +133,22 @@ onMounted(() => {
 
 .page-title {
   font-size: 2.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   text-align: center;
   color: var(--secondary-color);
+}
+
+.category-description {
+  max-width: 820px;
+  margin: 0 auto 2rem;
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.category-description p + p {
+  margin-top: 0.75rem;
 }
 
 /* Loading state */
