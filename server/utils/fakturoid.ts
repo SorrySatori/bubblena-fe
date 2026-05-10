@@ -129,7 +129,8 @@ export async function createInvoice(
   subjectId: number,
   orderId: string,
   items: Array<{ name: string; price: number; quantity: number; variant?: { weight?: number }; weight?: number }>,
-  totals: { shipping: number; paymentSurcharge?: number }
+  totals: { shipping: number; paymentSurcharge?: number },
+  discount?: { totalDiscount?: number }
 ): Promise<FakturoidInvoice> {
   const token = await getAccessToken()
   const slug = getSlug()
@@ -158,6 +159,16 @@ export async function createInvoice(
       quantity: 1,
       unit_name: '',
       unit_price: totals.paymentSurcharge,
+      vat_rate: 0,
+    })
+  }
+
+  if (discount?.totalDiscount && discount.totalDiscount > 0) {
+    lines.push({
+      name: 'Sleva',
+      quantity: 1,
+      unit_name: '',
+      unit_price: -discount.totalDiscount,
       vat_rate: 0,
     })
   }

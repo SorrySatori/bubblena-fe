@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
       } catch (error: any) {
         console.error('Error creating order:', error)
         throw createError({
-          statusCode: 500,
-          message: 'Failed to create order'
+          statusCode: error?.statusCode || 500,
+          message: error?.data?.error || error?.data?.message || 'Failed to create order'
         });
       }
 

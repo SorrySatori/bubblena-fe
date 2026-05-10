@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
     customerInfo,
     items,
     totals,
+    discount,
     shippingMethod,
     paymentMethod,
     selectedPickupPoint,
@@ -30,7 +31,7 @@ export default defineEventHandler(async (event) => {
   let invoiceNumber: string | null = null
   try {
     const subject = await createSubject(customerInfo)
-    const invoice = await createInvoice(subject.id, orderId, items, totals)
+    const invoice = await createInvoice(subject.id, orderId, items, totals, discount)
     invoiceNumber = invoice.number
     await markInvoiceAsPaid(invoice.id)
     await new Promise((resolve) => setTimeout(resolve, 2000))
@@ -65,6 +66,10 @@ export default defineEventHandler(async (event) => {
     ? `<p><b>Doručení:</b> ${shippingMethod} – ${selectedPickupPoint.name}, ${selectedPickupPoint.city}</p>`
     : `<p><b>Doručení:</b> ${shippingMethod}</p>`
 
+  const discountHtml = discount?.totalDiscount && discount.totalDiscount > 0
+    ? `<p><b>Sleva:</b> -${discount.totalDiscount} Kč</p>`
+    : ''
+
   const customerName = `${customerInfo.firstName} ${customerInfo.lastName}`
 
   const prettyJson = `<pre style="background:#f4f4f4;padding:12px;border-radius:6px;font-size:13px;line-height:1.4;">${JSON.stringify(
@@ -95,6 +100,7 @@ export default defineEventHandler(async (event) => {
       <h3>Souhrn:</h3>
       <p><b>Mezisoučet:</b> ${totals.subtotal} Kč</p>
       <p><b>Doprava:</b> ${totals.shipping} Kč</p>
+      ${discountHtml}
       <p><b>Platba:</b> ${paymentMethod}</p>
       <p><b>Celkem:</b> ${totals.total} Kč</p>
 

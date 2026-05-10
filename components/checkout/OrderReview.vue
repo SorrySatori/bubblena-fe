@@ -146,6 +146,11 @@
           <span class="text-gray-600">Poplatek za platbu</span>
           <span>{{ paymentSurcharge.toFixed(2) }} Kč</span>
         </div>
+
+        <div v-if="checkoutState.appliedDiscount" class="flex justify-between text-green-700">
+          <span>Slevový kód {{ checkoutState.appliedDiscount.code }}</span>
+          <span>-{{ totalDiscount.toFixed(2) }} Kč</span>
+        </div>
         
         <div class="border-t border-gray-200 pt-2 mt-2 flex justify-between font-medium">
           <span>Celkem</span>
@@ -166,31 +171,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
 import { useCheckout } from '~/composables/useCheckout';
 import { useCart } from '~/composables/useCart';
 
-const router = useRouter();
 const { 
   checkoutState, 
   selectedShipping, 
   selectedPayment,
   shippingCost,
   paymentSurcharge,
-  orderTotal,
-  submitOrder
+  totalDiscount,
+  orderTotal
 } = useCheckout();
 
 const { 
   cartItems, 
   totalItems, 
-  totalPrice,
-  clearCart
+  totalPrice
 } = useCart();
 
 const customerInfo = computed(() => checkoutState.value.customerInfo);
-const isSubmitting = ref(false);
 
 const goToStep = (step) => {
   checkoutState.value.step = step;

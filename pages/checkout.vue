@@ -27,7 +27,12 @@ const {
   selectedPayment,
   shippingCost,
   paymentSurcharge,
+  totalDiscount,
+  percentageDiscount,
+  shippingDiscount,
   orderTotal,
+  applyDiscountCode,
+  removeDiscountCode,
   nextStep,
   previousStep
 } = useCheckout();
@@ -37,6 +42,9 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const toastType = ref('cart');
 const customerInformationRef = ref(null);
+const discountMessage = ref('');
+const discountMessageType = ref('');
+const isApplyingDiscount = ref(false);
 
 // Redirect to products if cart is empty
 onMounted(() => {
@@ -102,6 +110,28 @@ const handleNextStep = () => {
   }
   
   nextStep();
+};
+
+const handleApplyDiscountCode = async () => {
+  isApplyingDiscount.value = true;
+  discountMessage.value = '';
+
+  const result = await applyDiscountCode();
+  if (result.success) {
+    discountMessage.value = 'Slevový kód byl použit.';
+    discountMessageType.value = 'success';
+  } else {
+    discountMessage.value = result.error;
+    discountMessageType.value = 'error';
+  }
+
+  isApplyingDiscount.value = false;
+};
+
+const handleRemoveDiscountCode = () => {
+  removeDiscountCode();
+  discountMessage.value = '';
+  discountMessageType.value = '';
 };
 
 // Validate customer information
@@ -314,6 +344,58 @@ const submitOrder = async () => {
               <div class="flex justify-between" v-if="selectedPayment && paymentSurcharge > 0">
                 <span class="text-gray-600">Platba: {{ selectedPayment.name }}</span>
                 <span class="font-medium">{{ paymentSurcharge?.toFixed(2) }} Kč</span>
+              </div>
+
+              <div class="border-t border-gray-200 pt-4">
+                <label for="discount-code" class="block text-sm font-medium text-gray-700 mb-2">Slevový kód</label>
+                <div v-if="checkoutState.appliedDiscount" class="flex items-center justify-between gap-3 rounded-lg bg-green-50 border border-green-200 px-3 py-2">
+                  <div>
+                    <p class="font-medium text-green-800">{{ checkoutState.appliedDiscount.code }}</p>
+                    <p class="text-xs text-green-700">
+                      <span v-if="checkoutState.appliedDiscount.percentage">{{ checkoutState.appliedDiscount.percentage }} % sleva</span>
+                      <span v-if="checkoutState.appliedDiscount.percentage && checkoutState.appliedDiscount.freeShipping"> + </span>
+                      <span v-if="checkoutState.appliedDiscount.freeShipping">doprava zdarma</span>
+                    </p>
+                  </div>
+                  <button type="button" class="text-sm text-red-600 hover:text-red-700" @click="handleRemoveDiscountCode">
+                    Odebrat
+                  </button>
+                </div>
+                <div v-else class="flex gap-2">
+                  <input
+                    id="discount-code"
+                    v-model="checkoutState.discountCode"
+                    type="text"
+                    class="min-w-0 flex-1 rounded-lg border border-gray-300 px-3 py-2 uppercase focus:border-primary focus:ring-primary"
+                    placeholder="KÓD"
+                  />
+                  <button
+                    type="button"
+                    class="rounded-lg bg-secondary px-3 py-2 text-sm font-medium text-white hover:bg-secondary/90 disabled:opacity-60"
+                    :disabled="isApplyingDiscount"
+                    @click="handleApplyDiscountCode"
+                  >
+                    Použít
+                  </button>
+                </div>
+                <p v-if="discountMessage" class="mt-2 text-sm" :class="discountMessageType === 'success' ? 'text-green-600' : 'text-red-600'">
+                  {{ discountMessage }}
+                </p>
+              </div>
+
+              <div class="flex justify-between text-green-700" v-if="percentageDiscount > 0">
+                <span>Sleva na produkty</span>
+                <span class="font-medium">-{{ percentageDiscount?.toFixed(2) }} Kč</span>
+              </div>
+
+              <div class="flex justify-between text-green-700" v-if="shippingDiscount > 0">
+                <span>Sleva na dopravu</span>
+                <span class="font-medium">-{{ shippingDiscount?.toFixed(2) }} Kč</span>
+              </div>
+
+              <div class="flex justify-between text-green-700" v-if="totalDiscount > 0">
+                <span>Sleva celkem</span>
+                <span class="font-medium">-{{ totalDiscount?.toFixed(2) }} Kč</span>
               </div>
               
               <div class="border-t border-gray-200 pt-3 flex justify-between">

@@ -22,6 +22,13 @@ export interface PaymentMethod {
   surcharge: number;
 }
 
+export interface AppliedDiscount {
+  code: string;
+  type: 'global' | 'individual';
+  percentage: number;
+  freeShipping: boolean;
+}
+
 // Define customer information interface
 export interface CustomerInfo {
   firstName: string;
@@ -50,6 +57,8 @@ export interface CheckoutState {
   selectedShippingMethod: string | null;
   selectedPickupPoint: string | null;
   selectedPaymentMethod: string | null;
+  discountCode: string;
+  appliedDiscount: AppliedDiscount | null;
   orderNotes: string;
 }
 
@@ -128,6 +137,8 @@ export const useCheckout = () => {
     selectedShippingMethod: 'standard',
     selectedPaymentMethod: 'card',
     selectedPickupPoint: '',
+    discountCode: '',
+    appliedDiscount: null,
     orderNotes: ''
   }));
   
@@ -150,11 +161,68 @@ export const useCheckout = () => {
   const paymentSurcharge = computed(() => {
     return selectedPayment.value ? selectedPayment.value.surcharge : 0;
   });
+
+  const percentageDiscount = computed(() => {
+    const discount = checkoutState.value.appliedDiscount;
+    if (!discount?.percentage) return 0;
+
+    return Math.round(totalPrice.value * (discount.percentage / 100) * 100) / 100;
+  });
+
+  const shippingDiscount = computed(() => {
+    const discount = checkoutState.value.appliedDiscount;
+    if (!discount?.freeShipping) return 0;
+
+    return shippingCost.value;
+  });
+
+  const totalDiscount = computed(() => {
+    return percentageDiscount.value + shippingDiscount.value;
+  });
   
   // Calculate total order cost
   const orderTotal = computed(() => {
-    return totalPrice.value + shippingCost.value + paymentSurcharge.value;
+    return Math.max(0, totalPrice.value + shippingCost.value + paymentSurcharge.value - totalDiscount.value);
   });
+
+  const applyDiscountCode = async () => {
+    const code = checkoutState.value.discountCode.trim().toUpperCase();
+    if (!code) {
+      return { success: false, error: 'Zadejte slevový kód.' };
+    }
+
+    try {
+      const response: any = await $fetch('/api/discount-codes/validate', {
+        method: 'POST',
+        body: {
+          code,
+          subtotal: totalPrice.value,
+          shipping: shippingCost.value,
+        }
+      });
+
+      checkoutState.value.discountCode = code;
+      checkoutState.value.appliedDiscount = {
+        code: response.discount.code,
+        type: response.discount.type,
+        percentage: response.discount.percentage,
+        freeShipping: response.discount.freeShipping,
+      };
+
+      return { success: true };
+    } catch (error: any) {
+      checkoutState.value.appliedDiscount = null;
+      return {
+        success: false,
+        error: error?.data?.message || 'Slevový kód není platný nebo již vypršel.'
+      };
+    }
+  };
+
+  const removeDiscountCode = () => {
+    checkoutState.value.discountCode = '';
+    checkoutState.value.appliedDiscount = null;
+  };
   
   // Go to next checkout step
   const nextStep = () => {
@@ -162,7 +230,7 @@ export const useCheckout = () => {
     const currentIndex = steps.indexOf(checkoutState.value.step);
     
     if (currentIndex < steps.length - 1) {
-      checkoutState.value.step = steps[currentIndex + 1];
+      checkoutState.value.step = steps[currentIndex + 1]!;
     }
   };
   
@@ -172,7 +240,7 @@ export const useCheckout = () => {
     const currentIndex = steps.indexOf(checkoutState.value.step);
     
     if (currentIndex > 0) {
-      checkoutState.value.step = steps[currentIndex - 1];
+      checkoutState.value.step = steps[currentIndex - 1]!;
     }
   };
   
@@ -188,6 +256,15 @@ export const useCheckout = () => {
         shippingMethod: checkoutState.value.selectedShippingMethod,
         selectedPickupPoint: checkoutState.value.selectedPickupPoint,
         paymentMethod: checkoutState.value.selectedPaymentMethod,
+        discount: checkoutState.value.appliedDiscount ? {
+          code: checkoutState.value.appliedDiscount.code,
+          type: checkoutState.value.appliedDiscount.type,
+          percentage: checkoutState.value.appliedDiscount.percentage,
+          freeShipping: checkoutState.value.appliedDiscount.freeShipping,
+          percentageDiscount: percentageDiscount.value,
+          shippingDiscount: shippingDiscount.value,
+          totalDiscount: totalDiscount.value,
+        } : null,
         orderNotes: checkoutState.value.orderNotes,
         items: cartItems.value,
         totals: {
@@ -230,11 +307,11 @@ export const useCheckout = () => {
       // 4. Redirect to payment — email and cart clearing happen after payment on order-confirmation page
       navigateTo(paymentResponse.url, { external: true })
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to submit order:', error);
       return {
         success: false,
-        error: 'Failed to submit order. Please try again.'
+        error: error?.data?.message || error?.message || 'Failed to submit order. Please try again.'
       };
     }
   };
@@ -255,7 +332,12 @@ export const useCheckout = () => {
     selectedPayment,
     shippingCost,
     paymentSurcharge,
+    percentageDiscount,
+    shippingDiscount,
+    totalDiscount,
     orderTotal,
+    applyDiscountCode,
+    removeDiscountCode,
     nextStep,
     previousStep,
     submitOrder,
