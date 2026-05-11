@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     shippingMethod,
     paymentMethod,
     selectedPickupPoint,
+    bankTransferPayment,
   } = body
 
   if (!orderId || !customerInfo || !items || !totals) {
@@ -33,7 +34,9 @@ export default defineEventHandler(async (event) => {
     const subject = await createSubject(customerInfo)
     const invoice = await createInvoice(subject.id, orderId, items, totals, discount)
     invoiceNumber = invoice.number
-    await markInvoiceAsPaid(invoice.id)
+    if (paymentMethod === 'card') {
+      await markInvoiceAsPaid(invoice.id)
+    }
     await new Promise((resolve) => setTimeout(resolve, 2000))
     invoicePdfBuffer = await downloadInvoicePdf(invoice.id)
   } catch (err) {
@@ -70,6 +73,29 @@ export default defineEventHandler(async (event) => {
     ? `<p><b>Sleva:</b> -${discount.totalDiscount} Kč</p>`
     : ''
 
+  const paymentMethodLabel = paymentMethod === 'bank-transfer'
+    ? 'Bankovní převod'
+    : paymentMethod === 'card'
+      ? 'Platební karta'
+      : paymentMethod
+
+  const formattedBankAccount = bankTransferPayment?.accountNumber
+    ? `${bankTransferPayment.accountNumber}${bankTransferPayment.bankCode ? `/${bankTransferPayment.bankCode}` : ''}`
+    : ''
+
+  const bankTransferHtml = paymentMethod === 'bank-transfer' && bankTransferPayment
+    ? `
+      <h3>Platební údaje:</h3>
+      <p>Objednávku prosím uhraďte bankovním převodem.</p>
+      <p><b>Příjemce:</b> ${bankTransferPayment.recipient || 'Bubblena.cz'}</p>
+      ${formattedBankAccount ? `<p><b>Číslo účtu:</b> ${formattedBankAccount}</p>` : ''}
+      ${bankTransferPayment.iban ? `<p><b>IBAN:</b> ${bankTransferPayment.iban}</p>` : ''}
+      ${bankTransferPayment.bic ? `<p><b>BIC/SWIFT:</b> ${bankTransferPayment.bic}</p>` : ''}
+      <p><b>Částka:</b> ${Number(bankTransferPayment.amount || totals.total).toFixed(2)} Kč</p>
+      <p><b>Zpráva pro příjemce:</b> ${bankTransferPayment.message || `Objednávka ${orderId}`}</p>
+    `
+    : ''
+
   const customerName = `${customerInfo.firstName} ${customerInfo.lastName}`
 
   const prettyJson = `<pre style="background:#f4f4f4;padding:12px;border-radius:6px;font-size:13px;line-height:1.4;">${JSON.stringify(
@@ -101,8 +127,10 @@ export default defineEventHandler(async (event) => {
       <p><b>Mezisoučet:</b> ${totals.subtotal} Kč</p>
       <p><b>Doprava:</b> ${totals.shipping} Kč</p>
       ${discountHtml}
-      <p><b>Platba:</b> ${paymentMethod}</p>
+      <p><b>Platba:</b> ${paymentMethodLabel}</p>
       <p><b>Celkem:</b> ${totals.total} Kč</p>
+
+      ${bankTransferHtml}
 
       ${shippingHtml}
 
@@ -158,7 +186,9 @@ export default defineEventHandler(async (event) => {
         html: `
           <div style="font-family:Arial, sans-serif; color:#333; line-height:1.6;">
             <p>Dobrý den, <b>${customerName}</b>,</p>
-            <p>děkujeme za zaplacení objednávky. Fakturu k objednávce <b>${orderId}</b> najdete v příloze.</p>
+            ${paymentMethod === 'bank-transfer'
+              ? `<p>fakturu k objednávce <b>${orderId}</b> najdete v příloze. Objednávku prosím uhraďte dle platebních údajů uvedených v potvrzení objednávky.</p>`
+              : `<p>děkujeme za zaplacení objednávky. Fakturu k objednávce <b>${orderId}</b> najdete v příloze.</p>`}
             <p>Jakmile bude vaše objednávka na cestě, dáme vám vědět.</p>
             <hr style="margin:24px 0;"/>
             <p>S pozdravem,<br/>Tým Bubblena.cz</p>

@@ -95,7 +95,12 @@ export default defineNuxtConfig({
     fakturoidUserAgent: process.env.NUXT_FAKTUROID_USER_AGENT || '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
-      apiKey: process.env.NUXT_PUBLIC_API_KEY || ''
+      apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
+      bankRecipient: process.env.NUXT_PUBLIC_BANK_RECIPIENT || 'Bubblena.cz',
+      bankAccountNumber: process.env.NUXT_PUBLIC_BANK_ACCOUNT_NUMBER || '',
+      bankCode: process.env.NUXT_PUBLIC_BANK_CODE || '',
+      bankIban: process.env.NUXT_PUBLIC_BANK_IBAN || '',
+      bankBic: process.env.NUXT_PUBLIC_BANK_BIC || ''
     }
   },
   // CSS configuration

@@ -205,6 +205,22 @@ const submitOrder = async () => {
     const result = await useCheckout().submitOrder();
     
     if (result?.success) {
+      if (result.paymentMethod === 'bank-transfer') {
+        router.push({
+          path: '/order-confirmation',
+          query: {
+            orderId: result.orderId,
+            paymentMethod: 'bank-transfer',
+            amount: result.amount?.toFixed(2)
+          }
+        });
+        return;
+      }
+
+      if (result.redirected) {
+        return;
+      }
+
       // Show success toast
       toastMessage.value = 'Objednávka byla úspěšně odeslána!';
       toastType.value = 'success';
