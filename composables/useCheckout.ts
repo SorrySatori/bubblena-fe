@@ -29,6 +29,18 @@ export interface AppliedDiscount {
   freeShipping: boolean;
 }
 
+export interface BankTransferPayment {
+  recipient: string;
+  accountNumber: string;
+  bankCode: string;
+  iban: string;
+  bic: string;
+  amount: number;
+  currency: 'CZK';
+  paymentReference: string;
+  message: string;
+}
+
 // Define customer information interface
 export interface CustomerInfo {
   firstName: string;
@@ -55,7 +67,7 @@ export interface CheckoutState {
   step: 'information' | 'shipping' | 'payment' | 'review';
   customerInfo: CustomerInfo;
   selectedShippingMethod: string | null;
-  selectedPickupPoint: string | null;
+  selectedPickupPoint: any | null;
   selectedPaymentMethod: string | null;
   discountCode: string;
   appliedDiscount: AppliedDiscount | null;
@@ -65,6 +77,22 @@ export interface CheckoutState {
 // Create a composable for checkout functionality
 export const useCheckout = () => {
   const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
+
+  const createBankTransferPayment = (orderId: string): BankTransferPayment => {
+    const config = useRuntimeConfig();
+
+    return {
+      recipient: config.public.bankRecipient || 'Bubblena.cz',
+      accountNumber: config.public.bankAccountNumber || '',
+      bankCode: config.public.bankCode || '',
+      iban: config.public.bankIban || '',
+      bic: config.public.bankBic || '',
+      amount: orderTotal.value,
+      currency: 'CZK',
+      paymentReference: orderId,
+      message: `Objednávka ${orderId}`
+    };
+  };
 
   const getDeliveryEndpoint = (shippingMethod: string | null): string | null => {
     switch (shippingMethod) {
@@ -255,6 +283,10 @@ export const useCheckout = () => {
 
     const orderId = uuidv4();
     try {
+      const bankTransferPayment = checkoutState.value.selectedPaymentMethod === 'bank-transfer'
+        ? createBankTransferPayment(orderId)
+        : null;
+
       // Create order payload
       const orderPayload = {
         cartId: cartSessionId.value,
@@ -263,6 +295,7 @@ export const useCheckout = () => {
         shippingMethod: checkoutState.value.selectedShippingMethod,
         selectedPickupPoint: checkoutState.value.selectedPickupPoint,
         paymentMethod: checkoutState.value.selectedPaymentMethod,
+        bankTransferPayment,
         discount: checkoutState.value.appliedDiscount ? {
           code: checkoutState.value.appliedDiscount.code,
           type: checkoutState.value.appliedDiscount.type,
@@ -301,6 +334,16 @@ export const useCheckout = () => {
         throw new Error('Failed to create order')
       }
 
+      if (checkoutState.value.selectedPaymentMethod === 'bank-transfer') {
+        return {
+          success: true,
+          orderId,
+          paymentMethod: 'bank-transfer',
+          amount: orderTotal.value,
+          bankTransferPayment
+        }
+      }
+
       // 3. Process payment (get Stripe redirect URL)
       const paymentResponse: { url: string } = await $fetch('/api/orders', {
         method: 'POST',
@@ -313,6 +356,7 @@ export const useCheckout = () => {
 
       // 4. Redirect to payment — email and cart clearing happen after payment on order-confirmation page
       navigateTo(paymentResponse.url, { external: true })
+      return { success: true, orderId, paymentMethod: 'card', redirected: true }
       
     } catch (error: any) {
       console.error('Failed to submit order:', error);
