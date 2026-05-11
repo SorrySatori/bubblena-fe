@@ -1,27 +1,33 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useCheckout } from '~/composables/useCheckout';
 
 const { checkoutState, shippingMethods, setSelectedPickupPoint } = useCheckout();
 
-const isGlsPointSelected = ref(false)
 const selectedShippingMethod = computed({
   get: () => checkoutState.value.selectedShippingMethod,
   set: (value) => { checkoutState.value.selectedShippingMethod = value; }
 });
 
-const selectedPickupPoint = ref(null);
+const selectedPickupPoint = computed({
+  get: () => checkoutState.value.selectedPickupPoint,
+  set: (value) => { setSelectedPickupPoint(value); }
+});
+const hasSelectedPickupPoint = computed(() => Boolean(selectedPickupPoint.value));
 const isPacketaLoaded = ref(false);
 const packetaApiKey = process.env.NUXT_PACKETA_API_KEY
 
 const selectShippingMethod = (methodId) => {
+  if (selectedShippingMethod.value && selectedShippingMethod.value !== methodId) {
+    selectedPickupPoint.value = null;
+  }
+
   selectedShippingMethod.value = methodId;
 };
 
 const handlePacketaCallback = (point) => {
   if (point) {
     selectedPickupPoint.value = point;
-    setSelectedPickupPoint(point);
   }
 };
 
@@ -40,7 +46,14 @@ const openPacketaWidget = () => {
   }
 };
 
+const handleGlsMessage = (event) => {
+  if (event.data && event.data.parcelshop) {
+    selectedPickupPoint.value = event.data.parcelshop.detail;
+  }
+};
+
 onMounted(() => {
+  window.addEventListener("message", handleGlsMessage);
 
   const script = document.createElement('script');
   script.src = 'https://widget.packeta.com/v6/www/js/library.js';
@@ -61,13 +74,9 @@ onMounted(() => {
   document.head.appendChild(script);
 });
 
-window.addEventListener("message", (event) => {
-  if (event.data && event.data.parcelshop) {
-    selectedPickupPoint.value = event.data.parcelshop.detail
-    setSelectedPickupPoint(event.data.parcelshop.detail)
-    isGlsPointSelected.value = true
-  }
-})
+onUnmounted(() => {
+  window.removeEventListener("message", handleGlsMessage);
+});
 
 </script>
 
@@ -90,7 +99,7 @@ window.addEventListener("message", (event) => {
         <div v-if="!isPacketaLoaded" class="text-xs text-gray-500">Načítání widgetu Zásilkovny...</div>
         <div id="zasilkovna-branch"></div>
       </div>
-      <div v-if="selectedShippingMethod === 'gls' && !isGlsPointSelected" class="mb-4">
+      <div v-if="selectedShippingMethod === 'gls' && !hasSelectedPickupPoint" class="mb-4">
         <iframe src="https://ps-maps.gls-czech.cz/?tdetail=2&header=0&find=1"
           style="width:100%; height:600px; border:0;"></iframe>
       </div>

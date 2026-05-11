@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import { useCheckout } from '~/composables/useCheckout';
@@ -45,6 +45,26 @@ const customerInformationRef = ref(null);
 const discountMessage = ref('');
 const discountMessageType = ref('');
 const isApplyingDiscount = ref(false);
+const checkoutSteps = ['information', 'shipping', 'payment', 'review'];
+const stepLabels = {
+  information: 'Informace',
+  shipping: 'Doprava',
+  payment: 'Platba',
+  review: 'Souhrn'
+};
+
+const currentStepIndex = computed(() => checkoutSteps.indexOf(checkoutState.value.step));
+const progressWidth = computed(() => `${((currentStepIndex.value + 1) / checkoutSteps.length) * 100}%`);
+
+const showCheckoutToast = (message, type = 'error', timeout = 4000) => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, timeout);
+};
 
 // Redirect to products if cart is empty
 onMounted(() => {
@@ -87,6 +107,12 @@ const removeItem = (itemId) => {
 
 // Go to specific checkout step
 const goToStep = (step) => {
+  const targetIndex = checkoutSteps.indexOf(step);
+
+  if (targetIndex === -1 || targetIndex > currentStepIndex.value) {
+    return;
+  }
+
   checkoutState.value.step = step;
 };
 
@@ -96,17 +122,21 @@ const handleNextStep = () => {
       const isValid = customerInformationRef.value.validateAllFields();
       
       if (!isValid) {
-        toastMessage.value = 'Prosím vyplňte všechna povinná pole správně';
-        toastType.value = 'error';
-        showToast.value = true;
-        
-        setTimeout(() => {
-          showToast.value = false;
-        }, 4000);
+        showCheckoutToast('Prosím vyplňte všechna povinná pole správně');
         
         return;
       }
     }
+  }
+
+  if (checkoutState.value.step === 'shipping' && !selectedShipping.value) {
+    showCheckoutToast('Vyberte prosím způsob dopravy.');
+    return;
+  }
+
+  if (checkoutState.value.step === 'payment' && !selectedPayment.value) {
+    showCheckoutToast('Vyberte prosím způsob platby.');
+    return;
   }
   
   nextStep();
@@ -233,10 +263,20 @@ const submitOrder = async () => {
           <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="flex justify-between">
               <div 
-                v-for="(step, index) in ['information', 'shipping', 'payment', 'review']" 
+                v-for="(step, index) in checkoutSteps" 
                 :key="step"
-                class="flex flex-col items-center"
-                :class="{'text-primary': checkoutState.step === step, 'text-gray-400': checkoutState.step !== step}"
+                class="flex flex-col items-center rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/40"
+                :class="{
+                  'text-primary cursor-pointer hover:text-accent': index <= currentStepIndex,
+                  'text-gray-400 cursor-not-allowed': index > currentStepIndex
+                }"
+                role="button"
+                :tabindex="index <= currentStepIndex ? 0 : -1"
+                :aria-current="checkoutState.step === step ? 'step' : undefined"
+                :aria-disabled="index > currentStepIndex"
+                @click="goToStep(step)"
+                @keydown.enter.prevent="goToStep(step)"
+                @keydown.space.prevent="goToStep(step)"
               >
                 <div 
                   class="h-8 w-8 rounded-full flex items-center justify-center mb-2"
@@ -248,9 +288,7 @@ const submitOrder = async () => {
                   {{ index + 1 }}
                 </div>
                 <span class="text-sm hidden sm:block">
-                  {{ step === 'information' ? 'Informace' : 
-                     step === 'shipping' ? 'Doprava' : 
-                     step === 'payment' ? 'Platba' : 'Souhrn' }}
+                  {{ stepLabels[step] }}
                 </span>
               </div>
             </div>
@@ -258,11 +296,7 @@ const submitOrder = async () => {
               <div class="absolute top-0 left-0 right-0 h-1 bg-gray-200 rounded"></div>
               <div 
                 class="absolute top-0 left-0 h-1 bg-primary rounded transition-all duration-300"
-                :style="{
-                  width: checkoutState.step === 'information' ? '25%' : 
-                         checkoutState.step === 'shipping' ? '50%' : 
-                         checkoutState.step === 'payment' ? '75%' : '100%'
-                }"
+                :style="{ width: progressWidth }"
               ></div>
             </div>
           </div>
@@ -280,14 +314,14 @@ const submitOrder = async () => {
             <ShippingMethod 
               v-else-if="checkoutState.step === 'shipping'" 
               @prev="previousStep"
-              @next="nextStep"
+              @next="handleNextStep"
             />
             
             <!-- Payment Method Step -->
             <PaymentMethod 
               v-else-if="checkoutState.step === 'payment'" 
               @prev="previousStep"
-              @next="nextStep"
+              @next="handleNextStep"
             />
             
             <!-- Order Review Step -->
@@ -420,9 +454,9 @@ const submitOrder = async () => {
             <!-- Shipping step button -->
             <button 
               v-else-if="checkoutState.step === 'shipping'" 
-              @click="nextStep" 
-              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
-              :disabled="!checkoutState.selectedShippingMethod"
+              @click="handleNextStep" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary"
+              :disabled="!selectedShipping"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -433,9 +467,9 @@ const submitOrder = async () => {
             <!-- Payment step button -->
             <button 
               v-else-if="checkoutState.step === 'payment'" 
-              @click="nextStep" 
-              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2"
-              :disabled="!checkoutState.selectedPaymentMethod"
+              @click="handleNextStep" 
+              class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary"
+              :disabled="!selectedPayment"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

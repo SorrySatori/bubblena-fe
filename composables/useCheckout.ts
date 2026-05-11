@@ -127,7 +127,7 @@ export const useCheckout = () => {
       billingAddressSameAsShipping: true,
       billingAddress: undefined
     },
-    selectedShippingMethod: 'standard',
+    selectedShippingMethod: null,
     selectedPaymentMethod: 'card',
     selectedPickupPoint: '',
     discountCode: '',
@@ -239,6 +239,20 @@ export const useCheckout = () => {
   
   // Submit order
   const submitOrder = async () => {
+    if (!selectedShipping.value) {
+      return {
+        success: false,
+        error: 'Vyberte prosím způsob dopravy.'
+      };
+    }
+
+    if (!selectedPayment.value) {
+      return {
+        success: false,
+        error: 'Vyberte prosím způsob platby.'
+      };
+    }
+
     const orderId = uuidv4();
     try {
       // Create order payload
