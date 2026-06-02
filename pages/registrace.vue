@@ -32,6 +32,11 @@
             class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
           <p class="text-xs text-gray-500 mt-1">Min. 8 znaků.</p>
         </div>
+        <div>
+          <label class="block text-sm font-medium text-secondary mb-1">Heslo znovu</label>
+          <input v-model="passwordConfirm" type="password" required autocomplete="new-password"
+            class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" />
+        </div>
 
         <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
 
@@ -62,6 +67,7 @@ const firstName = ref('')
 const lastName = ref('')
 const email = ref('')
 const password = ref('')
+const passwordConfirm = ref('')
 const loading = ref(false)
 const error = ref('')
 const done = ref(false)
@@ -72,6 +78,14 @@ onMounted(() => {
 
 async function onSubmit() {
   error.value = ''
+  if (password.value.length < 8) {
+    error.value = 'Heslo musí mít alespoň 8 znaků.'
+    return
+  }
+  if (password.value !== passwordConfirm.value) {
+    error.value = 'Hesla se neshodují.'
+    return
+  }
   loading.value = true
   try {
     await register({
