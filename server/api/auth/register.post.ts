@@ -3,7 +3,7 @@ import { backendBase, backendHeaders, rethrowBackendError } from '../../utils/au
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { email, password, firstName, lastName } = body || {}
+  const { email, password, firstName, lastName, acceptTerms, marketing } = body || {}
 
   // Create the (unverified) user on the backend; it returns a verification token.
   let result: { email: string; verifyToken: string }
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     result = await $fetch(`${backendBase()}/auth/register`, {
       method: 'POST',
       headers: backendHeaders(),
-      body: { email, password, firstName, lastName },
+      body: { email, password, firstName, lastName, acceptTerms, marketing },
     })
   } catch (error: any) {
     rethrowBackendError(error)

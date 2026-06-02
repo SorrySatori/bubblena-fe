@@ -14,6 +14,7 @@ export interface AuthUser {
   address: AuthAddress
   emailVerified: boolean
   authProvider: 'local' | 'google'
+  marketingConsent: boolean
 }
 
 export interface RegisterPayload {
@@ -21,6 +22,8 @@ export interface RegisterPayload {
   password: string
   firstName?: string
   lastName?: string
+  acceptTerms: boolean
+  marketing?: boolean
 }
 
 /**
@@ -62,10 +65,10 @@ export const useAuth = () => {
     return u
   }
 
-  async function loginWithGoogle(credential: string) {
+  async function loginWithGoogle(credential: string, marketing?: boolean) {
     const { user: u } = await $fetch<{ user: AuthUser }>('/api/auth/google', {
       method: 'POST',
-      body: { credential },
+      body: { credential, marketing },
     })
     user.value = u
     return u
@@ -76,7 +79,7 @@ export const useAuth = () => {
     user.value = null
   }
 
-  async function updateProfile(payload: Partial<Pick<AuthUser, 'firstName' | 'lastName' | 'phone' | 'address'>>) {
+  async function updateProfile(payload: Partial<Pick<AuthUser, 'firstName' | 'lastName' | 'phone' | 'address' | 'marketingConsent'>>) {
     const { user: u } = await $fetch<{ user: AuthUser }>('/api/auth/me', {
       method: 'PATCH',
       body: payload,

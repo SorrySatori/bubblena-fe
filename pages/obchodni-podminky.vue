@@ -21,10 +21,10 @@
 
           <div class="mb-8">
             <h3 class="text-xl font-semibold text-secondary mb-3">2. UŽIVATELSKÝ ÚČET</h3>
-            <p class="mb-3">2.1. Kupující může provádět objednávky bez registrace.</p>
+            <p class="mb-3">2.1. Kupující může provádět objednávky bez registrace i prostřednictvím uživatelského účtu, který si vytvoří registrací e-mailem a heslem nebo přihlášením přes účet Google.</p>
             <p class="mb-3">2.2. Kupující je povinen uvádět pravdivé a aktuální údaje.</p>
-            <!-- <p class="mb-3">2.3. Přístup k uživatelskému účtu je zabezpečen přihlašovacími údaji, které je kupující povinen chránit.</p> -->
-            <!-- <p class="mb-3">2.4. Prodávající může uživatelský účet zrušit zejména při jeho dlouhodobé neaktivitě nebo porušení obchodních podmínek.</p> -->
+            <p class="mb-3">2.3. Přístup k uživatelskému účtu je zabezpečen přihlašovacími údaji, které je kupující povinen chránit a nesdělovat třetím osobám.</p>
+            <p class="mb-3">2.4. Prodávající může uživatelský účet zrušit zejména při jeho dlouhodobé neaktivitě nebo porušení obchodních podmínek.</p>
           </div>
 
           <div class="mb-8">
@@ -104,7 +104,7 @@
         <div class="border-t-4 border-primary my-12"></div>
 
         <!-- GDPR ZÁSADY -->
-        <section class="mb-12">
+        <section id="gdpr" class="mb-12 scroll-mt-24">
           <h2 class="text-2xl font-bold text-secondary mb-4">ZÁSADY OCHRANY OSOBNÍCH ÚDAJŮ (GDPR)</h2>
           <p class="text-gray-600 mb-6">pro e-shop Bubblena</p>
 

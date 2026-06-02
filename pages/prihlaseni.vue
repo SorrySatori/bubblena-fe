@@ -27,6 +27,12 @@
     </div>
 
     <GoogleSignInButton @credential="onGoogle" />
+    <p class="text-center text-xs text-gray-500 mt-2">
+      Přihlášením přes Google a případným vytvořením účtu souhlasíte s
+      <NuxtLink to="/obchodni-podminky" target="_blank" class="text-primary hover:underline">podmínkami</NuxtLink>
+      a berete na vědomí
+      <NuxtLink to="/obchodni-podminky#gdpr" target="_blank" class="text-primary hover:underline">zásady ochrany osobních údajů</NuxtLink>.
+    </p>
 
     <p class="text-center text-sm text-gray-600 mt-6">
       Nemáte účet?

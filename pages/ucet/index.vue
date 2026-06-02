@@ -25,6 +25,10 @@
           <dt class="text-gray-500">Adresa</dt>
           <dd class="text-right">{{ formattedAddress || '—' }}</dd>
         </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-gray-500">Odběr novinek</dt>
+          <dd class="text-right">{{ user?.marketingConsent ? 'Ano' : 'Ne' }}</dd>
+        </div>
       </dl>
 
       <!-- Editační režim -->
@@ -64,6 +68,11 @@
           </div>
         </div>
 
+        <label class="flex items-start gap-2 text-sm text-gray-700 pt-1">
+          <input v-model="form.marketingConsent" type="checkbox" class="mt-1 accent-primary" />
+          <span>Chci e-mailem dostávat novinky a akční nabídky (lze kdykoli odvolat).</span>
+        </label>
+
         <div class="flex items-center gap-3 pt-2">
           <button type="submit" :disabled="saving"
             class="bg-primary text-white px-5 py-2.5 rounded hover:bg-accent transition-all disabled:opacity-60">
@@ -100,6 +109,7 @@ const form = reactive({
   lastName: '',
   phone: '',
   address: { street: '', city: '', postalCode: '', country: 'CZ' },
+  marketingConsent: false,
 })
 
 const fullName = computed(() =>
@@ -121,6 +131,7 @@ function hydrate() {
   form.address.city = user.value.address?.city || ''
   form.address.postalCode = user.value.address?.postalCode || ''
   form.address.country = user.value.address?.country || 'CZ'
+  form.marketingConsent = !!user.value.marketingConsent
 }
 
 watch(user, hydrate, { immediate: true })
@@ -197,7 +208,8 @@ async function onSave() {
       firstName: form.firstName,
       lastName: form.lastName,
       phone: form.phone,
-      address: { ...form.address },
+      address: { street: form.address.street, city: form.address.city, postalCode: form.address.postalCode, country: form.address.country },
+      marketingConsent: form.marketingConsent,
     })
     editing.value = false
   } catch (e: any) {
