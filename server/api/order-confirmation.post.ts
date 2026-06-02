@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer"
 import {
-  createSubject,
   createInvoice,
   markInvoiceAsPaid,
   downloadInvoicePdf,
@@ -30,17 +29,21 @@ export default defineEventHandler(async (event) => {
 
   let invoicePdfBuffer: Buffer | null = null
   let invoiceNumber: string | null = null
+  let invoiceError: string | null = null
   try {
-    const subject = await createSubject(customerInfo)
-    const invoice = await createInvoice(subject.id, orderId, items, totals, discount)
+    const invoice = await createInvoice(customerInfo, orderId, items, totals, discount)
     invoiceNumber = invoice.number
     if (paymentMethod === 'card') {
       await markInvoiceAsPaid(invoice.id)
     }
     await new Promise((resolve) => setTimeout(resolve, 2000))
     invoicePdfBuffer = await downloadInvoicePdf(invoice.id)
-  } catch (err) {
-    console.error("Fakturoid invoice error:", err)
+  } catch (err: any) {
+    invoiceError =
+      err?.data?.errors ? JSON.stringify(err.data.errors)
+      : err?.statusCode ? `${err.statusCode} ${err?.statusMessage || ''}`.trim()
+      : err?.message || String(err)
+    console.error("Fakturoid invoice error:", invoiceError, err)
   }
 
   const transporter = nodemailer.createTransport({
@@ -148,11 +151,22 @@ export default defineEventHandler(async (event) => {
     </div>
   `
 
+  const invoiceStatusHtml = invoiceError
+    ? `<div style="background:#fdecea;border:1px solid #f5c6cb;color:#a12622;padding:12px;border-radius:6px;">
+         <b>⚠️ Faktura se NEVYGENEROVALA</b><br/>
+         Objednávka <b>${orderId}</b> proběhla, ale Fakturoid vrátil chybu – fakturu je potřeba vystavit ručně.<br/>
+         <small>${invoiceError}</small>
+       </div>`
+    : `<div style="background:#e7f5ea;border:1px solid #b6dfc0;color:#1d6b35;padding:12px;border-radius:6px;">
+         ✅ Faktura <b>${invoiceNumber}</b> vygenerována${invoicePdfBuffer ? ' a přiložena v PDF' : ' (PDF se zatím nestáhlo)'}.
+       </div>`
+
   const mailOptions: nodemailer.SendMailOptions = {
     from: process.env.NUXT_CONTACT_ORDERS,
     to: process.env.NUXT_CONTACT_ORDERS,
-    subject: `🧼 Nová objednávka č. ${orderId}`,
+    subject: `${invoiceError ? '⚠️ FAKTURA SELHALA – ' : '🧼 '}Nová objednávka č. ${orderId}`,
     html: `
+      ${invoiceStatusHtml}
       ${htmlContent}
       <hr/>
       <h3>📦 Kompletní data objednávky (JSON):</h3>
