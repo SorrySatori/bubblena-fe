@@ -20,6 +20,14 @@ interface FakturoidInvoice {
   [key: string]: any
 }
 
+export interface CustomerInfo {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+  address: { street: string; city: string; postalCode: string; country?: string }
+}
+
 let cachedToken: { token: string; expiresAt: number } | null = null
 
 async function getAccessToken(): Promise<string> {
@@ -89,21 +97,52 @@ async function searchSubjectByEmail(email: string): Promise<FakturoidSubject | n
   return null
 }
 
-export async function createSubject(customerInfo: {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  address: { street: string; city: string; postalCode: string; country?: string }
-}): Promise<FakturoidSubject> {
-  // Try to find an existing subject with this email first
-  const existing = await searchSubjectByEmail(customerInfo.email)
+// E-mail marker used to find/create the single recycled subject. All invoices
+// are issued against this one contact so the account never grows past it; the
+// real buyer's details are written directly onto each invoice (client_* fields,
+// stored by Fakturoid as a snapshot at creation time).
+const RECYCLED_MARKER_EMAIL =
+  process.env.NUXT_FAKTUROID_RECYCLED_EMAIL || 'eshop@bubblena.cz'
+
+let cachedRecycledSubjectId: number | null = null
+
+/**
+ * Returns the ID of the single permanent "recycled" subject used for every
+ * invoice. Resolution order:
+ *   1. NUXT_FAKTUROID_SUBJECT_ID env (point this at any existing subject if the
+ *      account is already at the 5-contact limit).
+ *   2. An existing subject matching RECYCLED_MARKER_EMAIL.
+ *   3. Create one (only works if under the contact limit).
+ */
+export async function getRecycledSubjectId(): Promise<number> {
+  if (cachedRecycledSubjectId) return cachedRecycledSubjectId
+
+  const envId = process.env.NUXT_FAKTUROID_SUBJECT_ID
+  if (envId) {
+    cachedRecycledSubjectId = Number(envId)
+    return cachedRecycledSubjectId
+  }
+
+  const existing = await searchSubjectByEmail(RECYCLED_MARKER_EMAIL)
   if (existing) {
-    return existing
+    cachedRecycledSubjectId = existing.id
+    return existing.id
   }
 
   const token = await getAccessToken()
   const slug = getSlug()
+
+  // If the account already has subjects (e.g. free-tier 5/5), reuse the first
+  // one instead of trying to create a 6th — creation would 403 quota_exhausted.
+  // The buyer is overridden per invoice, so the subject's own name is irrelevant.
+  const existingSubjects = await $fetch<FakturoidSubject[]>(
+    `${FAKTUROID_API_BASE}/accounts/${slug}/subjects.json`,
+    { method: 'GET', headers: getHeaders(token) }
+  )
+  if (existingSubjects && existingSubjects.length > 0) {
+    cachedRecycledSubjectId = existingSubjects[0].id
+    return existingSubjects[0].id
+  }
 
   const subject = await $fetch<FakturoidSubject>(
     `${FAKTUROID_API_BASE}/accounts/${slug}/subjects.json`,
@@ -111,22 +150,47 @@ export async function createSubject(customerInfo: {
       method: 'POST',
       headers: getHeaders(token),
       body: {
-        name: `${customerInfo.firstName} ${customerInfo.lastName}`,
-        email: customerInfo.email,
-        phone: customerInfo.phone,
-        street: customerInfo.address.street,
-        city: customerInfo.address.city,
-        zip: customerInfo.address.postalCode,
-        country: customerInfo.address.country || 'CZ',
+        name: 'Zákazník e-shopu',
+        email: RECYCLED_MARKER_EMAIL,
       },
     }
   )
 
-  return subject
+  cachedRecycledSubjectId = subject.id
+  return subject.id
+}
+
+/**
+ * Overwrites the recycled subject with the current buyer's details. The invoice
+ * created immediately afterwards snapshots these values onto itself, so this
+ * never affects previously issued invoices. (Fakturoid ignores client_* sent on
+ * the invoice itself and always copies from the subject — verified — hence this
+ * PATCH-before-create step.)
+ */
+async function updateRecycledSubject(
+  subjectId: number,
+  customerInfo: CustomerInfo
+): Promise<void> {
+  const token = await getAccessToken()
+  const slug = getSlug()
+
+  await $fetch(`${FAKTUROID_API_BASE}/accounts/${slug}/subjects/${subjectId}.json`, {
+    method: 'PATCH',
+    headers: getHeaders(token),
+    body: {
+      name: `${customerInfo.firstName} ${customerInfo.lastName}`,
+      email: customerInfo.email,
+      phone: customerInfo.phone,
+      street: customerInfo.address.street,
+      city: customerInfo.address.city,
+      zip: customerInfo.address.postalCode,
+      country: customerInfo.address.country || 'CZ',
+    },
+  })
 }
 
 export async function createInvoice(
-  subjectId: number,
+  customerInfo: CustomerInfo,
   orderId: string,
   items: Array<{ name: string; price: number; quantity: number; variant?: { weight?: number }; weight?: number }>,
   totals: { shipping: number; paymentSurcharge?: number },
@@ -134,6 +198,11 @@ export async function createInvoice(
 ): Promise<FakturoidInvoice> {
   const token = await getAccessToken()
   const slug = getSlug()
+  const subjectId = await getRecycledSubjectId()
+
+  // Point the shared subject at this buyer, then create the invoice so it
+  // snapshots the buyer's details. Order matters: PATCH must precede POST.
+  await updateRecycledSubject(subjectId, customerInfo)
 
   const lines = items.map((item) => ({
     name: `${item.name}`,
