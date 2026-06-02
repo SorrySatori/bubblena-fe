@@ -96,6 +96,7 @@ export default defineNuxtConfig({
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3001/api',
       apiKey: process.env.NUXT_PUBLIC_API_KEY || '',
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '',
       bankRecipient: process.env.NUXT_PUBLIC_BANK_RECIPIENT || 'Bubblena.cz',
       bankAccountNumber: process.env.NUXT_PUBLIC_BANK_ACCOUNT_NUMBER || '',
       bankCode: process.env.NUXT_PUBLIC_BANK_CODE || '',

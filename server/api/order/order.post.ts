@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
       try {
         const response = await $fetch(`${config.public.apiBase}/order/create`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'x-api-key': config.apiKey || '' },
             body: JSON.stringify(body),
           })
           
