@@ -34,7 +34,8 @@ const {
   applyDiscountCode,
   removeDiscountCode,
   nextStep,
-  previousStep
+  previousStep,
+  prefillFromUser
 } = useCheckout();
 
 // Toast notification state
@@ -70,7 +71,10 @@ const showCheckoutToast = (message, type = 'error', timeout = 4000) => {
 onMounted(() => {
   if (isEmpty.value) {
     router.push('/bath-bombs');
+    return;
   }
+  // Prefill from the logged-in customer's saved profile/address.
+  prefillFromUser();
 });
 
 // Quantity adjustment functions

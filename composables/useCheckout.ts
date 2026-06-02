@@ -77,6 +77,7 @@ export interface CheckoutState {
 // Create a composable for checkout functionality
 export const useCheckout = () => {
   const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
+  const { user } = useAuth();
 
   const createBankTransferPayment = (orderId: string): BankTransferPayment => {
     const config = useRuntimeConfig();
@@ -291,6 +292,7 @@ export const useCheckout = () => {
       const orderPayload = {
         cartId: cartSessionId.value,
         orderId,
+        userId: user.value?.id || null,
         customerInfo: checkoutState.value.customerInfo,
         shippingMethod: checkoutState.value.selectedShippingMethod,
         selectedPickupPoint: checkoutState.value.selectedPickupPoint,
@@ -367,6 +369,23 @@ export const useCheckout = () => {
     }
   };
   
+  // Prefill checkout from the logged-in user's saved profile/address. Only fills
+  // fields the user hasn't already typed, so it never clobbers manual input.
+  const prefillFromUser = () => {
+    if (!user.value) return;
+    const info = checkoutState.value.customerInfo;
+    if (!info.firstName) info.firstName = user.value.firstName || '';
+    if (!info.lastName) info.lastName = user.value.lastName || '';
+    if (!info.email) info.email = user.value.email || '';
+    if (!info.phone) info.phone = user.value.phone || '';
+    const addr = user.value.address;
+    if (addr) {
+      if (!info.address.street) info.address.street = addr.street || '';
+      if (!info.address.city) info.address.city = addr.city || '';
+      if (!info.address.postalCode) info.address.postalCode = addr.postalCode || '';
+    }
+  };
+
   function setSelectedPickupPoint(pickupPoint: any) {
     checkoutState.value.selectedPickupPoint = pickupPoint;
   }
@@ -392,6 +411,7 @@ export const useCheckout = () => {
     nextStep,
     previousStep,
     submitOrder,
+    prefillFromUser,
     setSelectedPickupPoint,
     getSelectedPickupPoint
   };

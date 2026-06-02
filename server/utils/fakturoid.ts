@@ -92,7 +92,7 @@ async function searchSubjectByEmail(email: string): Promise<FakturoidSubject | n
   )
 
   if (subjects && subjects.length > 0) {
-    return subjects.find(s => s.email === email) || subjects[0]
+    return subjects.find(s => s.email === email) || subjects[0] || null
   }
   return null
 }
@@ -139,9 +139,10 @@ export async function getRecycledSubjectId(): Promise<number> {
     `${FAKTUROID_API_BASE}/accounts/${slug}/subjects.json`,
     { method: 'GET', headers: getHeaders(token) }
   )
-  if (existingSubjects && existingSubjects.length > 0) {
-    cachedRecycledSubjectId = existingSubjects[0].id
-    return existingSubjects[0].id
+  const firstExisting = existingSubjects?.[0]
+  if (firstExisting) {
+    cachedRecycledSubjectId = firstExisting.id
+    return firstExisting.id
   }
 
   const subject = await $fetch<FakturoidSubject>(
