@@ -24,7 +24,7 @@ export default defineEventHandler((event) => {
     setCookie(event, 'auth', 'ok', {
       httpOnly: true,
       sameSite: 'strict',
-      secure: true,
+      secure: !import.meta.dev,
       path: '/',
       maxAge: 60 * 60 * 24 // 1 den
     })

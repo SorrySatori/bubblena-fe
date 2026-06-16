@@ -44,6 +44,8 @@
           </div>
         </div>
       </div>
+
+      <RecentlyViewed />
     </main>
   </div>
 </template>

@@ -98,6 +98,9 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
+// Address autocomplete is only needed on this page's address form.
+useSmartform()
+
 const { user, updateProfile } = useAuth()
 
 const editing = ref(false)

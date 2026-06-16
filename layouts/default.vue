@@ -40,6 +40,7 @@
               <li class="mb-2"><NuxtLink to="/about" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">O nás</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/contact" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Kontakt</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/obchodni-podminky" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Obchodní podmínky</NuxtLink></li>
+              <li class="mb-2"><button type="button" @click="reopen" class="opacity-80 hover:opacity-100 hover:underline transition-opacity text-left">Nastavení cookies</button></li>
             </ul>
           </div>
           
@@ -77,6 +78,9 @@ import ShoppingCart from '~/components/ShoppingCart.vue';
 
 // Initialize bubble physics animation
 useBubblePhysics('footer', '.particle');
+
+// Let users re-open the cookie banner to change their choice.
+const { reopen } = useConsent();
 </script>
 
 <style>
