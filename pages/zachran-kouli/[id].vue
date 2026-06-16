@@ -5,11 +5,13 @@ import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
+import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const productId = route.params.id;
 const { damagedProduct, loading, error, fetchDamagedProduct } = useDamagedProducts();
 const { addToCart } = useCart();
+const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
 
 const showToast = ref(false);
@@ -49,6 +51,15 @@ const decrementQuantity = () => {
 
 const loadProduct = async () => {
   await fetchDamagedProduct(productId);
+  if (damagedProduct.value) {
+    trackView({
+      id: String(damagedProduct.value._id ?? productId),
+      name: `${damagedProduct.value.bathBombType} (${getDamageLevelLabel(damagedProduct.value.damageLevel)})`,
+      to: `/zachran-kouli/${productId}`,
+      imageUrl: damagedProduct.value.imageUrl,
+      price: damagedProduct.value.price,
+    });
+  }
 };
 
 const addItemToCart = () => {

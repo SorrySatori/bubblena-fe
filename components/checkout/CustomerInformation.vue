@@ -255,6 +255,10 @@
 
 <script setup>
 import { computed, watch, reactive, onMounted, onUnmounted, nextTick } from 'vue';
+import { useSmartform } from '~/composables/useSmartform';
+
+// Load the address autocomplete script for this checkout step only.
+useSmartform();
 import { useCheckout } from '~/composables/useCheckout';
 import { useFormValidation } from '~/composables/useFormValidation';
 

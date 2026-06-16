@@ -5,11 +5,13 @@ import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
+import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const productId = route.params.id;
 const { product, loading, error, fetchProduct } = useProduct();
 const { addToCart } = useCart();
+const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
 
 const showToast = ref(false);
@@ -63,6 +65,15 @@ const formatDate = (dateString) => {
 
 const loadProduct = async () => {
   await fetchProduct(productId);
+  if (product.value) {
+    trackView({
+      id: String(product.value._id ?? productId),
+      name: product.value.name,
+      to: `/product/${productId}`,
+      imageUrl: product.value.imageUrl,
+      price: product.value.variants?.[0]?.price,
+    });
+  }
 };
 
 const handleVideoLoaded = () => {

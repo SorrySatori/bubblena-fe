@@ -5,11 +5,13 @@ import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
+import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const steamerId = route.params.id;
 const { getSteamer } = useSteamers();
 const { addToCart } = useCart();
+const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
 
 const steamer = ref(null);
@@ -50,6 +52,15 @@ const loadSteamer = async () => {
   error.value = null;
   try {
     steamer.value = await getSteamer(steamerId);
+    if (steamer.value) {
+      trackView({
+        id: String(steamer.value._id ?? steamerId),
+        name: steamer.value.name,
+        to: `/steamer/${steamerId}`,
+        imageUrl: steamer.value.imageUrl,
+        price: steamer.value.price,
+      });
+    }
   } catch (err) {
     error.value = 'Nepodařilo se načíst steamer';
     console.error(err);

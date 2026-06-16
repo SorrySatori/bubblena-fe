@@ -1,27 +1,27 @@
 <template>
     <div
-      v-if="showBanner"
+      v-if="ready && !hasDecided"
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-300 shadow-lg p-4 z-50"
     >
       <div class="max-w-3xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <p class="text-gray-800 text-sm leading-snug">
-          Bubbleně stačí ke svačině pouze obyčejné, nezbytně nutné sušenky, které zajišťují 
-          správné fungování webu a udržují všechny bubliny na správných místech.
-          Nepoužívá žádné analytické, marketingové ani sledovací cookies, takže žádný stress.  
-          Pokračováním můžete přijmout nebo odmítnout jejich použití.
+          Bubbleně stačí ke svačině obyčejné, nezbytně nutné sušenky, které zajišťují
+          správné fungování webu a udržují bubliny na svých místech — ty běží vždy.
+          Navíc si s vaším svolením může zapamatovat <strong>naposledy prohlížené produkty</strong>,
+          ať je příště rychle najdete. Žádná analytika, marketing ani sledování. Volba je na vás.
         </p>
-  
+
         <div class="flex gap-3">
           <button
-            @click="acceptCookies"
-            class="bg-black text-white px-4 py-2 rounded-md text-sm"
+            @click="accept"
+            class="bg-black text-white px-4 py-2 rounded-md text-sm whitespace-nowrap"
           >
             Přijmout
           </button>
-  
+
           <button
-            @click="rejectCookies"
-            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm"
+            @click="reject"
+            class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm whitespace-nowrap"
           >
             Odmítnout
           </button>
@@ -29,25 +29,29 @@
       </div>
     </div>
   </template>
-  
+
   <script setup>
   import { ref, onMounted } from "vue"
-  
-  const showBanner = ref(false)
-  
+  import { useConsent } from "~/composables/useConsent"
+  import { useRecentlyViewed } from "~/composables/useRecentlyViewed"
+
+  const { hasDecided, acceptAll, rejectAll } = useConsent()
+  const { load, clear } = useRecentlyViewed()
+
+  // Render only after mount so the banner's visibility matches the
+  // client-hydrated consent value (avoids SSR hydration mismatch).
+  const ready = ref(false)
   onMounted(() => {
-    const stored = localStorage.getItem("cookiesConsent")
-    showBanner.value = !stored
+    ready.value = true
   })
-  
-  const acceptCookies = () => {
-    localStorage.setItem("cookiesConsent", "accepted")
-    showBanner.value = false
+
+  const accept = () => {
+    acceptAll()
+    load()
   }
-  
-  const rejectCookies = () => {
-    localStorage.setItem("cookiesConsent", "rejected")
-    showBanner.value = false
+
+  const reject = () => {
+    rejectAll()
+    clear()
   }
   </script>
-  
