@@ -16,7 +16,8 @@ useSeoMeta({
         <div class="relative h-full flex items-center px-[5%] pt-20">
           <div class="max-w-2xl">
             <h1 class="text-6xl md:text-7xl mb-6 text-white font-extrabold drop-shadow-2xl">
-              <span class="text-primary font-bold">Bubblena</span> — bomby do koupele
+              <span class="text-primary font-bold">Bubblena</span>
+              <span class="block">bomby do koupele</span>
             </h1>
             <p class="text-3xl md:text-4xl mb-8 text-white font-medium drop-shadow-lg">Váš oblíbený e-shop s šumivými bombami a koupelnovou kosmetikou</p>
             <div class="flex flex-wrap gap-4 mt-10">
