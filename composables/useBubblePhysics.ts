@@ -22,16 +22,57 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
   let mouseX: number | null = null;
   let mouseY: number | null = null;
   let footerRect: DOMRect | null = null;
+  let containerEl: HTMLElement | null = null;
+  let prefersReducedMotion = false;
+  let running = false;
+
+  function updateFooterRect() {
+    if (containerEl) {
+      footerRect = containerEl.getBoundingClientRect();
+    }
+  }
+
+  function startLoop() {
+    if (prefersReducedMotion) return;
+    if (running) return;
+    if (particles.length === 0) return;
+    running = true;
+    animationFrameId = requestAnimationFrame(animate);
+  }
+
+  function stopLoop() {
+    running = false;
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId);
+      animationFrameId = null;
+    }
+  }
 
   onMounted(() => {
+    if (import.meta.client) {
+      prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    if (prefersReducedMotion) return;
+
     const container = document.querySelector(containerSelector) as HTMLElement;
-    
+
     if (!container) return;
+
+    containerEl = container;
+    window.addEventListener('resize', updateFooterRect);
+    window.addEventListener('scroll', updateFooterRect, { passive: true });
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting && particles.length === 0) {
-          initializeParticles();
+        if (entry.isIntersecting) {
+          if (particles.length === 0) {
+            initializeParticles();
+          } else {
+            updateFooterRect();
+            startLoop();
+          }
+        } else {
+          stopLoop();
         }
       });
     }, {
@@ -42,7 +83,6 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
 
     function initializeParticles() {
       particleElements = Array.from(document.querySelectorAll(particleSelector));
-      console.log('Found particles:', particleElements.length);
 
       if (particleElements.length > 0) {
         footerRect = container.getBoundingClientRect();
@@ -88,27 +128,20 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
         });
 
         // Start physics simulation
-        animate();
-
-        console.log('Physics simulation started');
+        startLoop();
       }
     }
   });
 
   onUnmounted(() => {
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
+    stopLoop();
+    if (import.meta.client) {
+      window.removeEventListener('resize', updateFooterRect);
+      window.removeEventListener('scroll', updateFooterRect);
     }
   });
 
   function animate() {
-    if (footerRect) {
-      const container = document.querySelector(containerSelector) as HTMLElement;
-      if (container) {
-        footerRect = container.getBoundingClientRect();
-      }
-    }
-
     particles.forEach((particle) => {
       // Calculate current position relative to footer (not viewport)
       const particleRect = particle.element.getBoundingClientRect();
@@ -252,7 +285,9 @@ export function useBubblePhysics(containerSelector: string, particleSelector: st
       particle.element.style.opacity = `${0.2 + Math.min(speed * 0.05, 0.3)}`;
     });
 
-    animationFrameId = requestAnimationFrame(animate);
+    if (running) {
+      animationFrameId = requestAnimationFrame(animate);
+    }
   }
 
   return {

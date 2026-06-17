@@ -1,6 +1,5 @@
 <script setup>
-import { onMounted, ref, computed, watch } from 'vue';
-import { useProduct } from '~/composables/useProduct';
+import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -8,7 +7,15 @@ import { useCartStore } from "~/stores/cart";
 
 const route = useRoute();
 const productId = route.params.id;
-const { product, loading, error, fetchProduct } = useProduct();
+const { data: product, pending: loading, error, refresh } = await useAsyncData(
+  `product-${productId}`,
+  () => $fetch(`/api/product/${productId}`)
+);
+
+if (!product.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Produkt nenalezen' });
+}
+
 const { addToCart } = useCart();
 const cart = useCartStore();
 
@@ -39,11 +46,6 @@ const decrementQuantity = () => {
   }
 };
 
-onMounted(() => {
-  if (product.value?.variants?.length)
-    selectedVariant.value = product.value.variants[selectedVariantIndex.value]
-})
-
 // Reset quantity and selected variant when product changes
 watch(() => product.value, () => {
   quantity.value = 1;
@@ -59,10 +61,6 @@ const formatDate = (dateString) => {
     month: 'long',
     day: 'numeric'
   }).format(date);
-};
-
-const loadProduct = async () => {
-  await fetchProduct(productId);
 };
 
 const handleVideoLoaded = () => {
@@ -91,15 +89,50 @@ const addItemToCart = () => {
   }
 };
 
-onMounted(() => {
-  loadProduct();
+useSeoMeta({
+  title: () => product.value?.name,
+  description: () => product.value?.shortDescription || product.value?.description,
+  ogTitle: () => product.value?.name,
+  ogDescription: () => product.value?.shortDescription || product.value?.description,
+  ogImage: () => product.value?.imageUrl,
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => product.value?.imageUrl
 });
+
+useHead(() => ({
+  script: product.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.value.name,
+            description: product.value.shortDescription || product.value.description,
+            image: product.value.imageUrl,
+            offers: (product.value.variants || []).map((v) => ({
+              '@type': 'Offer',
+              price: v.price,
+              priceCurrency: 'CZK',
+              availability: v.inStock
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+              url: `https://bubblena.cz/product/${productId}`
+            }))
+          })
+        }
+      ]
+    : []
+}));
 </script>
 
 
 <template>
-  <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <ClientOnly>
+      <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+    </ClientOnly>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <NuxtLink to="/bath-bombs"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -113,8 +146,8 @@ onMounted(() => {
       </div>
 
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
-        <p>{{ error }}</p>
-        <button @click="loadProduct"
+        <p>Produkt se nepodařilo načíst.</p>
+        <button @click="refresh"
           class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
@@ -128,6 +161,12 @@ onMounted(() => {
       </div>
 
       <div v-else class="mt-8">
+        <AppBreadcrumb :items="[
+          { name: 'Domů', to: '/' },
+          { name: 'Bomby do koupele', to: '/bath-bombs' },
+          { name: product.name, to: `/product/${productId}` }
+        ]" />
+
         <!-- Two Column Layout: Image and Product Info -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image + Short Description -->
@@ -142,6 +181,7 @@ onMounted(() => {
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
               <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name"
+                decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <span v-if="selectedVariant && !selectedVariant.inStock"
@@ -245,5 +285,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </section>
 </template>

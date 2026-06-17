@@ -1,4 +1,5 @@
 User-Agent: *
-Disallow:
+Disallow: /checkout
+Disallow: /order-confirmation
 
 Sitemap: https://bubblena.cz/sitemap.xml

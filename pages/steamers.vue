@@ -1,25 +1,18 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useSteamers } from '~/composables/useSteamers';
-import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-// Get steamers data and methods from the composable
-const { steamers, loading, error, fetchSteamers } = useSteamers();
-const router = useRouter();
+// SSR-friendly steamers data fetch
+const { data: steamers } = await useAsyncData('steamers', () => $fetch('/api/steamers'));
+
 const { addToCart: addItemToCart } = useCart();
 
 // Toast notification state
 const showToast = ref(false);
 const toastMessage = ref('');
 const cart = useCartStore();
-
-// Navigate to steamer detail page
-const navigateToSteamer = (steamerId) => {
-  router.push(`/steamer/${steamerId}`);
-};
 
 // Add to cart function
 const addToCart = (steamer, event) => {
@@ -45,13 +38,13 @@ const addToCart = (steamer, event) => {
   }
 };
 
-// Fetch steamers when the component is mounted
-onMounted(() => {
-  fetchSteamers();
-});
-
 onMounted(() => {
   cart.initCart();
+});
+
+useSeoMeta({
+  title: 'Shower steamery do sprchy',
+  description: 'Voňavé shower steamery do sprchy z přírodních ingrediencí. Proměňte sprchování v aromaterapeutický zážitek – objevte naši nabídku.'
 });
 
 </script>
@@ -66,42 +59,37 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
+      <AppBreadcrumb :items="[{ name: 'Domů', to: '/' }, { name: 'Steamery', to: '/steamers' }]" />
+
       <h1 class="page-title">Steamery do sprchy</h1>
-      
-      <!-- Loading state -->
-      <div v-if="loading" class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>Načítání steamerů...</p>
-      </div>
-      
-      <!-- Error state -->
-      <div v-else-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchSteamers" class="retry-button">Zkusit znovu</button>
-      </div>
-      
+
       <!-- No steamers state -->
-      <div v-else-if="steamers.length === 0" class="no-products">
+      <div v-if="(steamers ?? []).length === 0" class="no-products">
         <p>Žádné steamery nebyly nalezeny.</p>
       </div>
-      
+
       <!-- Steamers grid -->
       <div v-else class="products-grid">
-        <div v-for="steamer in steamers" :key="steamer.id" class="product-card" @click="navigateToSteamer(steamer._id)">
+        <NuxtLink
+          v-for="steamer in (steamers ?? [])"
+          :key="steamer._id"
+          :to="`/steamer/${steamer.slug || steamer._id}`"
+          class="product-card"
+        >
           <div class="product-image">
-            <img :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name">
+            <img :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name" loading="lazy" decoding="async">
             <span v-if="!steamer.inStock" class="out-of-stock-badge">Vyprodáno</span>
           </div>
           <div class="product-info">
-            <h3 class="product-name">{{ steamer.name }}</h3>
+            <h2 class="product-name">{{ steamer.name }}</h2>
             <p class="product-description">{{ steamer.shortDescription }}</p>
             <div class="product-footer">
               <div class="product-price-container">
                 <span class="product-price">{{ steamer.price.toFixed(2) }} Kč</span>
                 <span class="product-price-note">{{ steamer.weight }}g</span>
               </div>
-              <NuxtLink 
-                :to="`/steamer/${steamer._id}`"
+              <NuxtLink
+                :to="`/steamer/${steamer.slug || steamer._id}`"
                 class="add-to-cart-btn"
                 @click.stop
               >
@@ -113,7 +101,7 @@ onMounted(() => {
               </NuxtLink>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -198,6 +186,9 @@ onMounted(() => {
 }
 
 .product-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   background-color: white;
   border-radius: 8px;
   overflow: hidden;
