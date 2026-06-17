@@ -3,22 +3,32 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   compatibilityDate: '2025-07-15',
   
-  modules: ['@nuxtjs/sitemap'],
-  
+  modules: ['@nuxtjs/sitemap', '@nuxt/image'],
+
   site: {
     url: 'https://bubblena.cz',
   },
-  
+
+  // Local images (e.g. the homepage hero) are optimized via IPX. Remote
+  // product images come from arbitrary backend URLs, so they stay as plain
+  // <img>; add their host(s) to `domains` here to optimize them too.
+  image: {
+    format: ['avif', 'webp'],
+  },
+
   sitemap: {
     exclude: [
       '/checkout',
-      '/order-confirmation'
+      '/order-confirmation',
+      '/ucet',
+      '/ucet/objednavky',
+      '/prihlaseni',
+      '/registrace',
+      '/overeni'
     ],
-    urls: async () => {
-      const urls: any[] = []
-      
-      return urls
-    }
+    // Dynamic product/steamer/damaged-product URLs are supplied by a Nitro
+    // route that runs with full server context (see server/api/__sitemap__).
+    sources: ['/api/__sitemap__/urls'],
   },
   app: {
     head: {
@@ -33,31 +43,27 @@ export default defineNuxtConfig({
         
         // Primary Meta Tags
         { name: 'title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
-        { name: 'description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
-        { name: 'keywords', content: 'šumivé bomby do vany, koupelnová kosmetika, šumivé koule do koupele, bomby do koupele, shower steamery' },
+        { name: 'description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout.' },
         { name: 'author', content: 'Bubblena' },
         { name: 'robots', content: 'index, follow' },
-        { name: 'language', content: 'Czech' },
-        { name: 'revisit-after', content: '7 days' },
-        
-        // Open Graph / Facebook
+
+        // Open Graph / Facebook — defaults; per-page og:url/title/description/image
+        // are set per route (see app.vue + individual pages).
         { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: 'https://bubblena.cz' },
         { property: 'og:title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
-        { property: 'og:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
-        { property: 'og:image', content: 'https://www.bubblena.cz/_nuxt/bubblena_logo_header.CiffOvXT.png' },
-        { property: 'og:image:width', content: '1200' },
-        { property: 'og:image:height', content: '630' },
+        { property: 'og:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout.' },
+        // TODO: replace /og-image.png with a real 1200×630 social card (currently the logo as a placeholder).
+        { property: 'og:image', content: 'https://bubblena.cz/og-image.png' },
+        { property: 'og:image:alt', content: 'Bubblena – bomby do koupele' },
         { property: 'og:site_name', content: 'Bubblena' },
         { property: 'og:locale', content: 'cs_CZ' },
-        
+
         // Twitter Card
         { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:url', content: 'https://bubblena.cz' },
         { name: 'twitter:title', content: 'Bubblena - Váš oblíbený e-shop s bombami do koupele' },
-        { name: 'twitter:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout. ' },
-        { name: 'twitter:image', content: 'https://www.bubblena.cz/_nuxt/bubblena_logo_header.CiffOvXT.png' },
-        
+        { name: 'twitter:description', content: 'Bubblena je tajemný svět ukrytý za pěnou – neviditelný lidskému oku, ale pokaždé, když si napustíš vanu a vhodíš bombu, můžeš do něj na chvíli nahlédnout.' },
+        { name: 'twitter:image', content: 'https://bubblena.cz/og-image.png' },
+
         // Additional SEO
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'theme-color', content: '#ffffff' },
@@ -65,7 +71,8 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'canonical', href: 'https://bubblena.cz' },
+        // No global canonical here — it would make every page a duplicate of the
+        // homepage. A per-route self-canonical is set in app.vue.
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },

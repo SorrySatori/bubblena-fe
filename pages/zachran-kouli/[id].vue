@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useDamagedProducts } from '~/composables/useDamagedProducts';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -9,7 +8,17 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const productId = route.params.id;
-const { damagedProduct, loading, error, fetchDamagedProduct } = useDamagedProducts();
+
+// SSR data fetch so the damaged-product content + meta are in the server HTML.
+const { data: damagedProduct, pending: loading, error, refresh } = await useAsyncData(
+  `damaged-${productId}`,
+  () => $fetch(`/api/damaged-product/${productId}`)
+);
+
+if (!damagedProduct.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Produkt nenalezen' });
+}
+
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
@@ -49,19 +58,6 @@ const decrementQuantity = () => {
   }
 };
 
-const loadProduct = async () => {
-  await fetchDamagedProduct(productId);
-  if (damagedProduct.value) {
-    trackView({
-      id: String(damagedProduct.value._id ?? productId),
-      name: `${damagedProduct.value.bathBombType} (${getDamageLevelLabel(damagedProduct.value.damageLevel)})`,
-      to: `/zachran-kouli/${productId}`,
-      imageUrl: damagedProduct.value.imageUrl,
-      price: damagedProduct.value.price,
-    });
-  }
-};
-
 const addItemToCart = () => {
   if (damagedProduct.value && damagedProduct.value.inStock && quantity.value > 0) {
     addToCart({
@@ -81,14 +77,68 @@ const addItemToCart = () => {
   }
 };
 
+const seoTitle = () =>
+  damagedProduct.value
+    ? `${damagedProduct.value.bathBombType} – ${getDamageLevelLabel(damagedProduct.value.damageLevel)}`
+    : undefined;
+const seoDescription = () =>
+  damagedProduct.value?.description ||
+  (damagedProduct.value
+    ? `Zlevněná ${getDamageLevelLabel(damagedProduct.value.damageLevel).toLowerCase()} bomba do koupele ${damagedProduct.value.bathBombType} za výhodnou cenu.`
+    : undefined);
+
+useSeoMeta({
+  title: seoTitle,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogImage: () => damagedProduct.value?.imageUrl,
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => damagedProduct.value?.imageUrl,
+});
+
+useHead(() => ({
+  script: damagedProduct.value
+    ? [{
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: `${damagedProduct.value.bathBombType} – ${getDamageLevelLabel(damagedProduct.value.damageLevel)}`,
+          description: damagedProduct.value.description,
+          image: damagedProduct.value.imageUrl,
+          itemCondition: 'https://schema.org/UsedCondition',
+          offers: {
+            '@type': 'Offer',
+            price: damagedProduct.value.price,
+            priceCurrency: 'CZK',
+            availability: damagedProduct.value.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            url: `https://bubblena.cz/zachran-kouli/${productId}`,
+          },
+        }),
+      }]
+    : [],
+}));
+
 onMounted(() => {
-  loadProduct();
+  if (damagedProduct.value) {
+    trackView({
+      id: String(damagedProduct.value._id ?? productId),
+      name: `${damagedProduct.value.bathBombType} (${getDamageLevelLabel(damagedProduct.value.damageLevel)})`,
+      to: `/zachran-kouli/${productId}`,
+      imageUrl: damagedProduct.value.imageUrl,
+      price: damagedProduct.value.price,
+    });
+  }
 });
 </script>
 
 <template>
-  <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <ClientOnly>
+      <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+    </ClientOnly>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <NuxtLink to="/zachran-kouli"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -102,8 +152,8 @@ onMounted(() => {
       </div>
 
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
-        <p>{{ error }}</p>
-        <button @click="loadProduct"
+        <p>Produkt se nepodařilo načíst.</p>
+        <button @click="refresh()"
           class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
@@ -117,12 +167,19 @@ onMounted(() => {
       </div>
 
       <div v-else class="mt-8">
+        <AppBreadcrumb
+          :items="[
+            { name: 'Domů', to: '/' },
+            { name: 'Zachraň kouli', to: '/zachran-kouli' },
+            { name: damagedProduct.bathBombType, to: `/zachran-kouli/${productId}` },
+          ]"
+        />
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image -->
           <div class="flex flex-col gap-6">
             <div
               class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100">
-              <img :src="damagedProduct.imageUrl" :alt="damagedProduct.bathBombType"
+              <img :src="damagedProduct.imageUrl" :alt="damagedProduct.bathBombType" decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
@@ -198,7 +255,7 @@ onMounted(() => {
             </div>
 
             <div class="border-t border-gray-200 pt-6">
-              <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
+              <h2 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h2>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div class="bg-white p-3 rounded-lg shadow-sm flex flex-col">
                   <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Druh koule</span>
@@ -227,5 +284,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </section>
 </template>

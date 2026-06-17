@@ -1,4 +1,9 @@
 User-Agent: *
-Disallow:
+Disallow: /checkout
+Disallow: /order-confirmation
+Disallow: /ucet
+Disallow: /prihlaseni
+Disallow: /registrace
+Disallow: /overeni
 
 Sitemap: https://bubblena.cz/sitemap.xml

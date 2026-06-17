@@ -4,12 +4,7 @@
   "description": "Bubblena - Váš oblíbený e-shop s bombami do koupele",
   "icons": [
     {
-      "src": "https://www.bubblena.cz/_nuxt/bubblena_logo_green.DGIhjX4i.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://www.bubblena.cz/_nuxt/bubblena_logo_green.DGIhjX4i.png",
+      "src": "/og-image.png",
       "sizes": "192x192",
       "type": "image/png"
     }

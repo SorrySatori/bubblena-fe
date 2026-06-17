@@ -38,6 +38,13 @@
     </div>
 </template>
 
+<script setup>
+useSeoMeta({
+  title: 'O nás',
+  description: 'Příběh značky Bubblena – ručně vyráběná koupelová kosmetika z přírodních ingrediencí, bez testů na zvířatech. Poznejte, kdo za bublinami stojí.'
+})
+</script>
+
 <style scoped>
 .about-page {
   padding: 2rem 5%;

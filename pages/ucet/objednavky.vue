@@ -10,4 +10,6 @@
 
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
+
+useSeoMeta({ title: 'Moje objednávky', robots: 'noindex, follow' })
 </script>

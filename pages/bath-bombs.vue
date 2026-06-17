@@ -1,14 +1,17 @@
 <script setup>
 import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { useProducts } from '~/composables/useProducts';
-import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-// Get products data and methods from the composable
-const { products, loading, error, fetchProducts } = useProducts();
-const router = useRouter();
+useSeoMeta({
+  title: 'Šumivé bomby do koupele',
+  description: 'Ručně vyráběné šumivé bomby do vany z přírodních ingrediencí, bez testů na zvířatech. Vyberte si z naší kolekce vonných koulí pro relaxační koupel.',
+});
+
+// SSR fetch so the product grid is in server-rendered HTML
+const { data: products, pending: loading, error, refresh } = await useAsyncData('products', () => $fetch('/api/products'));
+
 const { addToCart: addItemToCart } = useCart();
 
 // Toast notification state
@@ -33,11 +36,6 @@ watch(products, (newProducts) => {
     });
   }
 }, { immediate: true });
-
-// Navigate to product detail page
-const navigateToProduct = (productId) => {
-  router.push(`/product/${productId}`);
-};
 
 // Get selected variant for a product
 const getSelectedVariant = (product) => {
@@ -101,12 +99,6 @@ const addToCart = (product, event) => {
   }
 };
 
-// Fetch products when the component is mounted
-onMounted(() => {
-  fetchProducts();
-});
-
-
 onMounted(() => {
   cart.initCart();
 });
@@ -123,6 +115,7 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
+      <AppBreadcrumb :items="[{ name: 'Domů', to: '/' }, { name: 'Bomby do koupele', to: '/bath-bombs' }]" />
       <h1 class="page-title">Naše bomby do koupele</h1>
       <div class="category-description">
         <p>
@@ -138,25 +131,25 @@ onMounted(() => {
       
       <!-- Error state -->
       <div v-else-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchProducts" class="retry-button">Zkusit znovu</button>
+        <p>Chyba při načítání produktů</p>
+        <button @click="refresh" class="retry-button">Zkusit znovu</button>
       </div>
-      
+
       <!-- No products state -->
-      <div v-else-if="products.length === 0" class="no-products">
+      <div v-else-if="(products ?? []).length === 0" class="no-products">
         <p>Žádné produkty nebyly nalezeny.</p>
       </div>
-      
+
       <!-- Products grid -->
       <div v-else class="products-grid">
-        <div v-for="product in products" :key="product.id" class="product-card" @click="navigateToProduct(product._id)">
+        <NuxtLink v-for="product in (products ?? [])" :key="product._id" :to="`/product/${product.slug || product._id}`" class="product-card">
           <div class="product-image">
-            <img :src="product.imageUrl" :alt="product.name">
+            <img :src="product.imageUrl" :alt="product.name" loading="lazy" decoding="async">
             <span v-if="!hasInStockVariant(product)" class="out-of-stock-badge">Vyprodáno</span>
             <span v-if="product.variants && product.variants.length > 1" class="variants-badge">{{ product.variants.length }} variant{{ product.variants.length > 1 ? 'y' : 'a' }}</span>
           </div>
           <div class="product-info">
-            <h3 class="product-name">{{ product.name }}</h3>
+            <h2 class="product-name">{{ product.name }}</h2>
             <p class="product-description">{{ product.shortDescription }}</p>
 
             <!-- Variant selector -->
@@ -206,7 +199,7 @@ onMounted(() => {
               </button>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -304,6 +297,9 @@ onMounted(() => {
 }
 
 .product-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   background-color: white;
   border-radius: 8px;
   overflow: hidden;

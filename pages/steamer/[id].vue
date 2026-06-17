@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useSteamers } from '~/composables/useSteamers';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -9,14 +8,20 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const steamerId = route.params.id;
-const { getSteamer } = useSteamers();
+
+// SSR data fetch so the steamer content + meta are in the server HTML.
+const { data: steamer, pending: loading, error, refresh } = await useAsyncData(
+  `steamer-${steamerId}`,
+  () => $fetch(`/api/steamer/${steamerId}`)
+);
+
+if (!steamer.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Steamer nenalezen' });
+}
+
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
-
-const steamer = ref(null);
-const loading = ref(false);
-const error = ref(null);
 
 const showToast = ref(false);
 const toastMessage = ref('');
@@ -34,38 +39,6 @@ const incrementQuantity = () => {
 const decrementQuantity = () => {
   if (quantity.value > 1) {
     quantity.value--;
-  }
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('cs-CZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-};
-
-const loadSteamer = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    steamer.value = await getSteamer(steamerId);
-    if (steamer.value) {
-      trackView({
-        id: String(steamer.value._id ?? steamerId),
-        name: steamer.value.name,
-        to: `/steamer/${steamerId}`,
-        imageUrl: steamer.value.imageUrl,
-        price: steamer.value.price,
-      });
-    }
-  } catch (err) {
-    error.value = 'Nepodařilo se načíst steamer';
-    console.error(err);
-  } finally {
-    loading.value = false;
   }
 };
 
@@ -92,14 +65,57 @@ const addItemToCart = () => {
   }
 };
 
+useSeoMeta({
+  title: () => steamer.value?.name,
+  description: () => steamer.value?.shortDescription || steamer.value?.description,
+  ogTitle: () => steamer.value?.name,
+  ogDescription: () => steamer.value?.shortDescription || steamer.value?.description,
+  ogImage: () => steamer.value?.imageUrl,
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => steamer.value?.imageUrl,
+});
+
+useHead(() => ({
+  script: steamer.value
+    ? [{
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: steamer.value.name,
+          description: steamer.value.shortDescription || steamer.value.description,
+          image: steamer.value.imageUrl,
+          offers: {
+            '@type': 'Offer',
+            price: steamer.value.price,
+            priceCurrency: 'CZK',
+            availability: steamer.value.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            url: `https://bubblena.cz/steamer/${steamerId}`,
+          },
+        }),
+      }]
+    : [],
+}));
+
 onMounted(() => {
-  loadSteamer();
+  if (steamer.value) {
+    trackView({
+      id: String(steamer.value._id ?? steamerId),
+      name: steamer.value.name,
+      to: `/steamer/${steamerId}`,
+      imageUrl: steamer.value.imageUrl,
+      price: steamer.value.price,
+    });
+  }
 });
 </script>
 
 <template>
-  <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <ClientOnly>
+      <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+    </ClientOnly>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <NuxtLink to="/steamers"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -113,8 +129,8 @@ onMounted(() => {
       </div>
 
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
-        <p>{{ error }}</p>
-        <button @click="loadSteamer"
+        <p>Steamer se nepodařilo načíst.</p>
+        <button @click="refresh()"
           class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
@@ -128,6 +144,13 @@ onMounted(() => {
       </div>
 
       <div v-else class="mt-8">
+        <AppBreadcrumb
+          :items="[
+            { name: 'Domů', to: '/' },
+            { name: 'Steamery', to: '/steamers' },
+            { name: steamer.name, to: `/steamer/${steamerId}` },
+          ]"
+        />
         <!-- Two Column Layout: Image and Product Info -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image + Short Description -->
@@ -141,7 +164,7 @@ onMounted(() => {
               <video v-else-if="steamer.videoUrl && isHoveringImage" :src="steamer.videoUrl" muted playsinline
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl" :alt="steamer.name"
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl" :alt="steamer.name" decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
@@ -225,7 +248,7 @@ onMounted(() => {
           </div>
 
           <div class="border-t border-gray-200 pt-6">
-            <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
+            <h2 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h2>
             <div class="flex flex-col p-3">
               <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Složení</span>
               <span class="text-gray-800 font-medium">{{ steamer.ingredients }}</span>
@@ -256,5 +279,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </section>
 </template>

@@ -2,6 +2,7 @@
 export interface ShowerSteamer {
   _id?: string;
   id?: string;
+  slug?: string;
   name: string;
   shortDescription?: string;
   description: string;

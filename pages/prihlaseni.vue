@@ -42,6 +42,8 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta({ title: 'Přihlášení', robots: 'noindex, follow' })
+
 const { login, loginWithGoogle, loggedIn } = useAuth()
 const route = useRoute()
 

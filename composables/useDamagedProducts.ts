@@ -3,6 +3,7 @@ import { ref } from 'vue';
 export interface DamagedProduct {
   _id?: string;
   id?: string;
+  slug?: string;
   bathBombType: string;
   weight: number;
   price: number;
