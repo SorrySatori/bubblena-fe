@@ -38,6 +38,8 @@
 <script setup>
 import { useRoute } from 'vue-router';
 
+useSeoMeta({ title: 'Potvrzení objednávky', robots: 'noindex, follow' });
+
 const route = useRoute();
 const orderId = computed(() => route.query.orderId || 'N/A');
 </script>

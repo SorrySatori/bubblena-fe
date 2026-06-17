@@ -1,6 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useSteamers } from '~/composables/useSteamers';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -8,13 +7,17 @@ import { useCartStore } from "~/stores/cart";
 
 const route = useRoute();
 const steamerId = route.params.id;
-const { getSteamer } = useSteamers();
 const { addToCart } = useCart();
 const cart = useCartStore();
 
-const steamer = ref(null);
-const loading = ref(false);
-const error = ref(null);
+const { data: steamer, pending: loading, error, refresh } = await useAsyncData(
+  `steamer-${steamerId}`,
+  () => $fetch(`/api/steamer/${steamerId}`)
+);
+
+if (!steamer.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Steamer nenalezen' });
+}
 
 const showToast = ref(false);
 const toastMessage = ref('');
@@ -45,19 +48,6 @@ const formatDate = (dateString) => {
   }).format(date);
 };
 
-const loadSteamer = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    steamer.value = await getSteamer(steamerId);
-  } catch (err) {
-    error.value = 'Nepodařilo se načíst steamer';
-    console.error(err);
-  } finally {
-    loading.value = false;
-  }
-};
-
 const handleVideoLoaded = () => {
   isVideoLoaded.value = true;
 };
@@ -81,14 +71,49 @@ const addItemToCart = () => {
   }
 };
 
-onMounted(() => {
-  loadSteamer();
+useSeoMeta({
+  title: () => steamer.value?.name,
+  description: () => steamer.value?.shortDescription || steamer.value?.description,
+  ogTitle: () => steamer.value?.name,
+  ogDescription: () => steamer.value?.shortDescription || steamer.value?.description,
+  ogImage: () => steamer.value?.imageUrl,
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => steamer.value?.imageUrl,
 });
+
+useHead(() => ({
+  script: steamer.value
+    ? [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: steamer.value.name,
+            description: steamer.value.shortDescription || steamer.value.description,
+            image: steamer.value.imageUrl,
+            offers: {
+              '@type': 'Offer',
+              price: steamer.value.price,
+              priceCurrency: 'CZK',
+              availability: steamer.value.inStock
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+              url: `https://bubblena.cz/steamer/${steamerId}`,
+            },
+          }),
+        },
+      ]
+    : [],
+}));
 </script>
 
 <template>
-  <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <ClientOnly>
+      <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+    </ClientOnly>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <NuxtLink to="/steamers"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -102,8 +127,8 @@ onMounted(() => {
       </div>
 
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
-        <p>{{ error }}</p>
-        <button @click="loadSteamer"
+        <p>Nepodařilo se načíst steamer.</p>
+        <button @click="refresh"
           class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
@@ -117,6 +142,12 @@ onMounted(() => {
       </div>
 
       <div v-else class="mt-8">
+        <AppBreadcrumb :items="[
+          { name: 'Domů', to: '/' },
+          { name: 'Steamery', to: '/steamers' },
+          { name: steamer.name, to: `/steamer/${steamerId}` }
+        ]" />
+
         <!-- Two Column Layout: Image and Product Info -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image + Short Description -->
@@ -131,6 +162,7 @@ onMounted(() => {
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
               <img v-if="!isHoveringImage || !isVideoLoaded" :src="steamer.imageUrl || '/images/product-placeholder.jpg'" :alt="steamer.name"
+                decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <span v-if="!steamer.inStock"
@@ -222,5 +254,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </section>
 </template>

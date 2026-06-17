@@ -9,6 +9,11 @@ const form = ref({
 })
 const status = ref("")
 
+useSeoMeta({
+  title: 'Kontakt',
+  description: 'Kontaktujte Bubblena – e-mail, adresa a sociální sítě. Rádi zodpovíme dotazy k objednávkám i produktům.'
+})
+
 const handleSubmit = async () => {
   try {
     const response = await $fetch('/api/contact', {

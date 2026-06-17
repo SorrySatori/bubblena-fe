@@ -1,25 +1,23 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useProducts } from '~/composables/useProducts';
-import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-// Get products data and methods from the composable
-const { products, loading, error, fetchProducts } = useProducts();
-const router = useRouter();
+useSeoMeta({
+  title: 'Šumivé bomby do koupele',
+  description: 'Ručně vyráběné šumivé bomby do vany z přírodních ingrediencí, bez testů na zvířatech. Vyberte si z naší kolekce vonných koulí pro relaxační koupel.'
+});
+
+// SSR fetch of products so the grid is present in the server-rendered HTML
+const { data: products, error, refresh } = await useAsyncData('products', () => $fetch('/api/products'));
+
 const { addToCart: addItemToCart } = useCart();
 
 // Toast notification state
 const showToast = ref(false);
 const toastMessage = ref('');
 const cart = useCartStore();
-
-// Navigate to product detail page
-const navigateToProduct = (productId) => {
-  router.push(`/product/${productId}`);
-};
 
 // Get the first available variant or the first variant if none are in stock
 const getDefaultVariant = (product) => {
@@ -69,12 +67,6 @@ const addToCart = (product, event) => {
   }
 };
 
-// Fetch products when the component is mounted
-onMounted(() => {
-  fetchProducts();
-});
-
-
 onMounted(() => {
   cart.initCart();
 });
@@ -91,44 +83,45 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
+      <AppBreadcrumb :items="[{ name: 'Domů', to: '/' }, { name: 'Bomby do koupele', to: '/bath-bombs' }]" />
+
       <h1 class="page-title">Naše bomby do koupele</h1>
-      
-      <!-- Loading state -->
-      <div v-if="loading" class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>Načítání produktů...</p>
-      </div>
-      
+
       <!-- Error state -->
-      <div v-else-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchProducts" class="retry-button">Zkusit znovu</button>
+      <div v-if="error" class="error-message">
+        <p>Chyba při načítání produktů.</p>
+        <button @click="refresh()" class="retry-button">Zkusit znovu</button>
       </div>
-      
+
       <!-- No products state -->
-      <div v-else-if="products.length === 0" class="no-products">
+      <div v-else-if="(products ?? []).length === 0" class="no-products">
         <p>Žádné produkty nebyly nalezeny.</p>
       </div>
-      
+
       <!-- Products grid -->
       <div v-else class="products-grid">
-        <div v-for="product in products" :key="product.id" class="product-card" @click="navigateToProduct(product._id)">
+        <NuxtLink
+          v-for="product in (products ?? [])"
+          :key="product._id"
+          :to="`/product/${product.slug || product._id}`"
+          class="product-card"
+        >
           <div class="product-image">
-            <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name">
+            <img :src="product.imageUrl || '/images/product-placeholder.jpg'" :alt="product.name" loading="lazy" decoding="async">
             <span v-if="!hasInStockVariant(product)" class="out-of-stock-badge">Vyprodáno</span>
             <span v-if="product.variants && product.variants.length > 1" class="variants-badge">{{ product.variants.length }} variant{{ product.variants.length > 1 ? 'y' : 'a' }}</span>
           </div>
           <div class="product-info">
-            <h3 class="product-name">{{ product.name }}</h3>
+            <h2 class="product-name">{{ product.name }}</h2>
             <p class="product-description">{{ product.shortDescription }}</p>
             <div class="product-footer">
               <div class="product-price-container">
                 <span v-if="product.variants && product.variants.length > 1" class="product-price-note">od</span>
                 <span class="product-price">{{ getLowestPrice(product).toFixed(2) }} Kč</span>
               </div>
-              <NuxtLink 
-                :to="`/product/${product._id}`"
-                class="add-to-cart-btn" 
+              <NuxtLink
+                :to="`/product/${product.slug || product._id}`"
+                class="add-to-cart-btn"
                 @click.stop
               >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -139,7 +132,7 @@ onMounted(() => {
               </NuxtLink>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -224,6 +217,9 @@ onMounted(() => {
 }
 
 .product-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
   background-color: white;
   border-radius: 8px;
   overflow: hidden;

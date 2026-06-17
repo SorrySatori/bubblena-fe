@@ -57,6 +57,13 @@
   </div>
 </template>
 
+<script setup>
+useSeoMeta({
+  title: 'Naše přednosti',
+  description: 'Proč Bubblena: přírodní ingredience, výroba bez testů na zvířatech a bomby do koupele, které potěší. Zjistěte, čím se lišíme.'
+})
+</script>
+
 <style scoped>
 .features-page {
   padding: 2rem 5%;

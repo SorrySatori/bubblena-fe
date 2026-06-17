@@ -1,3 +1,10 @@
+<script setup>
+useSeoMeta({
+  title: 'O nás',
+  description: 'Příběh značky Bubblena – ručně vyráběná koupelová kosmetika z přírodních ingrediencí, bez testů na zvířatech. Poznejte, kdo za bublinami stojí.',
+})
+</script>
+
 <template>
   <div class="about-page">
     <div class="page-header">

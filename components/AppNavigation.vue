@@ -10,12 +10,13 @@
 
     <!-- Mobile Navigation Button -->
     <div class="lg:hidden flex justify-end w-full">
-      <button @click="toggleMobileNav" 
+      <button @click="toggleMobileNav"
+        :aria-label="mobileNavOpen ? 'Zavřít menu' : 'Otevřít menu'" :aria-expanded="mobileNavOpen"
         class="flex items-center p-2 rounded-md hover:bg-gray-100 transition-colors z-50 relative">
         <div class="w-6 flex flex-col gap-1 items-center" :class="{ 'hamburger-active': mobileNavOpen }">
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
+          <span class="hamburger-line" aria-hidden="true"></span>
+          <span class="hamburger-line" aria-hidden="true"></span>
+          <span class="hamburger-line" aria-hidden="true"></span>
         </div>
       </button>
     </div>

@@ -2,6 +2,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+
+useSeoMeta({ title: 'Pokladna', robots: 'noindex, follow' });
 import { useCart } from '~/composables/useCart';
 import { useCheckout } from '~/composables/useCheckout';
 import CustomerInformation from '~/components/checkout/CustomerInformation.vue';
