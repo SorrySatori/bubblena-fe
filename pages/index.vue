@@ -21,7 +21,6 @@ useSeoMeta({
             <p class="text-3xl md:text-4xl mb-8 text-white font-medium drop-shadow-lg">Váš oblíbený e-shop s šumivými bombami a koupelnovou kosmetikou</p>
             <div class="flex flex-wrap gap-4 mt-10">
               <NuxtLink to="/bath-bombs" class="bg-primary text-white border-none py-4 px-8 rounded-full text-lg font-bold cursor-pointer transition-all hover:bg-accent hover:scale-105 hover:shadow-2xl">Prohlédnout produkty</NuxtLink>
-              <NuxtLink to="/steamers" class="bg-white/90 text-secondary border-none py-4 px-8 rounded-full text-lg font-bold cursor-pointer transition-all hover:bg-white hover:scale-105 hover:shadow-2xl">Shower steamery</NuxtLink>
             </div>
           </div>
         </div>
