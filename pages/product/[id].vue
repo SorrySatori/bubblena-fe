@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, ref, computed, watch } from 'vue';
-import { useProduct } from '~/composables/useProduct';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -9,7 +8,19 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
 const productId = route.params.id;
-const { product, loading, error, fetchProduct } = useProduct();
+
+// SSR data fetch: product name/description/price/image are baked into the
+// server HTML so the page is crawlable and meta can be derived from it.
+const { data: product, pending: loading, error, refresh } = await useAsyncData(
+  `product-${productId}`,
+  () => $fetch(`/api/product/${productId}`)
+);
+
+// Real 404 for unknown products instead of a soft-200 empty page.
+if (!product.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Produkt nenalezen' });
+}
+
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
 const cart = useCartStore();
@@ -41,40 +52,11 @@ const decrementQuantity = () => {
   }
 };
 
-onMounted(() => {
-  if (product.value?.variants?.length)
-    selectedVariant.value = product.value.variants[selectedVariantIndex.value]
-})
-
 // Reset quantity and selected variant when product changes
 watch(() => product.value, () => {
   quantity.value = 1;
   selectedVariantIndex.value = 0;
 });
-
-
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('cs-CZ', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  }).format(date);
-};
-
-const loadProduct = async () => {
-  await fetchProduct(productId);
-  if (product.value) {
-    trackView({
-      id: String(product.value._id ?? productId),
-      name: product.value.name,
-      to: `/product/${productId}`,
-      imageUrl: product.value.imageUrl,
-      price: product.value.variants?.[0]?.price,
-    });
-  }
-};
 
 const handleVideoLoaded = () => {
   isVideoLoaded.value = true;
@@ -102,15 +84,61 @@ const addItemToCart = () => {
   }
 };
 
+// Per-product SEO derived from the SSR-resolved data.
+useSeoMeta({
+  title: () => product.value?.name,
+  description: () => product.value?.shortDescription || product.value?.description,
+  ogTitle: () => product.value?.name,
+  ogDescription: () => product.value?.shortDescription || product.value?.description,
+  ogImage: () => product.value?.imageUrl,
+  ogType: 'product',
+  twitterCard: 'summary_large_image',
+  twitterImage: () => product.value?.imageUrl,
+});
+
+// Product / Offer structured data for rich results (price, availability).
+useHead(() => ({
+  script: product.value
+    ? [{
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.value.name,
+          description: product.value.shortDescription || product.value.description,
+          image: product.value.imageUrl,
+          offers: (product.value.variants || []).map((v) => ({
+            '@type': 'Offer',
+            price: v.price,
+            priceCurrency: 'CZK',
+            availability: v.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            url: `https://bubblena.cz/product/${productId}`,
+          })),
+        }),
+      }]
+    : [],
+}));
+
+// Recently-viewed tracking touches localStorage → client only.
 onMounted(() => {
-  loadProduct();
+  if (product.value) {
+    trackView({
+      id: String(product.value._id ?? productId),
+      name: product.value.name,
+      to: `/product/${productId}`,
+      imageUrl: product.value.imageUrl,
+      price: product.value.variants?.[0]?.price,
+    });
+  }
 });
 </script>
 
 
 <template>
-  <ClientOnly class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
-    <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+  <section class="py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
+    <ClientOnly>
+      <ToastNotification :show="showToast" :message="toastMessage" type="cart" @close="showToast = false" />
+    </ClientOnly>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <NuxtLink to="/bath-bombs"
         class="inline-flex items-center text-secondary hover:text-primary font-medium mb-8 transition-colors group">
@@ -124,8 +152,8 @@ onMounted(() => {
       </div>
 
       <div v-else-if="error" class="text-center p-8 bg-red-50 border border-red-200 rounded-lg text-red-700 my-8">
-        <p>{{ error }}</p>
-        <button @click="loadProduct"
+        <p>Produkt se nepodařilo načíst.</p>
+        <button @click="refresh()"
           class="bg-primary hover:bg-accent text-white border-none py-2 px-4 rounded mt-4 cursor-pointer transition-colors">
           Zkusit znovu
         </button>
@@ -139,6 +167,13 @@ onMounted(() => {
       </div>
 
       <div v-else class="mt-8">
+        <AppBreadcrumb
+          :items="[
+            { name: 'Domů', to: '/' },
+            { name: 'Bomby do koupele', to: '/bath-bombs' },
+            { name: product.name, to: `/product/${productId}` },
+          ]"
+        />
         <!-- Two Column Layout: Image and Product Info -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <!-- Left Column: Image + Short Description -->
@@ -152,7 +187,7 @@ onMounted(() => {
               <video v-else-if="product.videoUrl && isHoveringImage" :src="product.videoUrl" muted playsinline
                 class="hidden" @loadeddata="handleVideoLoaded">
               </video>
-              <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl" :alt="product.name"
+              <img v-if="!isHoveringImage || !isVideoLoaded" :src="product.imageUrl" :alt="product.name" decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
@@ -248,7 +283,7 @@ onMounted(() => {
           </div>
 
           <div class="border-t border-gray-200 pt-6">
-            <h3 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h3>
+            <h2 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h2>
             <div class="flex flex-col p-3">
               <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Složení</span>
               <span class="text-gray-800 font-medium">{{ product.ingredients }}</span>
@@ -279,5 +314,5 @@ onMounted(() => {
         </div>
       </div>
     </div>
-  </ClientOnly>
+  </section>
 </template>

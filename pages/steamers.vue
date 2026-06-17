@@ -1,14 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useSteamers } from '~/composables/useSteamers';
-import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-// Get steamers data and methods from the composable
-const { steamers, loading, error, fetchSteamers } = useSteamers();
-const router = useRouter();
+// Fetch steamers during SSR
+const { data: steamers } = await useAsyncData('steamers', () => $fetch('/api/steamers'));
+
 const { addToCart: addItemToCart } = useCart();
 
 // Toast notification state
@@ -16,10 +14,10 @@ const showToast = ref(false);
 const toastMessage = ref('');
 const cart = useCartStore();
 
-// Navigate to steamer detail page
-const navigateToSteamer = (steamerId) => {
-  router.push(`/steamer/${steamerId}`);
-};
+useSeoMeta({
+  title: 'Shower steamery do sprchy',
+  description: 'Voňavé shower steamery do sprchy z přírodních ingrediencí. Proměňte sprchování v aromaterapeutický zážitek – objevte naši nabídku.'
+});
 
 // Add to cart function
 const addToCart = (steamer, event) => {
@@ -45,11 +43,6 @@ const addToCart = (steamer, event) => {
   }
 };
 
-// Fetch steamers when the component is mounted
-onMounted(() => {
-  fetchSteamers();
-});
-
 onMounted(() => {
   cart.initCart();
 });
@@ -66,47 +59,42 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
+      <AppBreadcrumb :items="[{ name: 'Domů', to: '/' }, { name: 'Steamery', to: '/steamers' }]" />
       <h1 class="page-title">Steamery do sprchy</h1>
       <div class="category-description">
         <p>
           Shower steamery jsou aromatické tablety do sprchy. Ve vodě se postupně rozpouštějí a díky páře uvolňují vůni do celé sprchy.           Jsou ideální, když nemáte čas na vanu, ale chcete si dopřát krátký voňavý rituál.
-        </p>  
+        </p>
       </div>
-      
-      <!-- Loading state -->
-      <div v-if="loading" class="loading-container">
-        <div class="loading-spinner"></div>
-        <p>Načítání steamerů...</p>
-      </div>
-      
-      <!-- Error state -->
-      <div v-else-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchSteamers" class="retry-button">Zkusit znovu</button>
-      </div>
-      
+
       <!-- No steamers state -->
-      <div v-else-if="steamers.length === 0" class="no-products">
+      <div v-if="(steamers || []).length === 0" class="no-products">
         <p>Žádné steamery nebyly nalezeny.</p>
       </div>
-      
+
       <!-- Steamers grid -->
       <div v-else class="products-grid">
-        <div v-for="steamer in steamers" :key="steamer.id" class="product-card" @click="navigateToSteamer(steamer._id)">
+        <NuxtLink
+          v-for="steamer in steamers"
+          :key="steamer._id"
+          :to="`/steamer/${steamer.slug || steamer._id}`"
+          class="product-card"
+          style="display:block;color:inherit;text-decoration:none"
+        >
           <div class="product-image">
-            <img :src="steamer.imageUrl" :alt="steamer.name">
+            <img :src="steamer.imageUrl" :alt="steamer.name" loading="lazy" decoding="async">
             <span v-if="!steamer.inStock" class="out-of-stock-badge">Vyprodáno</span>
           </div>
           <div class="product-info">
-            <h3 class="product-name">{{ steamer.name }}</h3>
+            <h2 class="product-name">{{ steamer.name }}</h2>
             <p class="product-description">{{ steamer.shortDescription }}</p>
             <div class="product-footer">
               <div class="product-price-container">
                 <span class="product-price">{{ steamer.price.toFixed(2) }} Kč</span>
                 <span class="product-price-note">{{ steamer.weight }}g</span>
               </div>
-              <button 
-                @click="addToCart(steamer, $event)" 
+              <button
+                @click.stop.prevent="addToCart(steamer, $event)"
                 class="add-to-cart-btn"
                 :disabled="!steamer.inStock"
               >
@@ -120,7 +108,7 @@ onMounted(() => {
               </button>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </div>
   </div>

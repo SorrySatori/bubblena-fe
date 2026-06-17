@@ -1,5 +1,6 @@
 <template>
   <div class="max-w-md mx-auto px-4 py-16 text-center">
+    <h1 class="sr-only">Ověření e-mailu</h1>
     <div v-if="state === 'pending'">
       <p class="text-secondary">Ověřuji e-mail…</p>
     </div>
@@ -16,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta({ title: 'Ověření e-mailu', robots: 'noindex, follow' })
+
 const { verify } = useAuth()
 const route = useRoute()
 

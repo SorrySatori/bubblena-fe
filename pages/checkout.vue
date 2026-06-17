@@ -1,5 +1,7 @@
 
 <script setup>
+useSeoMeta({ title: 'Pokladna', robots: 'noindex, follow' });
+
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';

@@ -1,22 +1,20 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useDamagedProducts } from '~/composables/useDamagedProducts';
-import { useRouter } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-const { damagedProducts, loading, error, fetchDamagedProducts } = useDamagedProducts();
-const router = useRouter();
+const { data: damagedProducts, pending: loading, error, refresh } = await useAsyncData('damaged-products', () => $fetch('/api/damaged-products'));
 const { addToCart: addItemToCart } = useCart();
 
 const showToast = ref(false);
 const toastMessage = ref('');
 const cart = useCartStore();
 
-const navigateToProduct = (productId) => {
-  router.push(`/zachran-kouli/${productId}`);
-};
+useSeoMeta({
+  title: 'Zachraň kouli – zlevněné bomby do koupele',
+  description: 'Zachraň kouli: zlevněné lehce poškozené bomby do koupele se stejnou vůní i kvalitou za nižší cenu. Pomozte nám neplýtvat – nakupte se slevou.'
+});
 
 const getDamageLevelLabel = (level) => {
   const labels = {
@@ -58,10 +56,6 @@ const addToCart = (product, event) => {
 };
 
 onMounted(() => {
-  fetchDamagedProducts();
-});
-
-onMounted(() => {
   cart.initCart();
 });
 </script>
@@ -75,6 +69,7 @@ onMounted(() => {
       @close="showToast = false"
     />
     <div class="container">
+      <AppBreadcrumb :items="[{ name: 'Domů', to: '/' }, { name: 'Zachraň kouli', to: '/zachran-kouli' }]" />
       <h1 class="page-title">Zachraň kouli</h1>
       <p class="page-subtitle">Bomby do koupele, které se poškodily při výrobě. Fungují stejně skvěle, jen vypadají trochu jinak – a za zvýhodněnou cenu!</p>
       
@@ -86,34 +81,34 @@ onMounted(() => {
       
       <!-- Error state -->
       <div v-else-if="error" class="error-message">
-        <p>{{ error }}</p>
-        <button @click="fetchDamagedProducts" class="retry-button">Zkusit znovu</button>
+        <p>Produkty se nepodařilo načíst.</p>
+        <button @click="refresh" class="retry-button">Zkusit znovu</button>
       </div>
-      
+
       <!-- No products state -->
-      <div v-else-if="damagedProducts.length === 0" class="no-products">
+      <div v-else-if="(damagedProducts || []).length === 0" class="no-products">
         <p>Momentálně nemáme žádné koule na záchranu. Zkuste to později!</p>
       </div>
-      
+
       <!-- Products grid -->
       <div v-else class="products-grid">
-        <div v-for="product in damagedProducts" :key="product._id" class="product-card" @click="navigateToProduct(product._id)">
+        <NuxtLink v-for="product in (damagedProducts || [])" :key="product._id" :to="`/zachran-kouli/${product.slug || product._id}`" class="product-card">
           <div class="product-image">
-            <img :src="product.imageUrl" :alt="product.bathBombType">
+            <img :src="product.imageUrl" :alt="product.bathBombType" loading="lazy" decoding="async">
             <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
             <span class="damage-badge" :class="getDamageLevelClass(product.damageLevel)">
               {{ getDamageLevelLabel(product.damageLevel) }}
             </span>
           </div>
           <div class="product-info">
-            <h3 class="product-name">{{ product.bathBombType }}</h3>
+            <h2 class="product-name">{{ product.bathBombType }}</h2>
             <p class="product-weight">{{ product.weight }}g</p>
             <div class="product-footer">
               <div class="product-price-container">
                 <span class="product-price">{{ product.price.toFixed(2) }} Kč</span>
               </div>
-              <button 
-                @click="addToCart(product, $event)" 
+              <button
+                @click.stop="addToCart(product, $event)"
                 class="add-to-cart-btn"
                 :disabled="!product.inStock"
               >
@@ -127,7 +122,7 @@ onMounted(() => {
               </button>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </div>
   </div>

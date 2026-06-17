@@ -9,6 +9,10 @@ dist
 # Node dependencies
 node_modules
 
+# This project uses pnpm — keep pnpm-lock.yaml as the only lockfile
+package-lock.json
+yarn.lock
+
 # Logs
 logs
 *.log
@@ -17,6 +21,7 @@ logs
 .DS_Store
 .fleet
 .idea
+.claude
 
 # Local env files
 .env

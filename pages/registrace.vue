@@ -83,6 +83,8 @@
 </template>
 
 <script setup lang="ts">
+useSeoMeta({ title: 'Registrace', robots: 'noindex, follow' })
+
 const { register, loginWithGoogle, loggedIn } = useAuth()
 
 const firstName = ref('')

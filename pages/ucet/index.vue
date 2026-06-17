@@ -98,6 +98,8 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
+useSeoMeta({ title: 'Můj účet', robots: 'noindex, follow' })
+
 // Address autocomplete is only needed on this page's address form.
 useSmartform()
 

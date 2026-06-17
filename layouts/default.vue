@@ -36,6 +36,8 @@
             <ul>
               <li class="mb-2"><NuxtLink to="/" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Domů</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/bath-bombs" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Produkty</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/steamers" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Steamery</NuxtLink></li>
+              <li class="mb-2"><NuxtLink to="/zachran-kouli" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Zachraň kouli</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/features" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Vlastnosti</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/about" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">O nás</NuxtLink></li>
               <li class="mb-2"><NuxtLink to="/contact" class="opacity-80 hover:opacity-100 hover:underline transition-opacity">Kontakt</NuxtLink></li>

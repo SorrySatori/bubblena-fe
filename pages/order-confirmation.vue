@@ -77,6 +77,8 @@
 </template>
 
 <script setup>
+useSeoMeta({ title: 'Potvrzení objednávky', robots: 'noindex, follow' });
+
 import QRCode from 'qrcode';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
