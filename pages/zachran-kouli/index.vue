@@ -1,10 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
 const { data: damagedProducts, pending: loading, error, refresh } = await useAsyncData('damaged-products', () => $fetch('/api/damaged-products'));
+
+// Damaged products have no own photo — show the image of the bath-bomb type
+// they represent, matched by name (bathBombType === product.name).
+const { data: products } = await useAsyncData('products', () => $fetch('/api/products'));
+const imageByType = computed(() => {
+  const map = {};
+  for (const p of products.value || []) {
+    if (p?.name) map[p.name.trim().toLowerCase()] = p.imageUrl;
+  }
+  return map;
+});
+const imageFor = (dp) => imageByType.value[(dp?.bathBombType || '').trim().toLowerCase()] || dp?.imageUrl || '';
+
 const { addToCart: addItemToCart } = useCart();
 
 const showToast = ref(false);
@@ -43,7 +56,7 @@ const addToCart = (product, event) => {
       name: `${product.bathBombType} (${product.weight}g) - ${getDamageLevelLabel(product.damageLevel)}`,
       price: product.price,
       quantity: 1,
-      imageUrl: product.imageUrl
+      imageUrl: imageFor(product)
     });
     
     toastMessage.value = `${product.bathBombType} přidáno do košíku`;
@@ -94,7 +107,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <NuxtLink v-for="product in (damagedProducts || [])" :key="product._id" :to="`/zachran-kouli/${product.slug || product._id}`" class="product-card">
           <div class="product-image">
-            <img :src="product.imageUrl" :alt="product.bathBombType" loading="lazy" decoding="async">
+            <img :src="imageFor(product)" :alt="product.bathBombType" loading="lazy" decoding="async">
             <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
             <span class="damage-badge" :class="getDamageLevelClass(product.damageLevel)">
               {{ getDamageLevelLabel(product.damageLevel) }}

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
@@ -18,6 +18,13 @@ const { data: damagedProduct, pending: loading, error, refresh } = await useAsyn
 if (!damagedProduct.value) {
   throw createError({ statusCode: 404, statusMessage: 'Produkt nenalezen' });
 }
+
+const { data: products } = await useAsyncData('products', () => $fetch('/api/products'));
+const productImage = computed(() => {
+  const type = (damagedProduct.value?.bathBombType || '').trim().toLowerCase();
+  const match = (products.value || []).find((p) => p?.name?.trim().toLowerCase() === type);
+  return match?.imageUrl || damagedProduct.value?.imageUrl || '';
+});
 
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
@@ -65,7 +72,7 @@ const addItemToCart = () => {
       name: `${damagedProduct.value.bathBombType} (${damagedProduct.value.weight}g) - ${getDamageLevelLabel(damagedProduct.value.damageLevel)}`,
       price: damagedProduct.value.price,
       quantity: quantity.value,
-      imageUrl: damagedProduct.value.imageUrl
+      imageUrl: productImage.value
     });
 
     toastMessage.value = `${quantity.value}× ${damagedProduct.value.bathBombType} přidáno do košíku`;
@@ -92,10 +99,10 @@ useSeoMeta({
   description: seoDescription,
   ogTitle: seoTitle,
   ogDescription: seoDescription,
-  ogImage: () => damagedProduct.value?.imageUrl,
+  ogImage: () => productImage.value,
   ogType: 'product',
   twitterCard: 'summary_large_image',
-  twitterImage: () => damagedProduct.value?.imageUrl,
+  twitterImage: () => productImage.value,
 });
 
 useHead(() => ({
@@ -107,7 +114,7 @@ useHead(() => ({
           '@type': 'Product',
           name: `${damagedProduct.value.bathBombType} – ${getDamageLevelLabel(damagedProduct.value.damageLevel)}`,
           description: damagedProduct.value.description,
-          image: damagedProduct.value.imageUrl,
+          image: productImage.value,
           itemCondition: 'https://schema.org/UsedCondition',
           offers: {
             '@type': 'Offer',
@@ -127,7 +134,7 @@ onMounted(() => {
       id: String(damagedProduct.value._id ?? productId),
       name: `${damagedProduct.value.bathBombType} (${getDamageLevelLabel(damagedProduct.value.damageLevel)})`,
       to: `/zachran-kouli/${productId}`,
-      imageUrl: damagedProduct.value.imageUrl,
+      imageUrl: productImage.value,
       price: damagedProduct.value.price,
     });
   }
@@ -179,7 +186,7 @@ onMounted(() => {
           <div class="flex flex-col gap-6">
             <div
               class="relative rounded-xl overflow-hidden shadow-lg group transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-1 h-96 md:h-[500px] bg-gray-100">
-              <img :src="damagedProduct.imageUrl" :alt="damagedProduct.bathBombType" decoding="async"
+              <img :src="productImage" :alt="damagedProduct.bathBombType" decoding="async"
                 class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105">
 
               <div
