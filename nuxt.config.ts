@@ -77,6 +77,13 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'manifest', href: '/site.webmanifest' }
+      ],
+      script: [
+        {
+          // Apply the saved dark theme before first paint to avoid a flash.
+          innerHTML: "(()=>{try{if(localStorage.getItem('bubblena-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}})()",
+          tagPosition: 'head',
+        },
       ]
       // Smartform (našeptávač adres) se načítá jen na stránkách, kde je
       // potřeba (checkout, účet) – viz composables/useSmartform.ts.
@@ -108,7 +115,7 @@ export default defineNuxtConfig({
     }
   },
   // CSS configuration
-  css: ['~/assets/css/tailwind.css'],
+  css: ['~/assets/css/tailwind.css', '~/assets/css/dark.css'],
   postcss: {
     plugins: {
       tailwindcss: {},
