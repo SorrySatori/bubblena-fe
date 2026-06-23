@@ -108,7 +108,8 @@ onMounted(() => {
                 <span class="product-price">{{ product.price.toFixed(2) }} Kč</span>
               </div>
               <button
-                @click.stop="addToCart(product, $event)"
+                type="button"
+                @click.stop.prevent="addToCart(product, $event)"
                 class="add-to-cart-btn"
                 :disabled="!product.inStock"
               >
