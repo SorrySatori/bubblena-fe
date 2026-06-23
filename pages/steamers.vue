@@ -229,6 +229,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 30%;
   transition: transform 0.5s ease;
 }
 
@@ -334,11 +335,11 @@ onMounted(() => {
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1.5rem;
   }
-  
+
   .product-image {
     height: 160px;
   }
-  
+
   .product-info {
     padding: 1rem;
   }
