@@ -1,0 +1,82 @@
+/*
+ * Experimental site-wide dark theme.
+ * Activated by the `dark` class on <html> (see composables/useTheme.ts +
+ * the footer switch). Because the codebase mixes Tailwind utilities with
+ * per-component scoped CSS, this flips the whole site via broad overrides
+ * rather than per-component dark: variants. !important is used deliberately
+ * to win over scoped styles.
+ */
+html.dark {
+  --dk-bg: #232a35;        /* soft dark slate (not near-black) */
+  --dk-surface: #2c3540;   /* cards */
+  --dk-surface-2: #364150; /* elevated / inputs */
+  --dk-text: #e8edf3;
+  --dk-muted: #aab4c2;
+  --dk-border: #3d4756;
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: var(--dk-bg);
+  color: var(--dk-text);
+}
+
+/* ---- Surfaces ---- */
+html.dark .bg-white { background-color: var(--dk-surface) !important; }
+html.dark .bg-light,
+html.dark .bg-gray-50,
+html.dark .bg-gray-100,
+html.dark .bg-gray-200 { background-color: var(--dk-surface-2) !important; }
+
+/* Header (sticky bg-white) */
+html.dark header.bg-white { background-color: var(--dk-surface) !important; box-shadow: 0 1px 0 var(--dk-border) !important; }
+
+/* Gradient page wrappers that fade to light (product/steamer detail, etc.) */
+html.dark .from-gray-50 {
+  --tw-gradient-from: var(--dk-bg) var(--tw-gradient-from-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+html.dark .to-white { --tw-gradient-to: var(--dk-surface) var(--tw-gradient-to-position) !important; }
+
+/* ---- Text ---- */
+html.dark .text-dark,
+html.dark .text-secondary,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 { color: var(--dk-text) !important; }
+html.dark .text-gray-600,
+html.dark .text-gray-500,
+html.dark .text-gray-400 { color: var(--dk-muted) !important; }
+
+/* ---- Borders / dividers ---- */
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300 { border-color: var(--dk-border) !important; }
+
+/* ---- Form controls ---- */
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: var(--dk-surface-2) !important;
+  color: var(--dk-text) !important;
+  border-color: var(--dk-border) !important;
+}
+html.dark ::placeholder { color: var(--dk-muted) !important; }
+
+/* ---- Scoped component surfaces (listing pages use hardcoded light colors) ---- */
+html.dark .product-card { background: var(--dk-surface) !important; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important; }
+html.dark .product-image { background-color: var(--dk-surface-2) !important; }
+html.dark .product-name,
+html.dark .product-price,
+html.dark .page-title { color: var(--dk-text) !important; }
+html.dark .product-description,
+html.dark .category-description { color: var(--dk-muted) !important; }
+html.dark .variant-select,
+html.dark .quantity-picker,
+html.dark .qty-btn { background-color: var(--dk-surface-2) !important; color: var(--dk-text) !important; border-color: var(--dk-border) !important; }
+
+/* Soften light-tuned shadows so cards don't glow on dark */
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important; }
