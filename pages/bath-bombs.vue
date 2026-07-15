@@ -9,8 +9,10 @@ useSeoMeta({
   description: 'Ručně vyráběné šumivé bomby do vany z přírodních ingrediencí, bez testů na zvířatech. Vyberte si z naší kolekce vonných koulí pro relaxační koupel.',
 });
 
+// Forward cookies on SSR so the internal /api call passes the basic-auth gate.
+const requestFetch = useRequestFetch();
 // SSR fetch so the product grid is in server-rendered HTML
-const { data: products, pending: loading, error, refresh } = await useAsyncData('products', () => $fetch('/api/products'));
+const { data: products, pending: loading, error, refresh } = await useAsyncData('products', () => requestFetch('/api/products'));
 
 const { addToCart: addItemToCart } = useCart();
 
@@ -153,7 +155,7 @@ onMounted(() => {
             <p class="product-description">{{ product.shortDescription }}</p>
 
             <!-- Variant selector -->
-            <div v-if="product.variants && product.variants.length > 1" class="variant-selector" @click.stop>
+            <div v-if="product.variants && product.variants.length > 1" class="variant-selector" @click.stop.prevent>
               <select 
                 :value="selectedVariantIndexes[product._id]" 
                 @change="selectedVariantIndexes[product._id] = Number($event.target.value); onVariantChange(product, $event)"

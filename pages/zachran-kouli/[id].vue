@@ -9,17 +9,20 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 const route = useRoute();
 const productId = route.params.id;
 
+// Forward cookies on SSR so internal /api calls pass the basic-auth gate.
+const requestFetch = useRequestFetch();
+
 // SSR data fetch so the damaged-product content + meta are in the server HTML.
 const { data: damagedProduct, pending: loading, error, refresh } = await useAsyncData(
   `damaged-${productId}`,
-  () => $fetch(`/api/damaged-product/${productId}`)
+  () => requestFetch(`/api/damaged-product/${productId}`)
 );
 
 if (!damagedProduct.value) {
   throw createError({ statusCode: 404, statusMessage: 'Produkt nenalezen' });
 }
 
-const { data: products } = await useAsyncData('products', () => $fetch('/api/products'));
+const { data: products } = await useAsyncData('products', () => requestFetch('/api/products'));
 const productImage = computed(() => {
   const type = (damagedProduct.value?.bathBombType || '').trim().toLowerCase();
   const match = (products.value || []).find((p) => p?.name?.trim().toLowerCase() === type);
@@ -259,6 +262,10 @@ onMounted(() => {
                   Vyprodáno
                 </button>
               </div>
+            </div>
+
+            <div class="pt-2">
+              <TermsLink />
             </div>
 
             <div class="border-t border-gray-200 pt-6">

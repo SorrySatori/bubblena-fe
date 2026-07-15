@@ -9,10 +9,13 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 const route = useRoute();
 const steamerId = route.params.id;
 
+// Forward cookies on SSR so the internal /api call passes the basic-auth gate.
+const requestFetch = useRequestFetch();
+
 // SSR data fetch so the steamer content + meta are in the server HTML.
 const { data: steamer, pending: loading, error, refresh } = await useAsyncData(
   `steamer-${steamerId}`,
-  () => $fetch(`/api/steamer/${steamerId}`)
+  () => requestFetch(`/api/steamer/${steamerId}`)
 );
 
 if (!steamer.value) {
@@ -245,6 +248,10 @@ onMounted(() => {
                 Vyprodáno
               </button>
             </div>
+          </div>
+
+          <div class="pt-2">
+            <TermsLink />
           </div>
 
           <div class="border-t border-gray-200 pt-6">

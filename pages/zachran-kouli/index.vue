@@ -4,11 +4,12 @@ import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
-const { data: damagedProducts, pending: loading, error, refresh } = await useAsyncData('damaged-products', () => $fetch('/api/damaged-products'));
+const requestFetch = useRequestFetch();
+const { data: damagedProducts, pending: loading, error, refresh } = await useAsyncData('damaged-products', () => requestFetch('/api/damaged-products'));
 
 // Damaged products have no own photo — show the image of the bath-bomb type
 // they represent, matched by name (bathBombType === product.name).
-const { data: products } = await useAsyncData('products', () => $fetch('/api/products'));
+const { data: products } = await useAsyncData('products', () => requestFetch('/api/products'));
 const imageByType = computed(() => {
   const map = {};
   for (const p of products.value || []) {

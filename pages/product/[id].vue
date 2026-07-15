@@ -9,11 +9,15 @@ import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 const route = useRoute();
 const productId = route.params.id;
 
+// Forward the incoming request's cookies on SSR so the internal /api call
+// passes the site's basic-auth gate (otherwise a refresh/direct load 401s → 404).
+const requestFetch = useRequestFetch();
+
 // SSR data fetch: product name/description/price/image are baked into the
 // server HTML so the page is crawlable and meta can be derived from it.
 const { data: product, pending: loading, error, refresh } = await useAsyncData(
   `product-${productId}`,
-  () => $fetch(`/api/product/${productId}`)
+  () => requestFetch(`/api/product/${productId}`)
 );
 
 // Real 404 for unknown products instead of a soft-200 empty page.
@@ -280,6 +284,10 @@ onMounted(() => {
                 Vyprodáno
               </button>
             </div>
+          </div>
+
+          <div class="pt-2">
+            <TermsLink />
           </div>
 
           <div class="border-t border-gray-200 pt-6">

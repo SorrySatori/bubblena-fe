@@ -5,7 +5,8 @@ import ToastNotification from '~/components/ToastNotification.vue';
 import { useCartStore } from "~/stores/cart";
 
 // Fetch steamers during SSR
-const { data: steamers } = await useAsyncData('steamers', () => $fetch('/api/steamers'));
+const requestFetch = useRequestFetch();
+const { data: steamers } = await useAsyncData('steamers', () => requestFetch('/api/steamers'));
 
 const { addToCart: addItemToCart } = useCart();
 
