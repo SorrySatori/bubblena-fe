@@ -125,6 +125,10 @@ onMounted(() => {
         </p>
       </div>
       
+      <div class="mb-6 flex justify-center sm:justify-end">
+        <SizeGuide />
+      </div>
+
       <!-- Loading state -->
       <div v-if="loading" class="loading-container">
         <div class="loading-spinner"></div>

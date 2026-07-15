@@ -246,6 +246,7 @@ onMounted(() => {
                   </svg>
                 </div>
               </div>
+              <SizeGuide :weights="(product.variants || []).map((v) => v.weight)" class="mt-3 inline-block" />
             </div>
 
             <div class="flex flex-wrap items-center gap-4">
