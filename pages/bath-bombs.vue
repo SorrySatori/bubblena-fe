@@ -146,7 +146,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <NuxtLink v-for="product in (products ?? [])" :key="product._id" :to="`/product/${product.slug || product._id}`" class="product-card">
           <div class="product-image">
-            <img :src="product.imageUrl" :alt="product.name" loading="lazy" decoding="async">
+            <ProductImage :src="product.imageUrl" :alt="product.name" />
             <span v-if="!hasInStockVariant(product)" class="out-of-stock-badge">Vyprodáno</span>
             <span v-if="product.variants && product.variants.length > 1" class="variants-badge">{{ product.variants.length }} variant{{ product.variants.length > 1 ? 'y' : 'a' }}</span>
           </div>

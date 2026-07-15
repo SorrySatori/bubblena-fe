@@ -108,7 +108,7 @@ onMounted(() => {
       <div v-else class="products-grid">
         <NuxtLink v-for="product in (damagedProducts || [])" :key="product._id" :to="`/zachran-kouli/${product.slug || product._id}`" class="product-card">
           <div class="product-image">
-            <img :src="imageFor(product)" :alt="product.bathBombType" loading="lazy" decoding="async">
+            <ProductImage :src="imageFor(product)" :alt="product.bathBombType" />
             <span v-if="!product.inStock" class="out-of-stock-badge">Vyprodáno</span>
             <span class="damage-badge" :class="getDamageLevelClass(product.damageLevel)">
               {{ getDamageLevelLabel(product.damageLevel) }}

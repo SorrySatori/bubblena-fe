@@ -83,7 +83,7 @@ onMounted(() => {
           style="display:block;color:inherit;text-decoration:none"
         >
           <div class="product-image">
-            <img :src="steamer.imageUrl" :alt="steamer.name" loading="lazy" decoding="async">
+            <ProductImage :src="steamer.imageUrl" :alt="steamer.name" />
             <span v-if="!steamer.inStock" class="out-of-stock-badge">Vyprodáno</span>
           </div>
           <div class="product-info">
