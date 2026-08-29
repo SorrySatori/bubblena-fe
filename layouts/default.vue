@@ -55,8 +55,20 @@
           </div>
         </div>
         
-        <div class="border-t border-white/10 pt-4 text-center text-sm opacity-70">
+        <div class="border-t border-white/10 pt-4 text-sm opacity-80 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>&copy; {{ new Date().getFullYear() }} Bubblena. Všechna práva vyhrazena.</p>
+          <ClientOnly>
+            <button
+              type="button"
+              @click="toggle"
+              :aria-pressed="isDark"
+              :aria-label="isDark ? 'Přepnout na světlý režim' : 'Přepnout na tmavý režim'"
+              class="inline-flex items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 hover:bg-white/10 transition-colors"
+            >
+              <span aria-hidden="true">{{ isDark ? '☀️' : '🌙' }}</span>
+              <span>{{ isDark ? 'Světlý režim' : 'Tmavý režim' }}</span>
+            </button>
+          </ClientOnly>
         </div>
         
         <img src="~/assets/bubblena_logo_green.png" alt="Bubblena Logo" class="footer-logo-corner" />
@@ -83,6 +95,9 @@ useBubblePhysics('footer', '.particle');
 
 // Let users re-open the cookie banner to change their choice.
 const { reopen } = useConsent();
+
+// Experimental dark mode toggle (footer switch).
+const { isDark, toggle } = useTheme();
 </script>
 
 <style>
