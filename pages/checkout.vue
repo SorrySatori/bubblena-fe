@@ -520,6 +520,12 @@ const submitOrder = async () => {
               </svg>
               Dokončit objednávku
             </button>
+            <p v-if="checkoutState.step === 'review'" class="mt-3 text-xs text-gray-500 text-center">
+              Dokončením objednávky souhlasíte s
+              <NuxtLink to="/obchodni-podminky" target="_blank" class="text-primary hover:underline">obchodními podmínkami</NuxtLink>
+              a berete na vědomí
+              <NuxtLink to="/obchodni-podminky#gdpr" target="_blank" class="text-primary hover:underline">zásady ochrany osobních údajů</NuxtLink>.
+            </p>
             
             <!-- No clear cart button -->
           </div>
