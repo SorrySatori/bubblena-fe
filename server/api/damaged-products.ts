@@ -3,7 +3,7 @@ export default defineEventHandler(async (): Promise<any> => {
 
   try {
     const apiKey = config.apiKey || ''
-    const response: any = await $fetch(`${config.public.apiBase}/damaged-products`, {
+    const response: any = await $fetch<any>(`${config.public.apiBase}/damaged-products`, {
       method: 'GET',
       headers: {
         'x-api-key': apiKey

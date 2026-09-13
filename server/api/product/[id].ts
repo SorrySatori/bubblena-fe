@@ -2,12 +2,12 @@ import { bombToProduct } from '../../utils/bombToProduct'
 
 // Single storefront product = a `Bomb` (resolved by _id), mapped to the flat
 // product shape the detail page expects. See server/utils/bombToProduct.ts.
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<any> => {
   const id = getRouterParam(event, 'id')
   const config = useRuntimeConfig()
 
   try {
-    const bomb = await $fetch(`${config.public.apiBase}/bombs/${id}`, {
+    const bomb = await $fetch<any>(`${config.public.apiBase}/bombs/${id}`, {
       headers: { 'x-api-key': (config.apiKey as string) || '' },
     })
     return bombToProduct(bomb)

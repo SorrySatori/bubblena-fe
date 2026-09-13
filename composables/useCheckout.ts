@@ -316,7 +316,7 @@ export const useCheckout = () => {
       };
       // 1. Create order in database. The carrier shipment is created by the
       //    backend only after the payment is confirmed (Stripe webhook / admin).
-      const order = await $fetch('/api/order/order', {
+      const order: any = await $fetch('/api/order/order', {
         method: 'POST',
         body: orderPayload
       })
@@ -329,6 +329,8 @@ export const useCheckout = () => {
         return {
           success: true,
           orderId,
+          // Grants the confirmation page read access to this order (guest checkout).
+          accessToken: order.accessToken as string | undefined,
           paymentMethod: 'bank-transfer',
           amount: orderTotal.value,
           bankTransferPayment

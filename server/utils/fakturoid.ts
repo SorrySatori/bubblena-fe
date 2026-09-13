@@ -175,7 +175,7 @@ async function updateRecycledSubject(
   const token = await getAccessToken()
   const slug = getSlug()
 
-  await $fetch(`${FAKTUROID_API_BASE}/accounts/${slug}/subjects/${subjectId}.json`, {
+  await $fetch<any>(`${FAKTUROID_API_BASE}/accounts/${slug}/subjects/${subjectId}.json`, {
     method: 'PATCH',
     headers: getHeaders(token),
     body: {

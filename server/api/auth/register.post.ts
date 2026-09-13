@@ -11,9 +11,11 @@ export default defineEventHandler(async (event) => {
 
   // Backend answers 200 for every case; `kind` tells us which e-mail to send.
   // The browser always gets the same success response (no account enumeration).
-  let result: { email: string; verifyToken: string | null; kind: 'verify' | 'exists' | 'google' }
+  type RegisterResult = { email: string; verifyToken: string | null; kind: 'verify' | 'exists' | 'google' }
+  let result: RegisterResult
   try {
-    result = await $fetch(`${backendBase()}/auth/register`, {
+    // Explicit generic: lets TS skip matching the URL against Nitro's typed routes.
+    result = await $fetch<RegisterResult>(`${backendBase()}/auth/register`, {
       method: 'POST',
       headers: backendHeaders(),
       body: { email, password, firstName, lastName, acceptTerms, marketing },

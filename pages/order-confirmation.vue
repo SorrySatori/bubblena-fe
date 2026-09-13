@@ -180,7 +180,9 @@ onMounted(async () => {
   if (!route.query.orderId) return;
 
   try {
-    const orderData = await $fetch(`/api/order/${encodeURIComponent(getQueryValue(route.query.orderId))}`);
+    const orderData = await $fetch(`/api/order/${encodeURIComponent(getQueryValue(route.query.orderId))}`, {
+      query: { t: getQueryValue(route.query.t) },
+    });
     const order = orderData?.order || orderData;
     fetchedOrder.value = order;
     updateBankPayment(order);

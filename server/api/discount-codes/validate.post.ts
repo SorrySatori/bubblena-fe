@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   try {
-    return await $fetch(`${config.public.apiBase}/discount-codes/validate`, {
+    return await $fetch<any>(`${config.public.apiBase}/discount-codes/validate`, {
       method: 'POST',
       headers: { 'x-api-key': config.apiKey || '' },
       body,
