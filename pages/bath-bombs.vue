@@ -98,9 +98,6 @@ const addToCart = (product, event) => {
   }
 };
 
-onMounted(() => {
-  cart.initCart();
-});
 
 </script>
 

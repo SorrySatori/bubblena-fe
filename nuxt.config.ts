@@ -36,6 +36,10 @@ export default defineNuxtConfig({
         'media-src': ["'self'", 'blob:', 'https:'],
         'connect-src': [
           "'self'",
+          // Dev only: Nuxt DevTools + Vite HMR talk over local websockets.
+          ...(process.env.NODE_ENV !== 'production'
+            ? ['ws://localhost:*', 'http://localhost:*', 'https://api.iconify.design']
+            : []),
           'https://accounts.google.com',
           'https://*.smartform.cz',
           'https://widget.packeta.com',
@@ -130,9 +134,8 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
         // No global canonical here — it would make every page a duplicate of the
         // homepage. A per-route self-canonical is set in app.vue.
-        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-        { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' },
-        { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
+        // PNG favicon variants (apple-touch-icon, 32x32, 16x16) are not in /public yet;
+        // add the files and the <link>s together, otherwise every page 404s twice.
         { rel: 'manifest', href: '/site.webmanifest' }
       ]
       // Smartform (našeptávač adres) se načítá jen na stránkách, kde je
