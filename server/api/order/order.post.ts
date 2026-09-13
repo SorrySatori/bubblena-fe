@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
   try {
-    return await $fetch(`${backendBase()}/order/create`, {
+    return await $fetch<any>(`${backendBase()}/order/create`, {
       method: 'POST',
       headers: backendHeaders(),
       body,

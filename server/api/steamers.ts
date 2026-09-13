@@ -4,7 +4,7 @@ export default defineEventHandler(async (): Promise<any> => {
   try {
     // Fetch steamers from backend API
     const apiKey = config.apiKey || ''
-    const response: any = await $fetch(`${config.public.apiBase}/steamers`, {
+    const response: any = await $fetch<any>(`${config.public.apiBase}/steamers`, {
       method: 'GET',
       headers: {
         'x-api-key': apiKey

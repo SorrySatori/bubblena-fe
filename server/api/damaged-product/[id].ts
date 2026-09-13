@@ -1,10 +1,10 @@
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<any> => {
 
   const id = getRouterParam(event, 'id')
   const config = useRuntimeConfig()
   
   try {
-    const res = await $fetch(`${config.public.apiBase}/damaged-products/${id}`, {
+    const res = await $fetch<any>(`${config.public.apiBase}/damaged-products/${id}`, {
       headers: {
         'x-api-key': process.env.NUXT_API_KEY as string
       },

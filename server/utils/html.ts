@@ -14,4 +14,7 @@ export const cleanStr = (value: unknown, max = 200): string =>
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 /** Format a CZK amount for e-mails; never interpolates raw client values. */
-export const czk = (value: unknown): string => `${Number(value || 0).toFixed(2)} Kč`
+export const czk = (value: unknown): string => {
+  const n = Number(value)
+  return `${(Number.isFinite(n) ? n : 0).toFixed(2)} Kč`
+}

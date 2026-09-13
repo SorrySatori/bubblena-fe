@@ -12,7 +12,7 @@ export default defineEventHandler(async (event): Promise<any> => {
 
   try {
     // Fetch single steamer from backend API
-    const response: any = await $fetch(`${config.public.apiBase}/steamers/${id}`, {
+    const response: any = await $fetch<any>(`${config.public.apiBase}/steamers/${id}`, {
       method: 'GET',
       headers: {
         'x-api-key': process.env.NUXT_API_KEY as string

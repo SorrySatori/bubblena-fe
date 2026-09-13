@@ -226,6 +226,7 @@ const submitOrder = async () => {
           path: '/order-confirmation',
           query: {
             orderId: result.orderId,
+            t: result.accessToken,
             paymentMethod: 'bank-transfer',
             amount: result.amount?.toFixed(2)
           }
