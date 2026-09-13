@@ -89,6 +89,8 @@ export default defineNuxtConfig({
   // Runtime config for API base URL
   runtimeConfig: {
     apiKey: process.env.NUXT_API_KEY || '',
+    // Shared secret for server-to-server calls from bubblena-be (INTERNAL_TOKEN there).
+    internalToken: process.env.NUXT_INTERNAL_TOKEN || '',
     basicUser: process.env.NUXT_BASIC_USER || '',
     basicPass: process.env.NUXT_BASIC_PASS || '',
     fakturoidSlug: process.env.NUXT_FAKTUROID_SLUG || '',

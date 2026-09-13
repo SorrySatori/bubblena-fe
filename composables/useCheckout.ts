@@ -349,14 +349,16 @@ export const useCheckout = () => {
       // 3. Process payment (get Stripe redirect URL)
       const paymentResponse: { url: string } = await $fetch('/api/orders', {
         method: 'POST',
-        body: orderPayload
+        body: { orderId }
       })
 
       if (!paymentResponse?.url) {
         throw new Error('Failed to process payment')
       }
 
-      // 4. Redirect to payment — email and cart clearing happen after payment on order-confirmation page
+      // 4. Redirect to payment. Confirmation e-mail + invoice are sent by the
+      //    backend once the Stripe webhook confirms the payment; the
+      //    order-confirmation page only displays the result and clears the cart.
       navigateTo(paymentResponse.url, { external: true })
       return { success: true, orderId, paymentMethod: 'card', redirected: true }
       

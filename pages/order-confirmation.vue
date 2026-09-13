@@ -11,7 +11,10 @@
         </div>
         
         <h1 class="text-2xl font-bold text-secondary mb-4">Děkujeme za Vaši objednávku!</h1>
-        <p class="text-gray-600 mb-6">Vaše objednávka byla úspěšně přijata a bude zpracována co nejdříve.</p>
+        <p class="text-gray-600 mb-6">
+          <template v-if="isCardPending">Vaše objednávka byla přijata a platbu právě ověřujeme. Potvrzení vám přijde e-mailem, jakmile ji Stripe potvrdí (obvykle do minuty).</template>
+          <template v-else>Vaše objednávka byla úspěšně přijata a bude zpracována co nejdříve.</template>
+        </p>
         
         <div class="bg-gray-50 rounded-lg p-4 mb-6">
           <p class="text-gray-700">Číslo objednávky: <span class="font-medium">{{ orderId }}</span></p>
@@ -59,7 +62,8 @@
         </div>
         
         <p class="text-gray-600 mb-8">
-          Potvrzení objednávky bylo odesláno na Váš email. Budeme Vás informovat o stavu Vaší objednávky.
+          <template v-if="isCardPending">Po potvrzení platby vám pošleme potvrzení objednávky i fakturu na Váš e-mail.</template>
+          <template v-else>Potvrzení objednávky bylo odesláno na Váš email. Budeme Vás informovat o stavu Vaší objednávky.</template>
         </p>
         
         <div class="flex flex-col sm:flex-row justify-center gap-4">
@@ -103,14 +107,18 @@ const bankPayment = ref({
   iban: config.public.bankIban || '',
   bic: config.public.bankBic || '',
   amount: parseAmount(route.query.amount),
-  currency: 'CZK',    "qrcode": "^1.5.4",
-
+  currency: 'CZK',
   paymentReference: getQueryValue(route.query.orderId) || '',
   message: `Objednávka ${getQueryValue(route.query.orderId) || ''}`.trim()
 });
 
 const isBankTransfer = computed(() => {
   return route.query.paymentMethod === 'bank-transfer' || fetchedOrder.value?.paymentMethod === 'bank-transfer';
+});
+
+// Card order whose payment the Stripe webhook hasn't confirmed yet.
+const isCardPending = computed(() => {
+  return fetchedOrder.value?.paymentMethod === 'card' && fetchedOrder.value?.status === 'pending';
 });
 
 const formattedBankAccount = computed(() => {
@@ -158,50 +166,27 @@ const generateQrCode = async () => {
 };
 
 const updateBankPayment = (order) => {
-  if (order?.bankTransferPayment) {
-    bankPayment.value = {
-      ...bankPayment.value,
-      ...order.bankTransferPayment
-    };
-    return;
-  }
-
   if (order?.totals?.total) {
     bankPayment.value.amount = order.totals.total;
   }
 };
 
-const confirmationSent = useState(`order-confirmed-${route.query.orderId}`, () => false);
-
+// Confirmation e-mails and the Fakturoid invoice are sent by the backend
+// (bank transfer: on order creation; card: from the Stripe webhook). This page
+// only shows the result and clears the local cart.
 onMounted(async () => {
   await generateQrCode();
 
-  if (confirmationSent.value || !route.query.orderId) return;
-  confirmationSent.value = true;
+  if (!route.query.orderId) return;
 
   try {
-    // Fetch full order data from backend
-    const orderData = await $fetch(`/api/order/${route.query.orderId}`);
-    console.log('Order data fetched:', orderData);
-
-    // The backend returns { success: true, order: {...} }
+    const orderData = await $fetch(`/api/order/${encodeURIComponent(getQueryValue(route.query.orderId))}`);
     const order = orderData?.order || orderData;
     fetchedOrder.value = order;
     updateBankPayment(order);
     await generateQrCode();
-
-    if (order?.orderId || order?.customerInfo) {
-      // Send confirmation email + Fakturoid invoice
-      await $fetch('/api/order-confirmation', {
-        method: 'POST',
-        body: order
-      });
-      console.log('Confirmation email sent');
-    } else {
-      console.error('Order data missing or invalid:', orderData);
-    }
   } catch (err) {
-    console.error('Failed to send order confirmation:', err);
+    console.error('Failed to load order:', err);
   }
 
   clearCart();

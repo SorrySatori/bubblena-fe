@@ -1,7 +1,11 @@
 import nodemailer from 'nodemailer'
 import { backendBase, backendHeaders, rethrowBackendError } from '../../utils/authProxy'
+import { assertRateLimit } from '../../utils/rateLimit'
+import { esc } from '../../utils/html'
 
 export default defineEventHandler(async (event) => {
+  assertRateLimit(event, { name: 'register', limit: 5, windowMs: 60 * 60 * 1000 })
+
   const body = await readBody(event)
   const { email, password, firstName, lastName, acceptTerms, marketing } = body || {}
 
@@ -19,7 +23,8 @@ export default defineEventHandler(async (event) => {
 
   // Build the verification link against the current origin (works in dev + prod).
   const origin = getRequestURL(event).origin
-  const verifyUrl = `${origin}/overeni?email=${encodeURIComponent(result.email)}&token=${result.verifyToken}`
+  const verifyUrl = `${origin}/overeni?email=${encodeURIComponent(result.email)}&token=${encodeURIComponent(result.verifyToken)}`
+  const safeUrl = esc(verifyUrl)
 
   const transporter = nodemailer.createTransport({
     host: process.env.NUXT_SMTP_HOST,
@@ -36,13 +41,13 @@ export default defineEventHandler(async (event) => {
       <h2>Vítejte v Bubbleně 💫</h2>
       <p>Pro dokončení registrace prosím potvrďte svůj e-mail kliknutím na tlačítko:</p>
       <p style="margin:24px 0;">
-        <a href="${verifyUrl}"
+        <a href="${safeUrl}"
            style="background:#41b883;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block;">
           Ověřit e-mail
         </a>
       </p>
       <p style="font-size:13px;opacity:0.8;">Pokud tlačítko nefunguje, otevřete tento odkaz:<br/>
-        <a href="${verifyUrl}">${verifyUrl}</a></p>
+        <a href="${safeUrl}">${safeUrl}</a></p>
       <p style="font-size:13px;opacity:0.8;">Odkaz je platný 24 hodin. Pokud jste se neregistrovali, e-mail ignorujte.</p>
       <hr style="margin:24px 0;"/>
       <p>Tým Bubblena.cz</p>

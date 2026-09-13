@@ -1,6 +1,13 @@
 import { defineEventHandler, getCookie, setCookie, createError } from 'h3'
+import { hasValidInternalToken } from '../utils/internalAuth'
 
 export default defineEventHandler((event) => {
+  // Server-to-server calls from bubblena-be carry the shared internal token
+  // and must not be blocked by the visitor gate.
+  if (hasValidInternalToken(event)) {
+    return
+  }
+
   const session = getCookie(event, 'auth')
   if (session === 'ok') {
     return
@@ -14,7 +21,7 @@ export default defineEventHandler((event) => {
   }
 
   const [scheme, encoded] = auth.split(' ')
-  if (scheme !== 'Basic') {
+  if (scheme !== 'Basic' || !encoded) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid Auth Scheme' })
   }
 
