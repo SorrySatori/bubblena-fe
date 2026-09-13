@@ -1,79 +1,41 @@
-import nodemailer from "nodemailer"
+import { requireInternalToken } from "../utils/internalAuth"
+import {
+  fetchOrder,
+  ordersTransport,
+  customerName,
+  renderItemsTable,
+  renderShipping,
+  renderTotals,
+} from "../utils/orderMail"
+import { esc } from "../utils/html"
 
 // Sends the customer a "your order has been shipped" e-mail.
-// Triggered server-to-server by the backend when an order status becomes "shipped".
+// Called server-to-server by bubblena-be when an order status becomes "shipped".
+// Body: { orderId } – everything else is loaded from the backend.
 export default defineEventHandler(async (event) => {
+  requireInternalToken(event)
+
   const body = await readBody(event)
+  const order = await fetchOrder(body?.orderId)
 
-  const {
-    orderId,
-    customerInfo,
-    items,
-    totals,
-    shippingMethod,
-    selectedPickupPoint,
-  } = body
-
-  if (!orderId || !customerInfo?.email || !items || !totals) {
-    throw createError({
-      statusCode: 400,
-      message: "Chybí požadovaná data objednávky.",
-    })
+  if (!order.customerInfo?.email) {
+    throw createError({ statusCode: 400, message: "Objednávka nemá e-mail zákazníka." })
   }
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.NUXT_SMTP_HOST,
-    port: Number(process.env.NUXT_SMTP_PORT) || 465,
-    secure: true,
-    auth: {
-      user: process.env.NUXT_ORDERS_SMTP_USER,
-      pass: process.env.NUXT_ORDERS_SMTP_PASS,
-    },
-  })
-
-  const itemsHtml = items
-    .map(
-      (item: any) => `
-      <tr>
-        <td>${item.name}</td>
-        <td style="text-align:center;">${item.quantity}×</td>
-        <td style="text-align:right;">${item.variant?.weight || item.weight} g</td>
-        <td style="text-align:right;">${item.price} Kč</td>
-      </tr>`
-    )
-    .join("")
-
-  const shippingHtml = selectedPickupPoint
-    ? `<p><b>Doručení:</b> ${shippingMethod} – ${selectedPickupPoint.name}, ${selectedPickupPoint.city}</p>`
-    : `<p><b>Doručení:</b> ${shippingMethod || "—"}</p>`
-
-  const customerName = `${customerInfo.firstName} ${customerInfo.lastName}`
-
+  const orderId = esc(order.orderId)
   const htmlContent = `
     <div style="font-family:Arial, sans-serif; color:#333; line-height:1.6;">
       <h2>Vaše objednávka č. ${orderId} je na cestě 📦</h2>
-      <p>Dobrý den, <b>${customerName}</b>,</p>
+      <p>Dobrý den, <b>${customerName(order)}</b>,</p>
       <p>máme skvělou zprávu – vaši objednávku jsme právě předali dopravci a je na cestě k vám! 💫</p>
 
       <h3>Přehled objednávky:</h3>
-      <table style="width:100%; border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="text-align:left;">Produkt</th>
-            <th style="text-align:center;">Množství</th>
-            <th style="text-align:right;">Hmotnost</th>
-            <th style="text-align:right;">Cena</th>
-          </tr>
-        </thead>
-        <tbody>${itemsHtml}</tbody>
-      </table>
+      ${renderItemsTable(order)}
 
       <h3>Souhrn:</h3>
-      <p><b>Mezisoučet:</b> ${totals.subtotal} Kč</p>
-      <p><b>Doprava:</b> ${totals.shipping} Kč</p>
-      <p><b>Celkem:</b> ${totals.total} Kč</p>
+      ${renderTotals(order)}
 
-      ${shippingHtml}
+      ${renderShipping(order)}
 
       <hr style="margin:24px 0;"/>
       <p><b>Děkujeme, že nakupujete u Bubbleny 💫</b></p>
@@ -81,15 +43,13 @@ export default defineEventHandler(async (event) => {
     </div>
   `
 
-  const mailOptions: nodemailer.SendMailOptions = {
-    from: process.env.NUXT_CONTACT_ORDERS,
-    to: customerInfo.email,
-    subject: `Objednávka č. ${orderId} je na cestě 📦 – Bubblena.cz`,
-    html: htmlContent,
-  }
-
   try {
-    await transporter.sendMail(mailOptions)
+    await ordersTransport().sendMail({
+      from: process.env.NUXT_CONTACT_ORDERS,
+      to: order.customerInfo.email,
+      subject: `Objednávka č. ${order.orderId} je na cestě 📦 – Bubblena.cz`,
+      html: htmlContent,
+    })
     return { success: true, message: "Shipping notification sent successfully." }
   } catch (err: any) {
     console.error("Order shipped email error:", err)

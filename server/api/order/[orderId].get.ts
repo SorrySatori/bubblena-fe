@@ -1,19 +1,17 @@
+import { backendBase, backendHeaders, rethrowBackendError } from '../../utils/authProxy'
+
 export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const orderId = getRouterParam(event, 'orderId')
+  const orderId = getRouterParam(event, 'orderId') || ''
+  if (!/^[0-9a-f-]{36}$/i.test(orderId)) {
+    throw createError({ statusCode: 400, message: 'Neplatné číslo objednávky.' })
+  }
 
   try {
-    const response = await $fetch(`${config.public.apiBase}/order/${orderId}`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+    return await $fetch(`${backendBase()}/order/${encodeURIComponent(orderId)}`, {
+      headers: backendHeaders(),
     })
-
-    return response
   } catch (error: any) {
-    console.error('Error fetching order:', error)
-    throw createError({
-      statusCode: error?.statusCode || 500,
-      message: error?.data?.message || 'Failed to fetch order'
-    })
+    console.error('Error fetching order:', error?.data || error?.message)
+    rethrowBackendError(error)
   }
 })

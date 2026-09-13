@@ -63,6 +63,7 @@ function formatDate(d: string) {
 
 const STATUS: Record<string, string> = {
   pending: 'Čeká na zpracování',
+  paid: 'Zaplaceno',
   processing: 'Zpracovává se',
   shipped: 'Odesláno',
   delivered: 'Doručeno',

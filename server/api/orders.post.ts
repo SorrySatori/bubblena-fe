@@ -1,27 +1,30 @@
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  const apiKey = config.apiKey || ''
-  const body = await readBody(event)
+import { backendBase, backendHeaders, rethrowBackendError } from '../utils/authProxy'
+import { assertRateLimit } from '../utils/rateLimit'
 
-  if (body.paymentMethod === 'card') {
-    try {
-      const response = await $fetch(`${config.public.apiBase}/checkout/create-session`, {
-        method: 'POST',
-        headers: { 'x-api-key': apiKey },
-        body,
-        timeout: 10000,
-        retry: 3
-      });
-      return response;
-    } catch (error: any) {
-      console.error('Error creating order:', error)
-      throw createError({
-        statusCode: 500,
-        message: 'Failed to create order'
-      });
-    }
+/**
+ * POST /api/orders  { orderId }
+ * Creates the Stripe Checkout session for an existing (pending, card) order.
+ * The backend builds the session from the stored order; no amounts travel here.
+ */
+export default defineEventHandler(async (event) => {
+  assertRateLimit(event, { name: 'stripe-session', limit: 10, windowMs: 10 * 60 * 1000 })
+
+  const body = await readBody(event)
+  const orderId = typeof body?.orderId === 'string' ? body.orderId : ''
+  if (!orderId) {
+    throw createError({ statusCode: 400, message: 'Chybí číslo objednávky.' })
   }
-  else {
-    console.log('tu implementovat platbu prevodem')
+
+  try {
+    // No retry: creating a checkout session is not idempotent.
+    return await $fetch<{ url: string }>(`${backendBase()}/checkout/create-session`, {
+      method: 'POST',
+      headers: backendHeaders(),
+      body: { orderId },
+      timeout: 15000,
+    })
+  } catch (error: any) {
+    console.error('Error creating Stripe session:', error?.data || error?.message)
+    rethrowBackendError(error)
   }
 })
