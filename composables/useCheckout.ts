@@ -95,14 +95,6 @@ export const useCheckout = () => {
     };
   };
 
-  const getDeliveryEndpoint = (shippingMethod: string | null): string | null => {
-    switch (shippingMethod) {
-      case 'zasilkovna': return '/api/delivery/packeta'
-      case 'gls': return '/api/delivery/gls'
-      default: return null
-    }
-  }
-
   // Available shipping methods
   const shippingMethods = ref<ShippingMethod[]>([
     {
@@ -282,6 +274,13 @@ export const useCheckout = () => {
       };
     }
 
+    if (!checkoutState.value.selectedPickupPoint?.id && !checkoutState.value.selectedPickupPoint?.pclshopid) {
+      return {
+        success: false,
+        error: 'Vyberte prosím výdejní místo.'
+      };
+    }
+
     const orderId = uuidv4();
     try {
       const bankTransferPayment = checkoutState.value.selectedPaymentMethod === 'bank-transfer'
@@ -316,17 +315,8 @@ export const useCheckout = () => {
           total: orderTotal.value
         }
       };
-      // 1. Create delivery shipment
-      const deliveryEndpoint = getDeliveryEndpoint(checkoutState.value.selectedShippingMethod)
-      let deliveryResponse = null
-      if (deliveryEndpoint) {
-        deliveryResponse = await $fetch(deliveryEndpoint, {
-          method: 'POST',
-          body: orderPayload
-        })
-      }
-
-      // 2. Create order in database
+      // 1. Create order in database. The carrier shipment is created by the
+      //    backend only after the payment is confirmed (Stripe webhook / admin).
       const order = await $fetch('/api/order/order', {
         method: 'POST',
         body: orderPayload
@@ -346,7 +336,7 @@ export const useCheckout = () => {
         }
       }
 
-      // 3. Process payment (get Stripe redirect URL)
+      // 2. Process payment (get Stripe redirect URL)
       const paymentResponse: { url: string } = await $fetch('/api/orders', {
         method: 'POST',
         body: { orderId }
@@ -356,7 +346,7 @@ export const useCheckout = () => {
         throw new Error('Failed to process payment')
       }
 
-      // 4. Redirect to payment. Confirmation e-mail + invoice are sent by the
+      // 3. Redirect to payment. Confirmation e-mail + invoice are sent by the
       //    backend once the Stripe webhook confirms the payment; the
       //    order-confirmation page only displays the result and clears the cart.
       navigateTo(paymentResponse.url, { external: true })
