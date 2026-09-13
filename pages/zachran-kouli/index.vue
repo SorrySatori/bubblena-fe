@@ -2,7 +2,6 @@
 import { ref, onMounted, computed } from 'vue';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
-import { useCartStore } from "~/stores/cart";
 
 const requestFetch = useRequestFetch();
 const { data: damagedProducts, pending: loading, error, refresh } = await useAsyncData('damaged-products', () => requestFetch('/api/damaged-products'));
@@ -23,7 +22,6 @@ const { addToCart: addItemToCart } = useCart();
 
 const showToast = ref(false);
 const toastMessage = ref('');
-const cart = useCartStore();
 
 useSeoMeta({
   title: 'Zachraň kouli – zlevněné bomby do koupele',

@@ -13,114 +13,34 @@ export interface CartItem {
   imageUrl?: string;
 }
 
-// Define the cart response interface
-export interface CartResponse {
-  _id: string;
-  sessionId: string;
-  cartId: string;
-  items: CartItem[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-// Create a reactive cart state that persists using localStorage and database
+// Cart state persisted in localStorage. The backend has no cart concept any
+// more: prices are re-resolved server-side when the order is created.
 export const useCart = () => {
-  // Cart session ID
-  const cartSessionId = useState<string | null>('cart-session-id', () => {
-    if (import.meta.client) {
-      return sessionStorage.getItem('bubblena-cart-id');
-    }
-    return null;
-  });
-
-  // Initialize cart from database if session ID exists, otherwise from localStorage
-  const loadCart = async (): Promise<CartItem[]> => {
-    if (import.meta.client) {
+  const loadCart = (): CartItem[] => {
+    if (!import.meta.client) return [];
+    try {
       const savedCart = localStorage.getItem('bubblena-cart');
-      return savedCart ? JSON.parse(savedCart) : [];
+      return savedCart ? (JSON.parse(savedCart) as CartItem[]) : [];
+    } catch {
+      return [];
     }
-    return [];
   };
 
-  // Use Nuxt's useState for global state management
   const cartItems = useState<CartItem[]>('cart-items', () => []);
-  
-  // Load cart items on initialization
+
+  // Hydrate once on the client (useState initializers don't re-run after SSR).
   if (import.meta.client) {
-    // We need to use nextTick to ensure this runs after component mounting
-    nextTick(async () => {
-      cartItems.value = await loadCart();
+    nextTick(() => {
+      if (cartItems.value.length === 0) cartItems.value = loadCart();
     });
   }
 
-  // Save cart to localStorage and database whenever it changes
-  const saveCart = async () => {
-    if (import.meta.client) {
-      // Save to localStorage for quick access
+  const saveCart = () => {
+    if (!import.meta.client) return;
+    try {
       localStorage.setItem('bubblena-cart', JSON.stringify(cartItems.value));
-      
-      // Save to database if we have a session ID
-      if (cartSessionId.value) {
-        try {
-          // Transform frontend cart items to backend format
-          const backendItems = cartItems.value.map(item => {
-            // Extract productId and variantId from item.id
-            // Format is typically: productId or productId-variantId
-            const parts = item.id.split('-');
-            return {
-              productId: parts[0],
-              variantId: parts.length > 1 ? parts[1] : undefined,
-              quantity: item.quantity
-            };
-          });
-          
-          await $fetch(`/api/cart/${cartSessionId.value}/items`, {
-            method: 'PUT',
-            body: {
-              items: backendItems
-            }
-          });
-        } catch (error) {
-          console.error('Failed to save cart to database:', error);
-        }
-      } else if (cartItems.value.length > 0) {
-        // Create a new cart in the database if we don't have a session ID but have items
-        try {
-          const response = await $fetch<CartResponse>('/api/cart/cart', {
-            method: 'POST'
-          });
-          
-          // Store the new cart session ID
-          cartSessionId.value = response.cartId;
-          sessionStorage.setItem('bubblena-cart-id', response.cartId);
-          
-          // Now sync the items to the newly created cart
-          try {
-            // Transform frontend cart items to backend format
-            const backendItems = cartItems.value.map(item => {
-              // Extract productId and variantId from item.id
-              // Format is typically: productId or productId-variantId
-              const parts = item.id.split('-');
-              return {
-                productId: parts[0],
-                variantId: parts.length > 1 ? parts[1] : undefined,
-                quantity: item.quantity
-              };
-            });
-            
-            await $fetch(`/api/cart/${response.cartId}/items`, {
-              method: 'PUT',
-              body: {
-                items: backendItems
-              }
-            });
-          } catch (syncError) {
-            console.error('Failed to sync items to new cart:', syncError);
-          }
-        } catch (error) {
-          console.error('Failed to create new cart in database:', error);
-        }
-      }
+    } catch {
+      /* storage full or disabled – keep in-memory cart */
     }
   };
 
@@ -157,11 +77,6 @@ export const useCart = () => {
   // Clear the entire cart
   const clearCart = () => {
     cartItems.value = [];
-    // Also clear the session ID when clearing the cart
-    if (import.meta.client && cartSessionId.value) {
-      sessionStorage.removeItem('bubblena-cart-id');
-      cartSessionId.value = null;
-    }
     saveCart();
   };
 
@@ -169,7 +84,6 @@ export const useCart = () => {
   const totalItems = computed(() => {
     return cartItems.value.reduce((total, item) => total + item.quantity, 0);
   });
-  // Calculate total price
   // Calculate total price
   const totalPrice = computed(() => {
     return cartItems.value.reduce((total, item) => total + (item.price * item.quantity), 0);
@@ -180,7 +94,6 @@ export const useCart = () => {
 
   return {
     cartItems,
-    cartSessionId,
     addToCart,
     removeFromCart,
     updateQuantity,

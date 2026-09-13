@@ -2,7 +2,6 @@
 import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
-import { useCartStore } from "~/stores/cart";
 
 useSeoMeta({
   title: 'Šumivé bomby do koupele',
@@ -19,7 +18,6 @@ const { addToCart: addItemToCart } = useCart();
 // Toast notification state
 const showToast = ref(false);
 const toastMessage = ref('');
-const cart = useCartStore();
 
 // Per-product selected variant index and quantity
 const selectedVariantIndexes = reactive({});
@@ -88,7 +86,6 @@ const addToCart = (product, event) => {
       variant,
       imageUrl: product.imageUrl
     });
-    cart.addItem(product._id, variant.weight, qty)
     
     // Show toast notification
     toastMessage.value = `${qty}× ${product.name} (${variant.weight}g) přidáno do košíku`;

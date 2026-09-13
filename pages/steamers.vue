@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
-import { useCartStore } from "~/stores/cart";
 
 // Fetch steamers during SSR
 const requestFetch = useRequestFetch();
@@ -13,7 +12,6 @@ const { addToCart: addItemToCart } = useCart();
 // Toast notification state
 const showToast = ref(false);
 const toastMessage = ref('');
-const cart = useCartStore();
 
 useSeoMeta({
   title: 'Shower steamery do sprchy',

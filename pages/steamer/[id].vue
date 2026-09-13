@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
-import { useCartStore } from "~/stores/cart";
 import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
@@ -24,7 +23,6 @@ if (!steamer.value) {
 
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
-const cart = useCartStore();
 
 const showToast = ref(false);
 const toastMessage = ref('');

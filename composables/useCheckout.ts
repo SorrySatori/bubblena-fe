@@ -76,7 +76,7 @@ export interface CheckoutState {
 
 // Create a composable for checkout functionality
 export const useCheckout = () => {
-  const { cartItems, totalPrice, cartSessionId, clearCart } = useCart();
+  const { cartItems, totalPrice } = useCart();
   const { user } = useAuth();
 
   const createBankTransferPayment = (orderId: string): BankTransferPayment => {
@@ -289,7 +289,6 @@ export const useCheckout = () => {
 
       // Create order payload
       const orderPayload = {
-        cartId: cartSessionId.value,
         orderId,
         userId: user.value?.id || null,
         customerInfo: checkoutState.value.customerInfo,

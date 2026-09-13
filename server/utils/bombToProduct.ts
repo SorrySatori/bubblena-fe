@@ -23,6 +23,7 @@ export function bombToProduct(bomb: any) {
 
   return {
     _id: bomb._id,
+    slug: bomb.slug,
     name: bomb.name,
     shortDescription: bomb.shortDescription,
     description: bomb.description,
@@ -30,8 +31,6 @@ export function bombToProduct(bomb: any) {
     bathImageUrl: bomb.bathImageUrl,
     videoUrl: bomb.videoUrl,
     storageMethod: bomb.storageMethod,
-    // Bomb has no `ingredients` field (recipes live separately); kept for
-    // shape compatibility with the storefront's detail page.
     ingredients: bomb.ingredients ?? '',
     variants,
     createdAt: bomb.createdAt,

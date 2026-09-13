@@ -3,7 +3,6 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCart } from '~/composables/useCart';
 import ToastNotification from '~/components/ToastNotification.vue';
-import { useCartStore } from "~/stores/cart";
 import { useRecentlyViewed } from '~/composables/useRecentlyViewed';
 
 const route = useRoute();
@@ -27,7 +26,6 @@ if (!product.value) {
 
 const { addToCart } = useCart();
 const { trackView } = useRecentlyViewed();
-const cart = useCartStore();
 
 const showToast = ref(false);
 const toastMessage = ref('');
@@ -77,7 +75,6 @@ const addItemToCart = () => {
       variant: selectedVariant.value,
       imageUrl: product.value.imageUrl
     });
-    cart.addItem(product.value._id, selectedVariant.value.weight, quantity.value)
 
     toastMessage.value = `${quantity.value}× ${product.value.name} (${selectedVariant.value.weight}g) přidáno do košíku`;
     showToast.value = true;
@@ -292,7 +289,7 @@ onMounted(() => {
 
           <div class="border-t border-gray-200 pt-6">
             <h2 class="text-lg font-medium mb-4 text-secondary">Specifikace produktu</h2>
-            <div class="flex flex-col p-3">
+            <div v-if="product.ingredients" class="flex flex-col p-3">
               <span class="text-xs uppercase tracking-wider text-gray-500 mb-1">Složení</span>
               <span class="text-gray-800 font-medium">{{ product.ingredients }}</span>
             </div>

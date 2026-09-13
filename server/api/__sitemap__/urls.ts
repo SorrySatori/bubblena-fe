@@ -1,5 +1,6 @@
 // Supplies dynamic detail-page URLs to @nuxtjs/sitemap. Runs in full Nitro
-// context, so it fetches the backend directly (mirroring server/api/products.ts).
+// context, so it fetches the backend directly (mirroring server/api/products.ts:
+// the storefront catalog is the `Bomb` model).
 // Uses slug when the backend provides one, otherwise falls back to _id.
 export default defineSitemapEventHandler(async () => {
   const config = useRuntimeConfig()
@@ -21,7 +22,7 @@ export default defineSitemapEventHandler(async () => {
   }
 
   const [products, steamers, damaged] = await Promise.all([
-    fetchList('/products'),
+    fetchList('/bombs'),
     fetchList('/steamers'),
     fetchList('/damaged-products'),
   ])
