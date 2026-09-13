@@ -42,9 +42,6 @@ const addToCart = (steamer, event) => {
   }
 };
 
-onMounted(() => {
-  cart.initCart();
-});
 
 </script>
 
