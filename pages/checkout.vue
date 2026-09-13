@@ -57,6 +57,11 @@ const stepLabels = {
 };
 
 const currentStepIndex = computed(() => checkoutSteps.indexOf(checkoutState.value.step));
+// Both carriers deliver to a pickup point (Packeta widget → id, GLS map → pclshopid).
+const hasPickupPoint = computed(() => {
+  const p = checkoutState.value.selectedPickupPoint;
+  return Boolean(p && (p.id || p.pclshopid));
+});
 const progressWidth = computed(() => `${((currentStepIndex.value + 1) / checkoutSteps.length) * 100}%`);
 
 const showCheckoutToast = (message, type = 'error', timeout = 4000) => {
@@ -137,6 +142,11 @@ const handleNextStep = () => {
 
   if (checkoutState.value.step === 'shipping' && !selectedShipping.value) {
     showCheckoutToast('Vyberte prosím způsob dopravy.');
+    return;
+  }
+
+  if (checkoutState.value.step === 'shipping' && !hasPickupPoint.value) {
+    showCheckoutToast('Vyberte prosím výdejní místo.');
     return;
   }
 
@@ -478,7 +488,7 @@ const submitOrder = async () => {
               v-else-if="checkoutState.step === 'shipping'" 
               @click="handleNextStep" 
               class="w-full mt-6 bg-primary text-white py-3 px-4 rounded-lg hover:bg-accent transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-primary"
-              :disabled="!selectedShipping"
+              :disabled="!selectedShipping || !hasPickupPoint"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
