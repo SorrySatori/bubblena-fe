@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
         lastName: body?.lastName,
         phone: body?.phone,
         address: body?.address,
+        marketingConsent: typeof body?.marketingConsent === 'boolean' ? body.marketingConsent : undefined,
       },
     })
     return { user: res.user }

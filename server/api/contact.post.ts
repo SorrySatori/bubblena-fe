@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer"
+import type { SendMailOptions } from "nodemailer"
 import { assertRateLimit } from "../utils/rateLimit"
 import { cleanStr, esc, escMultiline, EMAIL_RE } from "../utils/html"
 
@@ -36,7 +37,7 @@ export default defineEventHandler(async (event) => {
   })
 
   // Internal copy: fixed sender, visitor reachable via Reply-To, all fields escaped.
-  const mailOptions: nodemailer.SendMailOptions = {
+  const mailOptions: SendMailOptions = {
     from: receiver,
     to: receiver,
     replyTo: { name, address: email },
@@ -52,7 +53,7 @@ export default defineEventHandler(async (event) => {
 
   // Visitor copy: fixed subject so the endpoint can't be used to send
   // arbitrary-looking mail from our domain.
-  const confirmationMailOptions: nodemailer.SendMailOptions = {
+  const confirmationMailOptions: SendMailOptions = {
     from: receiver,
     to: email,
     subject: "Potvrzení přijetí zprávy – Bubblena.cz",
